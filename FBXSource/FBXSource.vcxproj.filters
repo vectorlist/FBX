@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{b149c66f-6e6f-467a-a220-d10f0bf9e96d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{5e56ed0d-7b2f-4200-a300-1722bed2e5e7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DrawText.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="GetPosition.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="GlFunctions.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneCache.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneContext.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="SetCamera.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="targa.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawScene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryUtility.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationUtility.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GetPosition.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="GlFunctions.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneCache.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneContext.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="SetCamera.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="targa.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawScene.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawText.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryUtility.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationUtility.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="Common.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{b149c66f-6e6f-467a-a220-d10f0bf9e96d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{5e56ed0d-7b2f-4200-a300-1722bed2e5e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{082f46e2-f4a5-495a-8e89-ca00345927a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Node">
+      <UniqueIdentifier>{4733a875-6e64-4dbc-82a2-8916ed70c974}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="fbxmesh.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="fbxio.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="fbxmodel.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="linkedtree.cpp">
+      <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="bonenode.cpp">
+      <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="vertex.cpp">
+      <Filter>Node</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\core\vec4f.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\vml.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\color.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\matrix4x4.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\vec2f.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\vec3f.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GLEngine\shadertool.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GLEngine\texturetool.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GLEngine\util.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GLEngine\camera.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GLEngine\log.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\GLEngine\renderer.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="fbxmesh.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="fbxio.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="fbxmodel.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="linkedtree.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="bonenode.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="vertex.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="face.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
