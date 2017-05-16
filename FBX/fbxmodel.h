@@ -99,7 +99,7 @@ public:
 		int triangleCornerId,
 		int vertexIndex);
 
-	void LoadVector2VertexElement(
+	void convert2fFromElement(
 		FbxLayerElementTemplate<FbxVector2> &element,
 		vec2f &data,
 		int triangleIndex,

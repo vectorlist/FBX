@@ -1,6 +1,6 @@
 #include "fbxtool.h"
 #include <log.h>
-#include <bonenode.h>
+
 
 void FBXTool::buildMesh(std::vector<Vertex>& vertices, std::vector<Face>& faces, FBXMesh &mesh)
 {
@@ -26,18 +26,4 @@ void FBXTool::buildMesh(std::vector<Vertex>& vertices, std::vector<Face>& faces,
 	mesh.buildBuffer();
 }
 
-bool FBXTool::loadNodes(FbxNode* pNode, BoneNode* parentBoneNode)
-{
-	BoneNode* newBoneNode = NULL;
 
-	FbxNodeAttribute* const pNodeAttribute = pNode->GetNodeAttribute();
-
-	LOG << "NODE CALLS" << ENDN;
-
-	for (int childIndex = 0; childIndex < pNode->GetChildCount(); ++childIndex)
-	{
-		FbxNode* childNode = pNode->GetChild(childIndex);
-		loadNodes(childNode, NULL);
-	}
-	return true;
-}

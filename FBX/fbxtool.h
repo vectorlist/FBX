@@ -5,7 +5,7 @@
 #include <vertex.h>
 #include <face.h>
 
-class BoneNode;
+
 class FBXTool
 {
 public:
@@ -14,8 +14,5 @@ public:
 		std::vector<Face>	&faces,
 		FBXMesh &mesh);
 
-	static bool loadNodes(
-		FbxNode* pNode,
-		BoneNode* parentBoneNode);
 };
 

@@ -39,12 +39,6 @@
     <ClCompile Include="fbxmodel.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="linkedtree.cpp">
-      <Filter>Node</Filter>
-    </ClCompile>
-    <ClCompile Include="bonenode.cpp">
-      <Filter>Node</Filter>
-    </ClCompile>
     <ClCompile Include="vertex.cpp">
       <Filter>Node</Filter>
     </ClCompile>
@@ -100,12 +94,6 @@
     </ClInclude>
     <ClInclude Include="fbxmodel.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="linkedtree.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="bonenode.h">
-      <Filter>Node</Filter>
     </ClInclude>
     <ClInclude Include="vertex.h">
       <Filter>Node</Filter>

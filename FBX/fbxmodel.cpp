@@ -149,7 +149,7 @@ void FBXModel::loadSTs(FbxMesh * pMesh, int faceIndex, Face & face)
 	{
 		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
 		vec2f st;
-		LoadVector2VertexElement(*eST, st, faceIndex, faceElement, vertexIndex);
+		convert2fFromElement(*eST, st, faceIndex, faceElement, vertexIndex);
 		face.setST(faceElement, st);
 	}
 }
@@ -338,7 +338,7 @@ void FBXModel::convert3fDataFromElement(
 	}
 }
 
-void FBXModel::LoadVector2VertexElement(
+void FBXModel::convert2fFromElement(
 	FbxLayerElementTemplate<FbxVector2> &element,
 	vec2f &data,
 	int triangleIndex,
