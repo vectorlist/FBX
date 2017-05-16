@@ -172,7 +172,7 @@ int main(int argc, char** argv)
     glutMouseFunc(MouseCallback);
     glutMotionFunc(MotionCallback);
 
-	FbxString lFilePath("");
+	FbxString lFilePath("humanoid.fbx");
 	for( int i = 1, c = argc; i < c; ++i )
 	{
 		if( FbxString(argv[i]) == "-test" ) gAutoQuit = true;

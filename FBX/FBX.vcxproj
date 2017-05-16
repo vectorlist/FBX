@@ -23,8 +23,10 @@
     <ClCompile Include="fbxio.cpp" />
     <ClCompile Include="fbxmesh.cpp" />
     <ClCompile Include="fbxmodel.cpp" />
+    <ClCompile Include="fbxtool.cpp" />
     <ClCompile Include="linkedtree.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -44,8 +46,10 @@
     <ClInclude Include="fbxmesh.h" />
     <ClInclude Include="fbxmodel.h" />
     <ClInclude Include="fbxio.h" />
+    <ClInclude Include="fbxtool.h" />
     <ClInclude Include="linkedtree.h" />
     <ClInclude Include="face.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

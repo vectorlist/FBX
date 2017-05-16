@@ -63,12 +63,7 @@ public:
 	void setSceneSystem(FbxScene* pScene);
 
 	FBXMesh m_mesh;
-	void buildModel(FbxNode* pRootNode);
-	void buildMesh(FbxMesh* pMesh, FBXMesh &mesh);
-	void buildMeshCP(FbxMesh* pMesh, FBXMesh &mesh);
-
-	void buildBone(FbxMesh* pMesh, FBXMesh &dMesh);
-
+	
 	void render(GLuint shader) { m_mesh.render(shader); }
 
 	bool hasNormal;
@@ -87,6 +82,7 @@ public:
 	std::vector<Face> faces;
 	std::vector<Vertex> vertices;
 
+	void buildModel(FbxNode* pRootNode);
 	void buildMeshTri(FbxMesh* pMesh);
 	void loadVertexIndices(FbxMesh* pMesh, int triangleIndex,
 		Face &triangle);

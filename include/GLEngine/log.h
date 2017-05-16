@@ -37,12 +37,10 @@ namespace Log
 		//assert(0 && msg.c_str());
 	}
 
-	/*extern int debugIndex;
-	int debugIndex = 0;*/
 	inline void APIENTRY glDebugCallback(GLenum source, GLenum type, GLuint id,
 		GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 	{
-		//return warnings
+		//ingnore warnings
 		if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
 
 		std::cout << "OpenGL debug message" << std::endl;
@@ -131,14 +129,11 @@ namespace Log
 		/*debugMsg += std::to_string(debugIndex) + "\n";*/
 		debugMsg += message;
 
-		const int msgID =
-			MessageBox(NULL, debugMsg.c_str(),
-				"GLEW_KHR_debug", MB_OKCANCEL);
+		const int result = MessageBox(NULL, debugMsg.c_str(), "GLEW_KHR_debug", MB_OKCANCEL);
 
-		switch (msgID)
+		switch (result)
 		{
 		case IDOK:
-			/*debugIndex++;*/
 			break;
 		case IDCANCEL:
 			exit(0);

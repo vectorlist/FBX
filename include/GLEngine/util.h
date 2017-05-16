@@ -141,11 +141,21 @@ namespace Window
 			LOG_ASSERT("failed to init glew");
 		}
 		else {
-			LOG << "init glew version : " << glewGetString(GLEW_VERSION_3_0) << ENDL;
+			LOG << "Graphic Device : " << glGetString(GL_RENDERER) << ENDN;
+			LOG << "GL Version     : " << glGetString(GL_VERSION) << ENDN;
+			LOG << "GLEW Version   : " << glewGetString(GLEW_VERSION) << ENDN;
+
+			/*int extensions;
+			glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
+			for (int i = 0; i < extensions; ++i)
+			{
+				LOG << glGetStringi(GL_EXTENSIONS, i) << ENDL;
+			}*/
 		}
 
-		if (GLEW_KHR_debug) {
-			LOG << "Enable KHR Debug" << ENDL;
+		if (GLEW_KHR_debug) 
+		{
+			LOG << "Enable KHR OpenGL Debug" << ENDL;
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			glDebugMessageCallback(Log::glDebugCallback, nullptr);
