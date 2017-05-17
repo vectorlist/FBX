@@ -15,32 +15,8 @@
 //
 #include <face.h>
 #include <vertex.h>
+#include <bonemesh.h>
 #define BONE_MAX_PER_VERTEX		4
-
-struct VertexBoneData
-{
-	std::array<int, BONE_MAX_PER_VERTEX> IDs;
-	std::array<float, BONE_MAX_PER_VERTEX> weights;
-
-	void add(int boneID, float weight)
-	{
-		for (int i = 0; i < BONE_MAX_PER_VERTEX; ++i)
-		{
-			if (weights[i] == 0.0f)
-			{
-				IDs[i] = boneID;
-				weights[i] = weight;
-				return;
-			}
-		}
-	}
-};
-
-struct BoneData
-{
-	int boneIndex;
-	std::map<int, float> boneMap;
-};
 
 class FBXModel
 {
@@ -70,28 +46,22 @@ public:
 	bool hasUV;
 	bool byControlPoint;
 
-
-	//bone
-	std::map<std::string, int> boneMapping;
-	std::vector<VertexBoneData> bones;
-	std::vector<BoneData> boneDatas;
-	int numBones =0;
-	
-
-	//Vertex Tri
+	//Face Vertex
 	std::vector<Face> faces;
 	std::vector<Vertex> vertices;
 
 	void buildModel(FbxNode* pRootNode);
-	void buildMeshTri(FbxMesh* pMesh);
-	void loadVertexIndices(FbxMesh* pMesh, int triangleIndex,
+	void buildFaces(FbxMesh* pMesh);
+	void loadVertexIndices(FbxMesh* pMesh, int faceIndex,
 		Face &triangle);
 
 	void loadNormals(FbxMesh* pMesh, int faceIndex, Face &face);
 	void loadSTs(FbxMesh* pMesh, int faceIndex, Face &face);
 
 	bool buildSkin(FbxNode* pNode);
-	bool loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices);
+	bool loadSkin(
+		const FbxGeometry *pGeo,
+		std::vector<Vertex> &vertices);
 
 	void convert3fDataFromElement(
 		FbxLayerElementTemplate<FbxVector4> &element,
@@ -109,5 +79,8 @@ public:
 	const unsigned int GetUVVertexIndex(
 		const unsigned int triangleIndex,
 		const unsigned int triangleCornerId) const;
+
+	//Bone Stuff
+	FBXBoneMesh mBoneMesh;
 };
 

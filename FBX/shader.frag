@@ -2,6 +2,7 @@
 
 out vec4 outColor;
 
+in vec3 fDebug;
 in vec3 fNormal;
 in vec2 fST;
 void main()
@@ -11,6 +12,7 @@ void main()
     vec3 uLightDir = normalize(lightPos);
 
     float NdotL = max(dot(uLightDir, uNormal),0.0);
-    vec3 diffuse = vec3(0.78,0.82,0.87) * NdotL;
+    //vec3 diffuse = vec3(0.78,0.82,0.87) * NdotL;
+    vec3 diffuse = fDebug;
     outColor = vec4(diffuse, 1);
 }

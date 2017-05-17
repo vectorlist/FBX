@@ -1,8 +1,13 @@
+
 #include <util.h>
 #include <fbxmodel.h>
 #include <shadertool.h>
 #define WIDTH		1024
 #define HEIGHT		720
+
+#define TAKE0
+
+#ifdef TAKE0
 
 int main(int argc, char* argv[])
 {
@@ -43,3 +48,17 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+#else
+
+#include <Logger.h>
+
+int main(int argc, char* argv[])
+{
+	std::cout << "awdda" << std::endl;
+	LOG_W << "hello" << "logical" << ENDN;
+	LOG_W << vec3f(1, 2, 3) << ENDN << Matrix4x4() <<ENDN;
+	//system("pause");
+	return 0;
+}
+
+#endif // TAKE0

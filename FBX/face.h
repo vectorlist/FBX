@@ -1,6 +1,6 @@
 #pragma once
 
-#define FACE_ELEMENT_MAX		3
+#define FACE_POINT_MAX		3
 
 class Face
 {
@@ -31,7 +31,7 @@ public:
 	}
 
 private:
-	unsigned int m_verticesIndex[FACE_ELEMENT_MAX];
-	vec3f m_normals[FACE_ELEMENT_MAX];
-	vec2f m_sts[FACE_ELEMENT_MAX];
+	unsigned int m_verticesIndex[FACE_POINT_MAX];
+	vec3f m_normals[FACE_POINT_MAX];
+	vec2f m_sts[FACE_POINT_MAX];
 };

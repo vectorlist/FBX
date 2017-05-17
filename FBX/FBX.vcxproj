@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bonenode.cpp" />
     <ClCompile Include="fbxio.cpp" />
     <ClCompile Include="fbxmesh.cpp" />
     <ClCompile Include="fbxmodel.cpp" />
     <ClCompile Include="fbxtool.cpp" />
+    <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="bonemesh.cpp" />
     <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -40,12 +42,15 @@
     <ClInclude Include="..\include\GLEngine\shadertool.h" />
     <ClInclude Include="..\include\GLEngine\texturetool.h" />
     <ClInclude Include="..\include\GLEngine\util.h" />
+    <ClInclude Include="bonenode.h" />
     <ClInclude Include="fbxmesh.h" />
     <ClInclude Include="fbxmodel.h" />
     <ClInclude Include="fbxio.h" />
     <ClInclude Include="fbxtool.h" />
     <ClInclude Include="face.h" />
-    <ClInclude Include="mesh.h" />
+    <ClInclude Include="bonemesh.h" />
+    <ClInclude Include="logger.h" />
+    <ClInclude Include="nodetree.h" />
     <ClInclude Include="vertex.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

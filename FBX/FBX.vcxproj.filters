@@ -45,8 +45,14 @@
     <ClCompile Include="fbxtool.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.cpp">
+    <ClCompile Include="bonenode.cpp">
       <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="bonemesh.cpp">
+      <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="logger.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,8 +110,17 @@
     <ClInclude Include="fbxtool.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h">
+    <ClInclude Include="nodetree.h">
       <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="bonenode.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="bonemesh.h">
+      <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="logger.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

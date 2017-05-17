@@ -46,11 +46,20 @@ FBXModel::FBXModel(const char *filename, GLuint shader)
 	FbxGeometryConverter converter(m_manager);
 	converter.Triangulate(m_scene, true);
 
+	//Build BoneNodes Mesh
+	FBXTool::loadBoneNodes(m_rootNode, NULL, mBoneMesh);
+
+	LOG << "total bone nodes : " << mBoneMesh.mBoneNodesNum << ENDN;
+
+	//BUILD Mesh(for ID[4], weight[4] per vertex)
 
 	buildModel(m_rootNode);
+	//build Skin after BoneNode
 	buildSkin(m_rootNode);
 
 	FBXTool::buildMesh(vertices, faces, m_mesh);
+
+
 }
 
 void FBXModel::setSceneSystem(FbxScene *pScene)
@@ -76,12 +85,12 @@ void FBXModel::buildModel(FbxNode* pRootNode)
 		if (!pMesh) return;
 
 		
-		buildMeshTri(pMesh);
+		buildFaces(pMesh);
 		
 	}
 }
 
-void FBXModel::buildMeshTri(FbxMesh *pMesh)
+void FBXModel::buildFaces(FbxMesh *pMesh)
 {
 	int vertexNum = pMesh->GetControlPointsCount();
 	vertices.resize(vertexNum);
@@ -110,11 +119,11 @@ void FBXModel::buildMeshTri(FbxMesh *pMesh)
 	}
 }
 
-void FBXModel::loadVertexIndices(FbxMesh *pMesh, int triangleIndex, Face &triangle)
+void FBXModel::loadVertexIndices(FbxMesh *pMesh, int faceIndex, Face &triangle)
 {
 	for (int i = 0; i < 3; ++i)
 	{
-		int vertexIndex = pMesh->GetPolygonVertex(triangleIndex, i);
+		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, i);
 		triangle.setVertexIndex(i, vertexIndex);
 	}
 }
@@ -127,7 +136,7 @@ void FBXModel::loadNormals(FbxMesh * pMesh, int faceIndex, Face & face)
 	FbxGeometryElementNormal* eNormal = pMesh->GetElementNormal();
 	if (!eNormal) LOG_ERROR("element normal dosent supported");
 
-	for (int faceElement = 0; faceElement < FACE_ELEMENT_MAX; ++faceElement)
+	for (int faceElement = 0; faceElement < FACE_POINT_MAX; ++faceElement)
 	{
 		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
 		vec3f normal;
@@ -145,7 +154,7 @@ void FBXModel::loadSTs(FbxMesh * pMesh, int faceIndex, Face & face)
 	FbxGeometryElementUV* eST = pMesh->GetElementUV();
 	if (!eST) LOG_ERROR("failed to load uv elements");
 
-	for (int faceElement = 0; faceElement < FACE_ELEMENT_MAX; ++faceElement)
+	for (int faceElement = 0; faceElement < FACE_POINT_MAX; ++faceElement)
 	{
 		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
 		vec2f st;
@@ -203,10 +212,10 @@ bool FBXModel::buildSkin(FbxNode* pNode)
 bool FBXModel::loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices)
 {
 	const int vertexNum = pGeo->GetControlPointsCount();
-	LOG << vertexNum << ENDN;
+	//LOG << vertexNum << ENDN;
 
 	const int skinNum = pGeo->GetDeformerCount(FbxDeformer::eSkin);
-	LOG << skinNum << ENDN;
+	//LOG << skinNum << ENDN;
 
 	for (int skinIndex = 0; skinIndex < skinNum; ++skinIndex)
 	{
@@ -235,8 +244,24 @@ bool FBXModel::loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices)
 				LOG << "failed to find linked bone node" << ENDN;
 				continue;
 			}
+
+			//Importance get BoneNode by name
 			std::string temp(pLinkBoneNode->GetName());
 			LOG << temp << ENDN;
+			//must be boneNodes created
+			BoneNode* boneNode = mBoneMesh.getBoneNodeByName(temp);
+
+			//transform
+			FbxAMatrix boneRefMatrix;
+			pCluster->GetTransformLinkMatrix(boneRefMatrix);
+
+			FbxAMatrix boneRefMatrixInverse;
+			boneRefMatrixInverse = boneRefMatrix.Inverse();
+			//set global matrix (outside)
+
+			//set ref inverse transform
+			boneNode->mInverseTransform = boneRefMatrixInverse;
+			
 
 			const int clusterIndicesNum = pCluster->GetControlPointIndicesCount();
 			const int *controlPointIndices = pCluster->GetControlPointIndices();
@@ -246,6 +271,7 @@ bool FBXModel::loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices)
 			{
 				int controlIndex = controlPointIndices[clusterIndex];
 
+				//Error out of index control points nums
 				if (controlIndex >= vertexNum) {
 					controlIndex = vertexNum - 1;
 				}
@@ -253,9 +279,14 @@ bool FBXModel::loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices)
 				const float controlWeight = (float)controlPointWeights[clusterIndex];
 				if (controlWeight < 0.00001f) continue;
 
-				//vertices[controlIndex].addWeight()
+				
+				//into BoneNode ID , control point weight
+				int boneID = boneNode->getID();
 
-				/*LOG << controlIndex << ENDL;*/
+				LOG << "vertices : " << controlIndex <<
+					" bone id" << boneID << " weight : " << controlWeight << ENDN;
+				vertices[controlIndex].addWeight(boneID, controlWeight);
+
 			}
 		}
 	}

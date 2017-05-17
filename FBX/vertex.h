@@ -3,7 +3,8 @@
 #include <fbxsdk/core/math/fbxvector4.h>
 #include <vec3f.h>
 
-#define NUM_BONE_PROPERTIES		4
+#define BONE_COMPONENT_NUM		4
+#define BONE_MAX				64
 
 class Vertex
 {
@@ -22,9 +23,9 @@ public:
 	vec3f& getPosition();
 private:
 	vec3f m_posotion;
-	unsigned int m_boneIDs[NUM_BONE_PROPERTIES];
-	float m_boneWeights[NUM_BONE_PROPERTIES];
-	unsigned int m_bonePropertiesIndex;
+	unsigned int m_boneIDs[BONE_COMPONENT_NUM];
+	float m_boneWeights[BONE_COMPONENT_NUM];
+	unsigned int mBoneComponentIndex;
 };
 
 inline float Vertex::getBoneWeight(uint32_t index)

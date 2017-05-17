@@ -16,7 +16,7 @@ struct FBXVertex
 	vec3f normal;
 	vec2f st;
 	float boneWeight[4];
-	int boneID[4];
+	uint32_t boneID[4];
 };
 
 struct FBXMesh

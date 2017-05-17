@@ -24,6 +24,15 @@ void FBXMesh::buildBuffer()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(FBXVertex),
 		(GLvoid*)offsetof(FBXVertex, FBXVertex::st));
 
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(FBXVertex),
+		(GLvoid*)offsetof(FBXVertex, FBXVertex::boneWeight));
+	
+	// this is integer "IPointer" we done need normalize param
+	glEnableVertexAttribArray(4);
+	glVertexAttribIPointer(4, 4, GL_INT, sizeof(FBXVertex),
+		(GLvoid*)offsetof(FBXVertex, FBXVertex::boneID));
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(),
 		GL_STATIC_DRAW);
