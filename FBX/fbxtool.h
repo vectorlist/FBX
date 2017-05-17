@@ -4,25 +4,21 @@
 #include <fbxmesh.h>
 #include <vertex.h>
 #include <face.h>
-#include <bonemesh.h>
+#include <node.h>
 
 class BoneNode;
+class MeshNode;
 class FBXTool
 {
 public:
+	//meshnode to renderable mesh
 	static void buildMesh(
 		std::vector<Vertex> &vertices,
 		std::vector<Face>	&faces,
 		FBXMesh &mesh);
 
-	//Bone Mesh (FbxNode, parentnode) recursive(outside class)
-	static bool loadBoneNodes(FbxNode* pNode, BoneNode* parentNode,
-	FBXBoneMesh &boneMesh);
-
-	//for add BooneNode(build in)
-	//TODO : replace to built in func
-	static BoneNode* loadBoneNode(FbxNode* pNode, BoneNode* parent, FBXBoneMesh &boneMesh);
-
-	
+	static void buildMesh(
+		MeshNode *meshNode,
+		FBXMesh &mesh);
 };
 

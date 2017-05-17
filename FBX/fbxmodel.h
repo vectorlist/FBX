@@ -15,7 +15,7 @@
 //
 #include <face.h>
 #include <vertex.h>
-#include <bonemesh.h>
+#include <node.h>
 #define BONE_MAX_PER_VERTEX		4
 
 class FBXModel
@@ -38,8 +38,6 @@ public:
 
 	void setSceneSystem(FbxScene* pScene);
 
-	FBXMesh m_mesh;
-	
 	void render(GLuint shader) { m_mesh.render(shader); }
 
 	bool hasNormal;
@@ -47,21 +45,50 @@ public:
 	bool byControlPoint;
 
 	//Face Vertex
-	std::vector<Face> faces;
-	std::vector<Vertex> vertices;
+	/*std::vector<Face> faces;
+	std::vector<Vertex> vertices;*/
 
-	void buildModel(FbxNode* pRootNode);
-	void buildFaces(FbxMesh* pMesh);
+	/*void buildModel(FbxNode* pRootNode);*/
+
+	/*bool buildSkin(FbxNode* pNode);
+	bool loadSkin(
+		const FbxGeometry *pGeo,
+		std::vector<Vertex> &vertices);*/
+	
+	//vbo mesh
+	FBXMesh m_mesh;
+	//node mesh
+	Node mNode;
+
+	/*--------------- EXT FUNC --------------*/
+	struct 
+	{
+		//matched FbxNode and MeshNode pointers
+		std::vector<MeshNode*> mMeshNodes;
+		std::vector<FbxNode*> mFbxNodes;
+	}MeshNodeInfo;
+
+	bool loadBoneNodes(
+		FbxNode* pNode,
+		BoneNode* parentBoneNode,
+		MeshNode* parentMeshNode);
+
+	BoneNode* loadBoneNode(FbxNode* pNode, BoneNode* parent);
+	MeshNode* loadMeshNode(FbxNode* pNode, MeshNode* parent);
+
+
+
+
+
+	/*--------- BUILT IN MESH FUNC --------*/
+	//build Meshnode faces and vetices(we need resize)
+	void buildMeshNode(FbxMesh* pMesh, MeshNode* pMeshNode);
+
 	void loadVertexIndices(FbxMesh* pMesh, int faceIndex,
 		Face &triangle);
 
 	void loadNormals(FbxMesh* pMesh, int faceIndex, Face &face);
 	void loadSTs(FbxMesh* pMesh, int faceIndex, Face &face);
-
-	bool buildSkin(FbxNode* pNode);
-	bool loadSkin(
-		const FbxGeometry *pGeo,
-		std::vector<Vertex> &vertices);
 
 	void convert3fDataFromElement(
 		FbxLayerElementTemplate<FbxVector4> &element,
@@ -79,8 +106,5 @@ public:
 	const unsigned int GetUVVertexIndex(
 		const unsigned int triangleIndex,
 		const unsigned int triangleCornerId) const;
-
-	//Bone Stuff
-	FBXBoneMesh mBoneMesh;
 };
 

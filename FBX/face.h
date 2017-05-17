@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vec2f.h>
+#include <vec3f.h>
+
 #define FACE_POINT_MAX		3
 
 class Face

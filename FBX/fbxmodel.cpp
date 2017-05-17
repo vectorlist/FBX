@@ -46,18 +46,16 @@ FBXModel::FBXModel(const char *filename, GLuint shader)
 	FbxGeometryConverter converter(m_manager);
 	converter.Triangulate(m_scene, true);
 
-	//Build BoneNodes Mesh
-	FBXTool::loadBoneNodes(m_rootNode, NULL, mBoneMesh);
-
-	LOG << "total bone nodes : " << mBoneMesh.mBoneNodesNum << ENDN;
+	//Build BoneNodes Mesh(replace custom node to fbxnode)
+	loadBoneNodes(m_rootNode, mNode.getBoneNodeRoot(), mNode.getMeshNodeRoot());
 
 	//BUILD Mesh(for ID[4], weight[4] per vertex)
 
-	buildModel(m_rootNode);
-	//build Skin after BoneNode
-	buildSkin(m_rootNode);
+	//buildModel(m_rootNode);
+	////build Skin after BoneNode
+	//buildSkin(m_rootNode);
 
-	FBXTool::buildMesh(vertices, faces, m_mesh);
+	//FBXTool::buildMesh(vertices, faces, m_mesh);
 
 
 }
@@ -74,365 +72,152 @@ void FBXModel::setSceneSystem(FbxScene *pScene)
 	}
 }
 
-void FBXModel::buildModel(FbxNode* pRootNode)
-{
-	
-	int childNum = pRootNode->GetChildCount();
-	for (int i = 0; i < childNum; ++i)
-	{
-		auto* child = pRootNode->GetChild(i);
-		auto* pMesh = child->GetMesh();
-		if (!pMesh) return;
+//void FBXModel::buildModel(FbxNode* pRootNode)
+//{
+//	
+//	int childNum = pRootNode->GetChildCount();
+//	for (int i = 0; i < childNum; ++i)
+//	{
+//		auto* child = pRootNode->GetChild(i);
+//		auto* pMesh = child->GetMesh();
+//		if (!pMesh) return;
+//
+//		
+//		buildFaces(pMesh);
+//		
+//	}
+//}
 
-		
-		buildFaces(pMesh);
-		
-	}
-}
-
-void FBXModel::buildFaces(FbxMesh *pMesh)
-{
-	int vertexNum = pMesh->GetControlPointsCount();
-	vertices.resize(vertexNum);
-	const FbxVector4* const verticeArrays = pMesh->GetControlPoints();
-	for (unsigned int vertexIndex = 0; vertexIndex < vertexNum; ++vertexIndex)
-	{
-		vertices[vertexIndex].setPosition(verticeArrays[vertexIndex]);
-	}
-	LOG << "vertex num : " << vertexNum << ENDL;
-	int faceNums = pMesh->GetPolygonCount();
-	faces.resize(faceNums);
-	for (int faceIndex = 0; faceIndex < faceNums; ++faceIndex)
-	{
-		Face &face = faces[faceIndex];
-		loadVertexIndices(pMesh, faceIndex, face);
-		loadNormals(pMesh, faceIndex, face);
-		loadSTs(pMesh, faceIndex, face);
-	}
-
-	if (1) return;
-	for (int faceIndex = 0; faceIndex < faceNums; ++faceIndex)
-	{
-		for(int i =0; i < 3; ++i)
-			LOG << faces[faceIndex].getVertexIndex(i) << " " << faces[faceIndex].getNormal(i)
-			<< " " << faces[faceIndex].getST(i)<< ENDN;
-	}
-}
-
-void FBXModel::loadVertexIndices(FbxMesh *pMesh, int faceIndex, Face &triangle)
-{
-	for (int i = 0; i < 3; ++i)
-	{
-		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, i);
-		triangle.setVertexIndex(i, vertexIndex);
-	}
-}
-
-void FBXModel::loadNormals(FbxMesh * pMesh, int faceIndex, Face & face)
-{
-	if (pMesh->GetElementNormalCount() > 1) {
-		LOG_ERROR("only one set of normal currenty supported");
-	}
-	FbxGeometryElementNormal* eNormal = pMesh->GetElementNormal();
-	if (!eNormal) LOG_ERROR("element normal dosent supported");
-
-	for (int faceElement = 0; faceElement < FACE_POINT_MAX; ++faceElement)
-	{
-		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
-		vec3f normal;
-		convert3fDataFromElement(*eNormal, normal, (faceIndex * 3 ) + faceElement, vertexIndex);
-		face.setNormal(faceElement, normal);
-	}
-}
-
-void FBXModel::loadSTs(FbxMesh * pMesh, int faceIndex, Face & face)
-{
-	if (pMesh->GetElementUVCount() != 0) {
-		//LOG_ERROR("mesh must have one sets of uvs, this mesh has %d uv sets.", pMesh->GetElementUVCount());
-	}
-
-	FbxGeometryElementUV* eST = pMesh->GetElementUV();
-	if (!eST) LOG_ERROR("failed to load uv elements");
-
-	for (int faceElement = 0; faceElement < FACE_POINT_MAX; ++faceElement)
-	{
-		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
-		vec2f st;
-		convert2fFromElement(*eST, st, faceIndex, faceElement, vertexIndex);
-		face.setST(faceElement, st);
-	}
-}
-
-bool FBXModel::buildSkin(FbxNode* pNode)
-{
-	bool loadedSkin = false;
-
-	int childNum = pNode->GetChildCount();
-	for (int i = 0; i < childNum; ++i)
-	{
-		auto* child = pNode->GetChild(i);
-		//auto* pMesh = child->GetMesh();
-		//if (!pMesh) continue;
-		if (!child) continue;
-		FbxGeometry* const pGeometry = child->GetGeometry();
-		if (!pGeometry) {
-			//LOG << "Unssuport skin type used"<< ENDN;
-			continue;
-		}
-
-		const FbxSkin* const pSkin = static_cast<FbxSkin*>(pGeometry->GetDeformer(0, FbxDeformer::eSkin));
-		if (!pSkin) {
-			//LOG << "skin deformer is null" << ENDN;
-			continue;
-		}
-
-		const FbxSkin::EType skinType = pSkin->GetSkinningType();
-		switch (skinType)
-		{
-		case FbxSkin::eLinear:
-			LOG << "linear" << ENDL;
-		case FbxSkin::eRigid:
-			LOG << "rgid" << ENDN;
-		case FbxSkin::eDualQuaternion:
-			LOG << "dual" << ENDN;
-			if (loadSkin(pGeometry, vertices)) {
-				loadedSkin = true;
-			}
-			
-			continue;
-		default:
-			LOG << "default break" << ENDL;
-			break;
-		}
-	}
-	
-	return loadedSkin;
-}
-
-bool FBXModel::loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices)
-{
-	const int vertexNum = pGeo->GetControlPointsCount();
-	//LOG << vertexNum << ENDN;
-
-	const int skinNum = pGeo->GetDeformerCount(FbxDeformer::eSkin);
-	//LOG << skinNum << ENDN;
-
-	for (int skinIndex = 0; skinIndex < skinNum; ++skinIndex)
-	{
-		FbxSkin* pSkin = static_cast<FbxSkin*>(pGeo->GetDeformer(skinIndex, FbxDeformer::eSkin));
-		const int clusterNum = pSkin->GetClusterCount();
-		LOG << "clusters : " << clusterNum << ENDN;
-		for (int clusterIndex = 0; clusterIndex < clusterNum; ++clusterIndex)
-		{
-			FbxCluster* pCluster = pSkin->GetCluster(clusterIndex);
-			const auto clusterMode = pCluster->GetLinkMode();
-			switch (clusterMode)
-			{
-			case FbxCluster::eNormalize:
-				LOG << "normalize mode" << ENDL;
-				/*break;*/
-			case FbxCluster::eTotalOne:
-				LOG << "total one mode" << ENDL;
-				break;
-			default:
-				LOG << "additive mode" << ENDL;
-				//break;
-			}
-
-			FbxNode* const pLinkBoneNode = pCluster->GetLink();
-			if (!pLinkBoneNode) {
-				LOG << "failed to find linked bone node" << ENDN;
-				continue;
-			}
-
-			//Importance get BoneNode by name
-			std::string temp(pLinkBoneNode->GetName());
-			LOG << temp << ENDN;
-			//must be boneNodes created
-			BoneNode* boneNode = mBoneMesh.getBoneNodeByName(temp);
-
-			//transform
-			FbxAMatrix boneRefMatrix;
-			pCluster->GetTransformLinkMatrix(boneRefMatrix);
-
-			FbxAMatrix boneRefMatrixInverse;
-			boneRefMatrixInverse = boneRefMatrix.Inverse();
-			//set global matrix (outside)
-
-			//set ref inverse transform
-			boneNode->mInverseTransform = boneRefMatrixInverse;
-			
-
-			const int clusterIndicesNum = pCluster->GetControlPointIndicesCount();
-			const int *controlPointIndices = pCluster->GetControlPointIndices();
-			const double *controlPointWeights = pCluster->GetControlPointWeights();
-
-			for (int clusterIndex = 0; clusterIndex < clusterIndicesNum; ++clusterIndex)
-			{
-				int controlIndex = controlPointIndices[clusterIndex];
-
-				//Error out of index control points nums
-				if (controlIndex >= vertexNum) {
-					controlIndex = vertexNum - 1;
-				}
-
-				const float controlWeight = (float)controlPointWeights[clusterIndex];
-				if (controlWeight < 0.00001f) continue;
-
-				
-				//into BoneNode ID , control point weight
-				int boneID = boneNode->getID();
-
-				LOG << "vertices : " << controlIndex <<
-					" bone id" << boneID << " weight : " << controlWeight << ENDN;
-				vertices[controlIndex].addWeight(boneID, controlWeight);
-
-			}
-		}
-	}
-	return false;
-
-}
-
-
-void FBXModel::convert3fDataFromElement(
-	FbxLayerElementTemplate<FbxVector4> &element,
-	vec3f &data,
-	int triangleCornerId,
-	int vertexIndex)
-{
-	switch (element.GetMappingMode())
-	{
-	case FbxGeometryElement::eByControlPoint:
-	{
-		switch (element.GetReferenceMode())
-		{
-		case FbxGeometryElement::eDirect:
-		{
-			FbxVector4 fbxData = element.GetDirectArray().GetAt(vertexIndex);
-			data[0] = static_cast<float>(fbxData[0]);
-			data[1] = static_cast<float>(fbxData[1]);
-			data[2] = static_cast<float>(fbxData[2]);
-			//data[3] = static_cast<float>(fbxData[3]);
-		}
-		break;
-		case FbxGeometryElement::eIndexToDirect:
-		{
-			int id = element.GetIndexArray().GetAt(vertexIndex);
-			FbxVector4 fbxData = element.GetDirectArray().GetAt(id);
-			data[0] = static_cast<float>(fbxData[0]);
-			data[1] = static_cast<float>(fbxData[1]);
-			data[2] = static_cast<float>(fbxData[2]);
-			//data[3] = static_cast<float>(fbxData[3]);
-		}
-		break;
-		default:
-			LOG_ERROR("Trying to load %s with an unsupported reference mode\n", element.GetName());
-			break;
-		}
-	}
-	break;
-	case FbxGeometryElement::eByPolygonVertex:
-	{
-		switch (element.GetReferenceMode())
-		{
-		case FbxGeometryElement::eDirect:
-		{
-			FbxVector4 fbxData = element.GetDirectArray().GetAt(triangleCornerId);
-			data[0] = static_cast<float>(fbxData[0]);
-			data[1] = static_cast<float>(fbxData[1]);
-			data[2] = static_cast<float>(fbxData[2]);
-			//data[3] = static_cast<float>(fbxData[3]);
-		}
-		break;
-
-		case FbxGeometryElement::eIndexToDirect:
-		{
-			int indexId = element.GetIndexArray().GetAt(triangleCornerId);
-			FbxVector4 fbxData = element.GetDirectArray().GetAt(indexId);
-			data[0] = static_cast<float>(fbxData[0]);
-			data[1] = static_cast<float>(fbxData[1]);
-			data[2] = static_cast<float>(fbxData[2]);
-			//data[3] = static_cast<float>(fbxData[3]);
-		}
-		break;
-
-		default:
-			LOG_ERROR("Trying to load %s with an unsupported reference mode\n", element.GetName());
-			break;
-		}
-	}
-	default:
-		// TODO eDirect is currently not supported - should be easy enough to add this in?
-		//wxLogDebug("Trying to load %s with an unsupported mapping mode\n", element.GetName());
-		break;
-	}
-}
-
-void FBXModel::convert2fFromElement(
-	FbxLayerElementTemplate<FbxVector2> &element,
-	vec2f &data,
-	int triangleIndex,
-	int triangleCornerId,
-	int vertexIndex)
-{
-	switch (element.GetMappingMode())
-	{
-	case FbxGeometryElement::eByControlPoint:
-	{
-		switch (element.GetReferenceMode())
-		{
-		case FbxGeometryElement::eDirect:
-		{
-			FbxVector2 fbxData = element.GetDirectArray().GetAt(vertexIndex);
-			data.x = static_cast<float>(fbxData[0]);
-			data.y = static_cast<float>(fbxData[1]);
-		}
-		break;
-		case FbxGeometryElement::eIndexToDirect:
-		{
-			int id = element.GetIndexArray().GetAt(vertexIndex);
-			FbxVector2 fbxUvs = element.GetDirectArray().GetAt(id);
-			data.x = static_cast<float>(fbxUvs[0]);
-			data.y = static_cast<float>(fbxUvs[1]);
-		}
-		break;
-		default:
-			LOG_ERROR("Trying to load %s with an unsupported reference mode\n", element.GetName());
-			break;
-		}
-	}
-	break;
-	case FbxGeometryElement::eByPolygonVertex:
-	{
-		switch (element.GetReferenceMode())
-		{
-		case FbxGeometryElement::eDirect:
-		case FbxGeometryElement::eIndexToDirect:
-		{
-			unsigned int uvIndex = element.GetIndexArray().GetAt(GetUVVertexIndex(triangleIndex, triangleCornerId));
-			FbxVector2 fbxData = element.GetDirectArray().GetAt(uvIndex);
-			data.x = static_cast<float>(fbxData[0]);
-			data.y = static_cast<float>(fbxData[1]);
-		}
-		break;
-		default:
-			LOG_ERROR("Trying to load %s with an unsupported reference mode\n", element.GetName());
-			break;
-		}
-	}
-	break;
-	default:
-		LOG_ERROR("Trying to load %s with an unsupported mapping mode\n", element.GetName());
-		break;
-	}
-}
-
-
-const unsigned int FBXModel::GetUVVertexIndex(
-	const unsigned int triangleIndex,
-	const unsigned int triangleCornerId) const
-{
-	return triangleIndex * 3 + triangleCornerId; // Triangle index * num verts in a triangle + current vertex corner in the triangle
-}
+//bool FBXModel::buildSkin(FbxNode* pNode)
+//{
+//	bool loadedSkin = false;
+//
+//	int childNum = pNode->GetChildCount();
+//	for (int i = 0; i < childNum; ++i)
+//	{
+//		auto* child = pNode->GetChild(i);
+//		//auto* pMesh = child->GetMesh();
+//		//if (!pMesh) continue;
+//		if (!child) continue;
+//		FbxGeometry* const pGeometry = child->GetGeometry();
+//		if (!pGeometry) {
+//			//LOG << "Unssuport skin type used"<< ENDN;
+//			continue;
+//		}
+//
+//		const FbxSkin* const pSkin = static_cast<FbxSkin*>(pGeometry->GetDeformer(0, FbxDeformer::eSkin));
+//		if (!pSkin) {
+//			//LOG << "skin deformer is null" << ENDN;
+//			continue;
+//		}
+//
+//		const FbxSkin::EType skinType = pSkin->GetSkinningType();
+//		switch (skinType)
+//		{
+//		case FbxSkin::eLinear:
+//			LOG << "linear" << ENDL;
+//		case FbxSkin::eRigid:
+//			LOG << "rgid" << ENDN;
+//		case FbxSkin::eDualQuaternion:
+//			LOG << "dual" << ENDN;
+//			if (loadSkin(pGeometry, vertices)) {
+//				loadedSkin = true;
+//			}
+//			
+//			continue;
+//		default:
+//			LOG << "default break" << ENDL;
+//			break;
+//		}
+//	}
+//	
+//	return loadedSkin;
+//}
+//
+//bool FBXModel::loadSkin(const FbxGeometry *pGeo, std::vector<Vertex> &vertices)
+//{
+//	const int vertexNum = pGeo->GetControlPointsCount();
+//	//LOG << vertexNum << ENDN;
+//
+//	const int skinNum = pGeo->GetDeformerCount(FbxDeformer::eSkin);
+//	//LOG << skinNum << ENDN;
+//
+//	for (int skinIndex = 0; skinIndex < skinNum; ++skinIndex)
+//	{
+//		FbxSkin* pSkin = static_cast<FbxSkin*>(pGeo->GetDeformer(skinIndex, FbxDeformer::eSkin));
+//		const int clusterNum = pSkin->GetClusterCount();
+//		LOG << "clusters : " << clusterNum << ENDN;
+//		for (int clusterIndex = 0; clusterIndex < clusterNum; ++clusterIndex)
+//		{
+//			FbxCluster* pCluster = pSkin->GetCluster(clusterIndex);
+//			const auto clusterMode = pCluster->GetLinkMode();
+//			switch (clusterMode)
+//			{
+//			case FbxCluster::eNormalize:
+//				LOG << "normalize mode" << ENDL;
+//				/*break;*/
+//			case FbxCluster::eTotalOne:
+//				LOG << "total one mode" << ENDL;
+//				break;
+//			default:
+//				LOG << "additive mode" << ENDL;
+//				//break;
+//			}
+//
+//			FbxNode* const pLinkBoneNode = pCluster->GetLink();
+//			if (!pLinkBoneNode) {
+//				LOG << "failed to find linked bone node" << ENDN;
+//				continue;
+//			}
+//
+//			//Importance get BoneNode by name
+//			std::string temp(pLinkBoneNode->GetName());
+//			LOG << temp << ENDN;
+//			//must be boneNodes created
+//			BoneNode* boneNode = mNode.getBoneNodeByName(temp);
+//
+//			//transform
+//			FbxAMatrix boneRefMatrix;
+//			pCluster->GetTransformLinkMatrix(boneRefMatrix);
+//
+//			FbxAMatrix boneRefMatrixInverse;
+//			boneRefMatrixInverse = boneRefMatrix.Inverse();
+//			//set global matrix (outside)
+//
+//			//set ref inverse transform
+//			boneNode->mInverseTransform = boneRefMatrixInverse;
+//			
+//
+//			const int clusterIndicesNum = pCluster->GetControlPointIndicesCount();
+//			const int *controlPointIndices = pCluster->GetControlPointIndices();
+//			const double *controlPointWeights = pCluster->GetControlPointWeights();
+//
+//			for (int clusterIndex = 0; clusterIndex < clusterIndicesNum; ++clusterIndex)
+//			{
+//				int controlIndex = controlPointIndices[clusterIndex];
+//
+//				//Error out of index control points nums
+//				if (controlIndex >= vertexNum) {
+//					controlIndex = vertexNum - 1;
+//				}
+//
+//				const float controlWeight = (float)controlPointWeights[clusterIndex];
+//				if (controlWeight < 0.00001f) continue;
+//
+//				
+//				//into BoneNode ID , control point weight
+//				int boneID = boneNode->getID();
+//
+//				LOG << "vertices : " << controlIndex <<
+//					" bone id" << boneID << " weight : " << controlWeight << ENDN;
+//				vertices[controlIndex].addWeight(boneID, controlWeight);
+//
+//			}
+//		}
+//	}
+//	return false;
+//
+//}
+//
+//
 

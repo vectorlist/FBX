@@ -23,10 +23,12 @@
     <ClCompile Include="fbxio.cpp" />
     <ClCompile Include="fbxmesh.cpp" />
     <ClCompile Include="fbxmodel.cpp" />
+    <ClCompile Include="fbxmodel_ext.cpp" />
     <ClCompile Include="fbxtool.cpp" />
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="bonemesh.cpp" />
+    <ClCompile Include="meshnode.cpp" />
+    <ClCompile Include="node.cpp" />
     <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +50,8 @@
     <ClInclude Include="fbxio.h" />
     <ClInclude Include="fbxtool.h" />
     <ClInclude Include="face.h" />
-    <ClInclude Include="bonemesh.h" />
+    <ClInclude Include="meshnode.h" />
+    <ClInclude Include="node.h" />
     <ClInclude Include="logger.h" />
     <ClInclude Include="nodetree.h" />
     <ClInclude Include="vertex.h" />
@@ -127,7 +130,7 @@
       <AdditionalIncludeDirectories>.;$(SolutionDir)\include\GLEngine;$(SolutionDir)\include\core;$(SolutionDir)\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <PreprocessorDefinitions>_USE_MATH_DEFINES;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LOG_W_ENABLE;_USE_MATH_DEFINES;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
