@@ -25,6 +25,12 @@
     <Filter Include="Node">
       <UniqueIdentifier>{4733a875-6e64-4dbc-82a2-8916ed70c974}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{dedd79df-27d2-4cb4-92c6-9b2d89686200}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Track">
+      <UniqueIdentifier>{dbc3be7c-047c-4cfb-8db7-1133b9e773ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="meshnode.cpp">
       <Filter>Node</Filter>
+    </ClCompile>
+    <ClCompile Include="animation.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +139,18 @@
     </ClInclude>
     <ClInclude Include="meshnode.h">
       <Filter>Node</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="frame.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="track.h">
+      <Filter>Track</Filter>
+    </ClInclude>
+    <ClInclude Include="key.h">
+      <Filter>Track</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -52,13 +52,26 @@ int main(int argc, char* argv[])
 
 #include <Logger.h>
 
+struct Some
+{
+	int i;
+};
+
 int main(int argc, char* argv[])
 {
-	std::cout << "awdda" << std::endl;
-	LOG_W << "hello" << "logical" << ENDN;
-	LOG_W << vec3f(1, 2, 3) << ENDN << Matrix4x4() <<ENDN;
-	//system("pause");
+	Window::setConsoleOutput(10, 10, 700, 800);
+	std::vector<Some> some;
+	some.reserve(3);
+
+	for (int i = 0; i < 10; ++i)
+		some.push_back(Some());
+
+	LOG << some.size() << ENDL;
+	
+	system("pause");
 	return 0;
 }
 
 #endif // TAKE0
+
+

@@ -60,6 +60,9 @@ void FBXTool::buildMesh(std::vector<Vertex>& vertices, std::vector<Face>& faces,
 
 void FBXTool::buildMesh(MeshNode *meshNode, FBXMesh &mesh)
 {
+	if (meshNode->getID() > 0) {
+		LOG_ERROR("dosent supported 2more meshes in this version");
+	}
 	std::vector<int> debugIndex;
 	auto& faces = meshNode->getFaces();
 	auto& vertices = meshNode->getVertices();
@@ -90,16 +93,11 @@ void FBXTool::buildMesh(MeshNode *meshNode, FBXMesh &mesh)
 
 
 	mesh.buildBuffer();
-
-	if (0) return;
+	bool enableWrite = false;
+	if (!enableWrite) return;
 	for (int i = 0; i < mesh.vertices.size(); ++i)
 	{
 		FBXVertex& vertex = mesh.vertices[i];
-		/*LOG_W <<
-		"pos : " << vertex.position <<
-		" normal : " << vertex.normal <<
-		" st : " << vertex.st <<
-		ENDN;*/
 		int index = debugIndex[i];
 		LOG_W << "vertexID : " << index
 			<< " boneID : " << vertex.boneID[0] << ", " << vertex.boneID[1] << ", "

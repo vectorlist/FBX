@@ -52,4 +52,31 @@ void Node::addChildMeshNode(MeshNode* parent, MeshNode *node)
 	mMeshNodesNum++;
 }
 
+MeshNode* Node::getCurrentMeshNode()
+{
+	for (auto* node = mMeshNodes.getRoot(); node != NULL;)
+	{
+		if (node) {
+			if (!node->isBuilt) continue;
+			return node;
+		}
+		node = mMeshNodes.getNextChildFirst(node);
+	}
+	return NULL;
+}
+
+void Node::setAnimation(AnimationPtr & animation)
+{
+	mAnimationPtr = std::move(animation);
+}
+
+Animation* Node::getAnimation() const
+{
+	if (mAnimationPtr) {
+		return mAnimationPtr.get();
+	}
+	return NULL;
+}
+
+
 

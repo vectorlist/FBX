@@ -12,11 +12,10 @@
 #include <map>
 #include <array>
 
-//
 #include <face.h>
 #include <vertex.h>
 #include <node.h>
-#define BONE_MAX_PER_VERTEX		4
+#include <animation.h>
 
 class FBXModel
 {
@@ -44,21 +43,18 @@ public:
 	bool hasUV;
 	bool byControlPoint;
 
-	//Face Vertex
-	/*std::vector<Face> faces;
-	std::vector<Vertex> vertices;*/
-
-	/*void buildModel(FbxNode* pRootNode);*/
-
-	/*bool buildSkin(FbxNode* pNode);
+	bool buildSkin(FbxNode* pNode, MeshNode* meshNode);
 	bool loadSkin(
 		const FbxGeometry *pGeo,
-		std::vector<Vertex> &vertices);*/
+		MeshNode* meshNode);
 	
 	//vbo mesh
 	FBXMesh m_mesh;
 	//node mesh
 	Node mNode;
+	/*--------------- ANIMATION --------------*/
+	Animation mAnimation;
+	bool buildAnimationLayer(Node &node);
 
 	/*--------------- EXT FUNC --------------*/
 	struct 
@@ -68,7 +64,7 @@ public:
 		std::vector<FbxNode*> mFbxNodes;
 	}MeshNodeInfo;
 
-	bool loadBoneNodes(
+	bool loadNodes(
 		FbxNode* pNode,
 		BoneNode* parentBoneNode,
 		MeshNode* parentMeshNode);
@@ -106,5 +102,7 @@ public:
 	const unsigned int GetUVVertexIndex(
 		const unsigned int triangleIndex,
 		const unsigned int triangleCornerId) const;
+
+	void bakeNodeTransform(FbxNode* pNode) const;
 };
 

@@ -3,6 +3,7 @@
 #include <nodetree.h>
 #include <string>
 #include <fbxsdk/core/math/fbxaffinematrix.h>
+#include <track.h>
 
 using namespace fbxsdk;
 
@@ -27,5 +28,28 @@ private:
 public:
 	FbxAMatrix mGlobalTransform;
 	FbxAMatrix mInverseTransform;
+
+	/*------------- TRACK ----------------*/
+
+	//allocate Datas tracks
+	void allocateTracks(int frameNum);
+
+	//Position
+	void addPositionKey(const KeyVector& key);
+	KeyVector& getPositionKey(int sample);
+
+	//scale
+	void addScaleKey(const KeyVector& key);
+	KeyVector& getScaleKey(int sample);
+
+	//rotation quaternion
+	void addRotationKey(const KeyQuaternion& key);
+	KeyQuaternion& getRotationKey(int sample);
+private:
+	TrackVec3Ptr mPositionTrack;
+	TrackVec3Ptr mScaleTrack;
+	TrackQuaternionPtr mQuarternionTrack;
+	
+	int alloactedTrackSize;
 };
 

@@ -2,6 +2,8 @@
 
 #include <bonenode.h>
 #include <meshnode.h>
+#include <animation.h>
+#include <track.h>
 
 class Node
 {
@@ -18,7 +20,7 @@ public:
 	MeshNode* getMeshNodeRoot();
 	void addChildMeshNode(MeshNode* parent, MeshNode* node);
 	//dont care get by name
-
+	MeshNode* getCurrentMeshNode();
 	
 
 	NodeTree<BoneNode> mBoneNodes;
@@ -26,4 +28,11 @@ public:
 	//node bone ID, weight;
 	uint32_t mBoneNodesNum;
 	uint32_t mMeshNodesNum;
+
+	/*------------ ANIMATION -------------*/
+	void setAnimation(AnimationPtr &animation);
+	Animation* getAnimation() const;
+
+private:
+	AnimationPtr mAnimationPtr;
 };

@@ -2,7 +2,7 @@
 #include <log.h>
 #include <fbxtool.h>
 
-bool FBXModel::loadBoneNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode)
+bool FBXModel::loadNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode)
 {
 	//we dont need bonemesh here (pass it)
 	//prepare new node for bone
@@ -22,7 +22,7 @@ bool FBXModel::loadBoneNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode*
 			//TODO : set custom bone node tree() if we founded skeletal attr
 			newBoneNode = loadBoneNode(pNode, parentBoneNode);
 			if (newBoneNode) {
-				LOG << "create bone node" << ENDN;
+				LOG << "create bone node : " << newBoneNode->getName() <<  ENDN;
 			}
 			//LOG << "founded skeletion attr" << newBoneNode <<ENDN;
 			break;
@@ -30,7 +30,7 @@ bool FBXModel::loadBoneNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode*
 			//TODO create mesh node here
 			newMeshNode = loadMeshNode(pNode, parentMeshNode);
 			if (newMeshNode) {
-				LOG << "create mesh node" << ENDN;
+				LOG << "create mesh node : " << newMeshNode->getName() << ENDN;
 			}			
 			break;
 
@@ -45,7 +45,7 @@ bool FBXModel::loadBoneNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode*
 	{
 		FbxNode* pChildNode = pNode->GetChild(childIndex);
 		//Recursive newboneNode is as a parent node
-		loadBoneNodes(pChildNode, newBoneNode, newMeshNode);
+		loadNodes(pChildNode, newBoneNode, newMeshNode);
 	}
 
 	return true;
@@ -77,8 +77,37 @@ BoneNode* FBXModel::loadBoneNode(FbxNode* pNode, BoneNode* parent)
 	boneNode->mGlobalTransform = globalTransform;
 
 	//TODO : animation stack : pose ..etc
+	Animation* animation = mNode.getAnimation();
+	int sampleNum = animation->getNumFrameSamples();
 
-	//sacale , rot ..etc
+	//TASK 0 1 2
+	//0 = allocate track and keys
+	if (sampleNum)
+	{
+		boneNode->allocateTracks(sampleNum);
+	}
+	//1 = sey keys
+	int startFrame = animation->getStartSample();
+	int startTime = animation->convertFrameToMilli(startFrame);
+	FbxTime fbxTime;
+	for (int sample = 0; sample <= sampleNum; ++sample)
+	{
+		//LOG << "sample : " << sample << ENDN;
+		long sampleTime = animation->convertFrameToMilli(sample);
+		fbxTime.SetMilliSeconds(startTime + sampleTime);
+
+		//get local transform
+		const FbxAMatrix localMatrix =
+			pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
+
+		//TODO : scale key rotation key
+		KeyVector positionKey(localMatrix.GetT(), sampleTime);
+		KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
+		LOG << rotationKey << ENDN;
+		boneNode->addPositionKey(positionKey);
+		/*LOG << boneNode->getPositionKey(sample) << ENDN;*/
+	}
+
 
 	return boneNode;
 }
@@ -115,12 +144,13 @@ MeshNode* FBXModel::loadMeshNode(FbxNode *pNode, MeshNode *parent)
 
 	localMatrix.SetTRS(position, rotation, scale);
 	meshNode->mGlobalMarix = localMatrix;
+
+	//need animation statck
 	
 	//build faces and vertices for mesh node
 	buildMeshNode(pMesh, meshNode);
-	//build renderable mesh
-	FBXTool::buildMesh(meshNode, m_mesh);
-	return nullptr;
+	
+	return meshNode;
 }
 
 
@@ -341,4 +371,50 @@ const unsigned int FBXModel::GetUVVertexIndex(
 	const unsigned int triangleCornerId) const
 {
 	return triangleIndex * 3 + triangleCornerId; // Triangle index * num verts in a triangle + current vertex corner in the triangle
+}
+
+void FBXModel::bakeNodeTransform(FbxNode* pNode) const
+// We set up what we want to bake via ConvertPivotAnimationRecursive.
+// When the destination is set to 0, baking will occur.
+// When the destination value is set to the source¡¯s value, the source values will be retained and not baked.
+{
+	FbxVector4 zero(0, 0, 0);
+
+	//pivot converting
+	pNode->SetPivotState(FbxNode::eSourcePivot, FbxNode::ePivotActive);
+	pNode->SetPivotState(FbxNode::eDestinationPivot, FbxNode::ePivotActive);
+
+	// We want to set all these to 0 and bake them into the transforms.
+	pNode->SetPostRotation(FbxNode::eDestinationPivot, zero);
+	pNode->SetPreRotation(FbxNode::eDestinationPivot, zero);
+	pNode->SetRotationOffset(FbxNode::eDestinationPivot, zero);
+	pNode->SetScalingOffset(FbxNode::eDestinationPivot, zero);
+	pNode->SetRotationPivot(FbxNode::eDestinationPivot, zero);
+	pNode->SetScalingPivot(FbxNode::eDestinationPivot, zero);
+
+	//set to rotaion order euler xyz
+	pNode->SetRotationOrder(FbxNode::eDestinationPivot, eEulerXYZ);
+	/*pNode->GetRotationOrder(FbxNode::eSOURCE_SET, lRotationOrder);
+	pNode->SetRotationOrder(FbxNode::eDESTINATION_SET, lRotationOrder);*/
+
+	//set Geometry tranform order
+	pNode->SetGeometricTranslation(FbxNode::eDestinationPivot,
+		pNode->GetGeometricTranslation(FbxNode::eSourcePivot));
+	pNode->SetGeometricRotation(FbxNode::eDestinationPivot,
+		pNode->GetGeometricRotation(FbxNode::eSourcePivot));
+	pNode->SetGeometricScaling(FbxNode::eDestinationPivot,
+		pNode->GetGeometricScaling(FbxNode::eSourcePivot));
+
+	// Idem for quaternions.
+	pNode->SetQuaternionInterpolation(FbxNode::eDestinationPivot,
+		pNode->GetQuaternionInterpolation(FbxNode::eSourcePivot));
+
+	//for each recursive
+	const int childNum = pNode->GetChildCount();
+	for(int i = 0 ; i < childNum; ++i)
+	{
+		auto* child = pNode->GetChild(i);
+		bakeNodeTransform(child);
+	}
+	LOG << "Baked all transform" << ENDN;
 }

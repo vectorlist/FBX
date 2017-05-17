@@ -8,6 +8,7 @@
 
 class BoneNode;
 class MeshNode;
+class Node;
 class FBXTool
 {
 public:
