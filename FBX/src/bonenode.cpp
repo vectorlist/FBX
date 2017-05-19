@@ -29,6 +29,30 @@ uint32_t BoneNode::getID()
 	return mID;
 }
 
+FbxAMatrix& BoneNode::getGlobalTransfrom()
+{
+	//it can handle outside
+	return mGlobalTransform;
+}
+
+const FbxAMatrix& BoneNode::getGlobalMatrix() const
+{
+	// TODO: insert return statement here
+	return mGlobalTransform;
+}
+
+FbxAMatrix& BoneNode::getInveseLocalTransfrom()
+{
+	// TODO: insert return statement here
+	return mInverseTransform;
+}
+
+const FbxAMatrix& BoneNode::getInveseLocalMatrix() const
+{
+	// TODO: insert return statement here
+	return mInverseTransform;
+}
+
 void BoneNode::resetGlobalID()
 {
 	globalID = 0;
@@ -44,24 +68,34 @@ void BoneNode::allocateTracks(int frameNum)
 	LOG << "allocated keys : " << alloactedTrackSize << ENDN;
 }
 
-void BoneNode::addPositionKey(const KeyVector &key)
+void BoneNode::addPositionKey(const KeyVec3 &key)
 {
 	mPositionTrack->addKey(key);
 }
 
-KeyVector & BoneNode::getPositionKey(int sample)
+KeyVec3& BoneNode::getPositionKey(int sample)
 {
 	return mPositionTrack->getKey(sample);
 }
 
-void BoneNode::addScaleKey(const KeyVector &key)
+TrackVec3* BoneNode::getPositionTrack()
+{
+	return mPositionTrack.get();
+}
+
+void BoneNode::addScaleKey(const KeyVec3 &key)
 {
 	mScaleTrack->addKey(key);
 }
 
-KeyVector & BoneNode::getScaleKey(int sample)
+KeyVec3& BoneNode::getScaleKey(int sample)
 {
 	return mScaleTrack->getKey(sample);
+}
+
+TrackVec3* BoneNode::getScaleTrack()
+{
+	return mScaleTrack.get();
 }
 
 void BoneNode::addRotationKey(const KeyQuaternion &key)
@@ -72,5 +106,10 @@ void BoneNode::addRotationKey(const KeyQuaternion &key)
 KeyQuaternion& BoneNode::getRotationKey(int sample)
 {
 	return mQuarternionTrack->getKey(sample);
+}
+
+TrackQuaternion* BoneNode::getQuaternionTrack()
+{
+	return mQuarternionTrack.get();
 }
 

@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <GL/glew.h>
 #include <string>
+#include <iomanip>
 
 #define LOG						std::cout
 #define ENDL					std::endl

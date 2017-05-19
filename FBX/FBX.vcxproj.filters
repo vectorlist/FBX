@@ -16,59 +16,21 @@
     <Filter Include="core">
       <UniqueIdentifier>{b149c66f-6e6f-467a-a220-d10f0bf9e96d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src">
-      <UniqueIdentifier>{5e56ed0d-7b2f-4200-a300-1722bed2e5e7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine">
       <UniqueIdentifier>{082f46e2-f4a5-495a-8e89-ca00345927a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Node">
-      <UniqueIdentifier>{4733a875-6e64-4dbc-82a2-8916ed70c974}</UniqueIdentifier>
+    <Filter Include="src">
+      <UniqueIdentifier>{6dd6dadf-a322-48cd-8e1d-6e1803a44fec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Animation">
-      <UniqueIdentifier>{dedd79df-27d2-4cb4-92c6-9b2d89686200}</UniqueIdentifier>
+    <Filter Include="src\Animation">
+      <UniqueIdentifier>{03ec5070-416a-4b82-8afb-5e4b4e1d9fd4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Track">
-      <UniqueIdentifier>{dbc3be7c-047c-4cfb-8db7-1133b9e773ab}</UniqueIdentifier>
+    <Filter Include="src\Node">
+      <UniqueIdentifier>{01408d54-e896-4ad1-bd6b-4011523edef5}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="fbxmesh.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="fbxio.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="fbxmodel.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="vertex.cpp">
-      <Filter>Node</Filter>
-    </ClCompile>
-    <ClCompile Include="fbxtool.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="bonenode.cpp">
-      <Filter>Node</Filter>
-    </ClCompile>
-    <ClCompile Include="logger.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="fbxmodel_ext.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="node.cpp">
-      <Filter>Node</Filter>
-    </ClCompile>
-    <ClCompile Include="meshnode.cpp">
-      <Filter>Node</Filter>
-    </ClCompile>
-    <ClCompile Include="animation.cpp">
-      <Filter>Animation</Filter>
-    </ClCompile>
+    <Filter Include="src\Fbx">
+      <UniqueIdentifier>{99f42c97-d1f9-43ba-958d-dca15719fe6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\core\vec4f.h">
@@ -107,50 +69,100 @@
     <ClInclude Include="..\include\GLEngine\renderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="fbxmesh.h">
+    <ClInclude Include="src\fbxio.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fbxmesh.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fbxmodel.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\fbxtool.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\bonenode.h">
+      <Filter>src\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\face.h">
+      <Filter>src\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\logger.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\key.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\meshnode.h">
+      <Filter>src\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\node.h">
+      <Filter>src\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nodetree.h">
+      <Filter>src\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\track.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vertex.h">
+      <Filter>src\Node</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animationrenderer.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animationsample.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animationscene.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\trackcontainer.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="fbxio.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="fbxmodel.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="vertex.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="face.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="fbxtool.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="nodetree.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="bonenode.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="logger.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="node.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="meshnode.h">
-      <Filter>Node</Filter>
-    </ClInclude>
-    <ClInclude Include="animation.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="frame.h">
-      <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="track.h">
-      <Filter>Track</Filter>
-    </ClInclude>
-    <ClInclude Include="key.h">
-      <Filter>Track</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="src\fbxio.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxmesh.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxmodel.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxmodel_ext.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxtool.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\bonenode.cpp">
+      <Filter>src\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\logger.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshnode.cpp">
+      <Filter>src\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\node.cpp">
+      <Filter>src\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vertex.cpp">
+      <Filter>src\Node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animationrenderer.cpp">
+      <Filter>src\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animationsample.cpp">
+      <Filter>src\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animationscene.cpp">
+      <Filter>src\Animation</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

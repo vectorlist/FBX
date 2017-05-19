@@ -19,20 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="animation.cpp" />
-    <ClCompile Include="bonenode.cpp" />
-    <ClCompile Include="fbxio.cpp" />
-    <ClCompile Include="fbxmesh.cpp" />
-    <ClCompile Include="fbxmodel.cpp" />
-    <ClCompile Include="fbxmodel_ext.cpp" />
-    <ClCompile Include="fbxtool.cpp" />
-    <ClCompile Include="logger.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="meshnode.cpp" />
-    <ClCompile Include="node.cpp" />
-    <ClCompile Include="vertex.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\include\core\color.h" />
     <ClInclude Include="..\include\core\matrix4x4.h" />
     <ClInclude Include="..\include\core\vec2f.h" />
@@ -45,21 +31,39 @@
     <ClInclude Include="..\include\GLEngine\shadertool.h" />
     <ClInclude Include="..\include\GLEngine\texturetool.h" />
     <ClInclude Include="..\include\GLEngine\util.h" />
-    <ClInclude Include="animation.h" />
-    <ClInclude Include="bonenode.h" />
-    <ClInclude Include="fbxmesh.h" />
-    <ClInclude Include="fbxmodel.h" />
-    <ClInclude Include="fbxio.h" />
-    <ClInclude Include="fbxtool.h" />
-    <ClInclude Include="face.h" />
-    <ClInclude Include="frame.h" />
-    <ClInclude Include="key.h" />
-    <ClInclude Include="meshnode.h" />
-    <ClInclude Include="node.h" />
-    <ClInclude Include="logger.h" />
-    <ClInclude Include="nodetree.h" />
-    <ClInclude Include="track.h" />
-    <ClInclude Include="vertex.h" />
+    <ClInclude Include="src\animationsample.h" />
+    <ClInclude Include="src\animationscene.h" />
+    <ClInclude Include="src\animationrenderer.h" />
+    <ClInclude Include="src\bonenode.h" />
+    <ClInclude Include="src\face.h" />
+    <ClInclude Include="src\fbxio.h" />
+    <ClInclude Include="src\fbxmesh.h" />
+    <ClInclude Include="src\fbxmodel.h" />
+    <ClInclude Include="src\fbxtool.h" />
+    <ClInclude Include="src\key.h" />
+    <ClInclude Include="src\logger.h" />
+    <ClInclude Include="src\meshnode.h" />
+    <ClInclude Include="src\node.h" />
+    <ClInclude Include="src\nodetree.h" />
+    <ClInclude Include="src\track.h" />
+    <ClInclude Include="src\trackcontainer.h" />
+    <ClInclude Include="src\vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\animationsample.cpp" />
+    <ClCompile Include="src\animationscene.cpp" />
+    <ClCompile Include="src\animationrenderer.cpp" />
+    <ClCompile Include="src\bonenode.cpp" />
+    <ClCompile Include="src\fbxio.cpp" />
+    <ClCompile Include="src\fbxmesh.cpp" />
+    <ClCompile Include="src\fbxmodel.cpp" />
+    <ClCompile Include="src\fbxmodel_ext.cpp" />
+    <ClCompile Include="src\fbxtool.cpp" />
+    <ClCompile Include="src\logger.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\meshnode.cpp" />
+    <ClCompile Include="src\node.cpp" />
+    <ClCompile Include="src\vertex.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{c679a6c2-04db-49f3-b981-12c95444b642}</ProjectGuid>
@@ -132,14 +136,14 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.;$(SolutionDir)\include\GLEngine;$(SolutionDir)\include\core;$(SolutionDir)\include;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;$(SolutionDir)\include\GLEngine;$(SolutionDir)\include\core;$(SolutionDir)\include;$(ProjectDir)\src;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>LOG_W_ENABLE;_USE_MATH_DEFINES;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfbxsdk.lib;SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>

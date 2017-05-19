@@ -2,7 +2,7 @@
 
 #include <bonenode.h>
 #include <meshnode.h>
-#include <animation.h>
+#include <animationscene.h>
 #include <track.h>
 
 class Node
@@ -30,9 +30,9 @@ public:
 	uint32_t mMeshNodesNum;
 
 	/*------------ ANIMATION -------------*/
-	void setAnimation(AnimationPtr &animation);
-	Animation* getAnimation() const;
+	void setAnimationSample(AnimationSamplePtr &animation);
+	AnimationSample* getAnimationSample() const;
 
 private:
-	AnimationPtr mAnimationPtr;
+	AnimationSamplePtr mAnimationSamplePtr;
 };

@@ -2,6 +2,7 @@
 #include <log.h>
 #include <fbxtool.h>
 #include <meshnode.h>
+#include <animationsample.h>
 
 FBXModel::FBXModel(const char *filename, GLuint shader)
 	: m_filename(filename), m_shader(shader)
@@ -40,7 +41,7 @@ FBXModel::FBXModel(const char *filename, GLuint shader)
 
 	for (int i = 0; i < m_animStatclNameArrays.Size(); ++i)
 	{
-		LOG << "Animation Statck : " << m_animStatclNameArrays[i]->Buffer() << ENDL;
+		LOG << "AnimationSample Statck : " << m_animStatclNameArrays[i]->Buffer() << ENDL;
 	}
 
 	//convert triangles
@@ -48,12 +49,12 @@ FBXModel::FBXModel(const char *filename, GLuint shader)
 	converter.Triangulate(m_scene, true);
 
 	//ANIMATION TASK 0 1 2
-	//0 = animation infomation (fps, fbx time)
+	//0 = animation infomation (fps, fbx time) scene
 	buildAnimationLayer(mNode);
 	//1 = bake transform all node
 	bakeNodeTransform(m_rootNode);
-	//2 = get Animation pointer and convert pivot animations and frame rates
-	Animation* animation = mNode.getAnimation();
+	//2 = get AnimationSample pointer and convert pivot animations and frame rates
+	AnimationSample* animation = mNode.getAnimationSample();
 	m_rootNode->ConvertPivotAnimationRecursive(NULL,
 		FbxNode::eDestinationPivot, animation->getFps());
 	//m_rootNode->ConvertPivotAnimationRecursive(,)
@@ -88,7 +89,7 @@ void FBXModel::setSceneSystem(FbxScene *pScene)
 
 bool FBXModel::buildAnimationLayer(Node &node)
 {
-	AnimationPtr animation_ptr = AnimationPtr(new Animation);
+	AnimationSamplePtr animationSamplePtr = AnimationSamplePtr(new AnimationSample);
 	const FbxTakeInfo* takeInfo = m_importer->GetTakeInfo(0);
 
 	if (!takeInfo) {
@@ -104,18 +105,18 @@ bool FBXModel::buildAnimationLayer(Node &node)
 
 	}
 	
-	animation_ptr->setFps(frameRate);
+	animationSamplePtr->setFps(frameRate);
 
 	const long startTimeL = takeInfo->mLocalTimeSpan.GetStart().GetMilliSeconds();
 	const long endTimeL = takeInfo->mLocalTimeSpan.GetStop().GetMilliSeconds();
-	int startTime = animation_ptr->covertMilliToFrame(startTimeL);
-	int endTime = animation_ptr->covertMilliToFrame(endTimeL);
-	animation_ptr->setStartSample(startTime);
-	animation_ptr->setEndSample(endTime);
+	int startTime = animationSamplePtr->convertMilliToFrame(startTimeL);
+	int endTime = animationSamplePtr->convertMilliToFrame(endTimeL);
+	animationSamplePtr->setSampleStart(startTime);
+	animationSamplePtr->setSampleEnd(endTime);
 
 	//get numFrame
-	int frameNum = animation_ptr->getEndSample() - animation_ptr->getStartSample() - 1;
-	animation_ptr->setNumFrames(frameNum);
+	int frameNum = animationSamplePtr->getSampleEnd() - animationSamplePtr->getSampleStart() - 1;
+	animationSamplePtr->setFrameNums(frameNum);
 
 	bool debugAnimationInfo = true;
 	if (debugAnimationInfo)
@@ -125,7 +126,8 @@ bool FBXModel::buildAnimationLayer(Node &node)
 		LOG << "frame num : " << frameNum << ENDN;
 	}
 
-	node.setAnimation(animation_ptr);
+	//sample move to node
+	node.setAnimationSample(animationSamplePtr);
 	return true;
 }
 
@@ -157,11 +159,8 @@ bool FBXModel::buildSkin(FbxNode* pNode, MeshNode* meshNode)
 		switch (skinType)
 		{
 		case FbxSkin::eLinear:
-			LOG << "linear" << ENDL;
 		case FbxSkin::eRigid:
-			LOG << "rgid" << ENDN;
 		case FbxSkin::eDualQuaternion:
-			LOG << "dual" << ENDN;
 			if (loadSkin(pGeometry, meshNode)) {
 				loadedSkin = true;
 				LOG << "loaded skin : " << ENDN;

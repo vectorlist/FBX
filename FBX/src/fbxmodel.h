@@ -15,7 +15,6 @@
 #include <face.h>
 #include <vertex.h>
 #include <node.h>
-#include <animation.h>
 
 class FBXModel
 {
@@ -53,7 +52,7 @@ public:
 	//node mesh
 	Node mNode;
 	/*--------------- ANIMATION --------------*/
-	Animation mAnimation;
+	//AnimationSample mAnimation;
 	bool buildAnimationLayer(Node &node);
 
 	/*--------------- EXT FUNC --------------*/

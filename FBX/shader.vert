@@ -16,11 +16,16 @@ out vec3 fNormal;
 out vec2 fST;
 void main()
 {
-    vec4 world = model * vec4(position, 1);
-    gl_Position = proj * view * world;
-    //fNormal = (model * vec4(normal,0)).xyz;
+
     fNormal = normal;
     
     fDebug = vec3(weights.xyz);
     fST = st;
+    vec4 world = model * vec4(position, 1);
+    gl_Position = proj * view * world;
+    //fNormal = (model * vec4(normal,0)).xyz;
+    //fNormal = normal;
+    
+    //fDebug = vec3(weights.xyz);
+    //fST = st;
 }

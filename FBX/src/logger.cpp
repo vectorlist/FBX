@@ -1,6 +1,7 @@
 #include <logger.h>
 
 Logger Logger::proxy;
+bool Logger::isWrite = false;
 
 void Logger::open()
 {

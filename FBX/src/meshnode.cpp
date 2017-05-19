@@ -7,7 +7,6 @@ MeshNode::MeshNode()
 {
 }
 
-
 MeshNode::~MeshNode()
 {
 	resetGlobalID();
@@ -30,13 +29,11 @@ const uint32_t MeshNode::getID() const
 
 FaceArray& MeshNode::getFaces()
 {
-	// TODO: insert return statement here
 	return m_faces;
 }
 
 VertexArray& MeshNode::getVertices()
 {
-	// TODO: insert return statement here
 	return m_vertices;
 }
 

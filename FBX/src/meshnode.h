@@ -20,8 +20,6 @@ public:
 	const std::string& getName() const;
 	const uint32_t getID() const;
 
-	/*std::vector<Face> faces;
-	std::vector<Vertex> vertices;*/
 	FaceArray& getFaces();
 	VertexArray& getVertices();
 

@@ -77,8 +77,8 @@ BoneNode* FBXModel::loadBoneNode(FbxNode* pNode, BoneNode* parent)
 	boneNode->mGlobalTransform = globalTransform;
 
 	//TODO : animation stack : pose ..etc
-	Animation* animation = mNode.getAnimation();
-	int sampleNum = animation->getNumFrameSamples();
+	AnimationSample* animation = mNode.getAnimationSample();
+	int sampleNum = animation->getSamplesFrameNum();
 
 	//TASK 0 1 2
 	//0 = allocate track and keys
@@ -87,7 +87,7 @@ BoneNode* FBXModel::loadBoneNode(FbxNode* pNode, BoneNode* parent)
 		boneNode->allocateTracks(sampleNum);
 	}
 	//1 = sey keys
-	int startFrame = animation->getStartSample();
+	int startFrame = animation->getSampleStart();
 	int startTime = animation->convertFrameToMilli(startFrame);
 	FbxTime fbxTime;
 	for (int sample = 0; sample <= sampleNum; ++sample)
@@ -101,10 +101,14 @@ BoneNode* FBXModel::loadBoneNode(FbxNode* pNode, BoneNode* parent)
 			pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
 
 		//TODO : scale key rotation key
-		KeyVector positionKey(localMatrix.GetT(), sampleTime);
 		KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
-		LOG << rotationKey << ENDN;
+		KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
+		KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+		
+		//LOG << rotationKey << ENDN;
+		boneNode->addRotationKey(rotationKey);
 		boneNode->addPositionKey(positionKey);
+		boneNode->addScaleKey(scaleKey);
 		/*LOG << boneNode->getPositionKey(sample) << ENDN;*/
 	}
 

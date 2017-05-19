@@ -9,10 +9,8 @@
 
 namespace Input
 {
-	//bool firstClick = true;
 	inline void event(Renderer &renderer,Camera &camera)
 	{
-		/*bool firstClick = true;*/
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
@@ -58,12 +56,9 @@ namespace Input
 				case SDLK_ESCAPE:
 					renderer.isRunning = false;
 					break;
-				default:
-					break;
 				}
 				break;
-			default:
-				break;
+			
 			}
 		}
 		const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -115,11 +110,11 @@ namespace Input
 
 namespace Window
 {
-	inline void initWindow(SDL_Window *&window, SDL_GLContext &context, int width, int height)
+	inline void initWindow(SDL_Window *&window, SDL_GLContext &context, int width, int height, int swapInterval = 1)
 	{
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
 
-		window = SDL_CreateWindow("FBX - OpenGL Animation",
+		window = SDL_CreateWindow("FBX - OpenGL AnimationSample",
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
 			width,
@@ -133,7 +128,7 @@ namespace Window
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 		context = SDL_GL_CreateContext(window);
-
+		SDL_GL_SetSwapInterval(swapInterval);
 		SDL_SetHintWithPriority(SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE);
 		glewExperimental = GL_TRUE;
 		
@@ -171,7 +166,7 @@ namespace Window
 		glViewport(0, 0, width, height);
 		glEnable(GL_DEPTH_TEST);
 
-		glClearColor(0.09, 0.09, 0.1, 1);
+		glClearColor(0.09f, 0.09f, 0.1f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		SDL_GL_SwapWindow(window);

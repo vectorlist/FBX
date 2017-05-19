@@ -16,7 +16,7 @@ class Timer
 {
 public:
 	float delta = 0.0f;
-	int frameCount = 0.f;
+	int frameCount = 0;
 	float last = 0.0f;
 	float current = 0.0f;
 	float lastSecond = 0.0;
@@ -27,7 +27,7 @@ public:
 
 inline void Timer::begin()
 {
-	current = SDL_GetTicks();
+	current = (float)SDL_GetTicks();
 	delta = (current - last) * 0.001f;
 	last = current;
 }
@@ -48,5 +48,6 @@ inline void Timer::end(SDL_Window* window)
 		frameCount = 0;
 
 	}
+	SDL_Delay(1);
 	SDL_GL_SwapWindow(window);
 }

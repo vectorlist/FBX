@@ -462,16 +462,11 @@ inline Matrix4x4 Matrix4x4::vulkandClip()
 
 inline vec3f Matrix4x4::normal(const vec3f &n)
 {
-	float x, y, z, w;
+	float x, y, z;
 	x = n.x * m[0][0] + n.y * m[0][1] + n.z * m[0][2];
 	y = n.x * m[1][0] + n.y * m[1][1] + n.z * m[1][2];
 	z = n.x * m[2][0] + n.y * m[2][1] + n.z * m[2][2];
-	/*w = n.x * m[3][0] + n.y * m[3][1] + n.z * m[3][2] + m[3][3];
 
-	if (w == 1.0f)
-	return vec3f(x, y, z);
-	else
-	return vec3f(x /w, y/w, z/w);*/
 	return vec3f(x, y, z).normalized();
 }
 

@@ -2,8 +2,10 @@
 #include <util.h>
 #include <fbxmodel.h>
 #include <shadertool.h>
-#define WIDTH		1024
-#define HEIGHT		720
+#include <animationrenderer.h>
+
+#define WIDTH		720
+#define HEIGHT		640
 
 #define TAKE0
 
@@ -11,10 +13,10 @@
 
 int main(int argc, char* argv[])
 {
-	Window::setConsoleOutput(10, 10, 600, 800);
+	Window::setConsoleOutput(10, 10, 800, 800);
 	SDL_Window* window;
 	SDL_GLContext context;
-	Window::initWindow(window, context, WIDTH, HEIGHT);
+	Window::initWindow(window, context, WIDTH, HEIGHT, 20);
 	Renderer renderer;
 	Timer timer;
 	Camera camera;
@@ -23,6 +25,11 @@ int main(int argc, char* argv[])
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
 	FBXModel model("ani.fbx", shader);
+
+	//AnimationSample(TEST)
+	AnimationRenderer animRenderer;
+	animRenderer.setRootNode(&model.mNode);
+	animRenderer.setRenderableMesh(&model.m_mesh);
 	
 	while (renderer.isRunning)
 	{
@@ -31,6 +38,9 @@ int main(int argc, char* argv[])
 		Input::event(renderer, camera);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		/*ANIMATION MANAGER*/
+		animRenderer.startAnimation();
+
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
 		ShaderTool::setUniformMatrix4f(shader, camera.view(), "view", true);
@@ -38,8 +48,9 @@ int main(int argc, char* argv[])
 		trans.scale(0.1);
 		ShaderTool::setUniformMatrix4f(shader, trans, "model", true);
 		glUseProgram(0);
-		model.render(shader);
-		//model.m_mesh.renderBoundingBox();
+	
+		animRenderer.render(shader);
+	
 		timer.end(window);
 	}
 
@@ -50,24 +61,16 @@ int main(int argc, char* argv[])
 
 #else
 
-#include <Logger.h>
+#include <fbxtool.h>
+#include <chrono>
 
-struct Some
-{
-	int i;
-};
+
 
 int main(int argc, char* argv[])
 {
 	Window::setConsoleOutput(10, 10, 700, 800);
-	std::vector<Some> some;
-	some.reserve(3);
-
-	for (int i = 0; i < 10; ++i)
-		some.push_back(Some());
-
-	LOG << some.size() << ENDL;
 	
+
 	system("pause");
 	return 0;
 }

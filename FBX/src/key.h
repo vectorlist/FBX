@@ -5,6 +5,7 @@
 #include <fbxsdk/core/math/fbxquaternion.h>
 #include <vector>
 #include <memory>
+#include <assert.h>
 
 using namespace fbxsdk;
 
@@ -17,17 +18,17 @@ public:
 	long mTime;
 };
 
-class KeyVector : public Key
+class KeyVec3 : public Key
 {
 public:
-	KeyVector() : Key(0)
+	KeyVec3() : Key(0)
 	{
 		mVector[0] = 0;
 		mVector[1] = 0;
 		mVector[2] = 0;
 	}
 
-	KeyVector(double x, double y, double z, long time)
+	KeyVec3(double x, double y, double z, long time)
 		: Key(time)
 	{
 		mVector[0] = x;
@@ -35,15 +36,18 @@ public:
 		mVector[2] = z;
 	}
 
-	KeyVector(const FbxVector4 &other, long time)
+	KeyVec3(const FbxVector4 &other, long time)
 		: Key(time)
 	{
 		mVector = other;
 	}
 
-	FbxVector4 mVector;
+	const FbxVector4& data() const 
+	{
+		return mVector;
+	}
 
-	friend std::ostream& operator<<(std::ostream &o, const KeyVector &v)
+	friend std::ostream& operator<<(std::ostream &o, const KeyVec3 &v)
 	{
 		o << "keyvector( " 
 			<< v.mVector[0] << ", " 
@@ -51,6 +55,9 @@ public:
 			<< v.mVector[2] << ')';
 		return o;
 	}
+
+//private:
+	FbxVector4 mVector;
 };
 
 
@@ -81,6 +88,17 @@ public:
 		mQuaternion = quaternion;
 	}
 
+	const double operator[](unsigned int index) const
+	{
+		assert(index < 4);
+		return mQuaternion[index];
+	}
+
+	const FbxQuaternion& data() const
+	{
+		return mQuaternion;
+	}
+
 	friend std::ostream& operator<<(std::ostream &o, const KeyQuaternion &q)
 	{
 		o << "keyQuaternion( "
@@ -91,9 +109,9 @@ public:
 		return o;
 	}
 
-private:
+//private:
 	FbxQuaternion mQuaternion;
 };
 
-typedef std::vector<KeyVector> KeyVectorArray;
+typedef std::vector<KeyVec3> KeyVectorArray;
 typedef std::vector<KeyQuaternion> KeyQuaternionArray;

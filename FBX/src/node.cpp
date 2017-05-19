@@ -41,7 +41,7 @@ BoneNode* Node::getBoneNodeByName(const std::string &name)
 
 /*------------ MESH NODE -------------*/
 
-MeshNode * Node::getMeshNodeRoot()
+MeshNode* Node::getMeshNodeRoot()
 {
 	return mMeshNodes.getRoot();
 }
@@ -54,26 +54,27 @@ void Node::addChildMeshNode(MeshNode* parent, MeshNode *node)
 
 MeshNode* Node::getCurrentMeshNode()
 {
-	for (auto* node = mMeshNodes.getRoot(); node != NULL;)
+	for (auto* node = mMeshNodes.getRoot();
+		node != NULL;
+		node = mMeshNodes.getNextChildFirst(node))
 	{
 		if (node) {
 			if (!node->isBuilt) continue;
 			return node;
 		}
-		node = mMeshNodes.getNextChildFirst(node);
 	}
 	return NULL;
 }
 
-void Node::setAnimation(AnimationPtr & animation)
+void Node::setAnimationSample(AnimationSamplePtr &scene)
 {
-	mAnimationPtr = std::move(animation);
+	mAnimationSamplePtr = std::move(scene);
 }
 
-Animation* Node::getAnimation() const
+AnimationSample* Node::getAnimationSample() const
 {
-	if (mAnimationPtr) {
-		return mAnimationPtr.get();
+	if (mAnimationSamplePtr) {
+		return mAnimationSamplePtr.get();
 	}
 	return NULL;
 }

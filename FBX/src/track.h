@@ -11,17 +11,17 @@ public:
 		mKeys.reserve(totalKeyNum);
 	}
 
-	void addKey(const KeyVector &key)
+	void addKey(const KeyVec3 &key)
 	{
 		mKeys.push_back(key);
 	}
 
-	KeyVector& getKey(int keyIndex)
+	KeyVec3& getKey(int keyIndex)
 	{
 		return mKeys[keyIndex];
 	}
 	
-	//not sure without allocate heap
+private:
 	KeyVectorArray mKeys;
 };
 
