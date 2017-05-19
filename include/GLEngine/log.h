@@ -16,6 +16,8 @@
 #define LOG_ASSERT(x)				Log::log_error(x)
 #define LOG_SHADER_ERROR(x,xx)		Log::log_shader_error(x,xx)
 
+#define SAFE_DELETE(x) if( x ) { delete (x); (x) = NULL; }
+
 namespace Log
 {
 	inline void log_error(const std::string &msg)

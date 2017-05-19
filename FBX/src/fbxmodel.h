@@ -15,32 +15,21 @@
 #include <face.h>
 #include <vertex.h>
 #include <node.h>
+#include <fbxdevice.h>
 
 class FBXModel
 {
 public:
-	FBXModel(const char* filename, GLuint shader);
+	FBXModel(const std::string &filename, GLuint shader);
 
-	std::string m_filename;
 	GLuint m_shader;
 	FbxManager* m_manager;
 	FbxImporter* m_importer;
 	FbxScene* m_scene;
-	FbxNode* m_rootNode;
-
-	mutable FbxTime m_frameTime, m_start, m_stop, m_currentTime;
-	mutable FbxTime m_cacheStart, m_cacheStop;
-	//built in
-	FbxArray<FbxString*> m_animStatclNameArrays;
-	//std::vector<FBXMesh> meshes;
-
-	void setSceneSystem(FbxScene* pScene);
+	FbxNode* mRootNode;
+	FBXDevice* mDevice;
 
 	void render(GLuint shader) { m_mesh.render(shader); }
-
-	bool hasNormal;
-	bool hasUV;
-	bool byControlPoint;
 
 	bool buildSkin(FbxNode* pNode, MeshNode* meshNode);
 	bool loadSkin(
@@ -53,7 +42,7 @@ public:
 	Node mNode;
 	/*--------------- ANIMATION --------------*/
 	//AnimationSample mAnimation;
-	bool buildAnimationLayer(Node &node);
+	bool createAnimationSamples(Node &node);
 
 	/*--------------- EXT FUNC --------------*/
 	struct 

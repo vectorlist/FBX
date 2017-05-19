@@ -36,7 +36,7 @@
     <ClInclude Include="src\animationrenderer.h" />
     <ClInclude Include="src\bonenode.h" />
     <ClInclude Include="src\face.h" />
-    <ClInclude Include="src\fbxio.h" />
+    <ClInclude Include="src\fbxdevice.h" />
     <ClInclude Include="src\fbxmesh.h" />
     <ClInclude Include="src\fbxmodel.h" />
     <ClInclude Include="src\fbxtool.h" />
@@ -54,7 +54,7 @@
     <ClCompile Include="src\animationscene.cpp" />
     <ClCompile Include="src\animationrenderer.cpp" />
     <ClCompile Include="src\bonenode.cpp" />
-    <ClCompile Include="src\fbxio.cpp" />
+    <ClCompile Include="src\fbxdevice.cpp" />
     <ClCompile Include="src\fbxmesh.cpp" />
     <ClCompile Include="src\fbxmodel.cpp" />
     <ClCompile Include="src\fbxmodel_ext.cpp" />

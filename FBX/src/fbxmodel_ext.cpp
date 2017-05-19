@@ -132,8 +132,8 @@ MeshNode* FBXModel::loadMeshNode(FbxNode *pNode, MeshNode *parent)
 	mNode.addChildMeshNode(parent, meshNode);
 
 	//test
-	MeshNodeInfo.mMeshNodes.push_back(meshNode);
-	MeshNodeInfo.mFbxNodes.push_back(pNode);
+	/*MeshNodeInfo.mMeshNodes.push_back(meshNode);
+	MeshNodeInfo.mFbxNodes.push_back(pNode);*/
 	
 	std::string nodeName = pNode->GetName();
 	meshNode->setName(nodeName);

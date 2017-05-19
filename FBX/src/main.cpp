@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	Window::setConsoleOutput(10, 10, 800, 800);
 	SDL_Window* window;
 	SDL_GLContext context;
-	Window::initWindow(window, context, WIDTH, HEIGHT, 20);
+	Window::initWindow(window, context, WIDTH, HEIGHT, 1);
 	Renderer renderer;
 	Timer timer;
 	Camera camera;

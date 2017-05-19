@@ -4,130 +4,78 @@
 #include <meshnode.h>
 #include <animationsample.h>
 
-FBXModel::FBXModel(const char *filename, GLuint shader)
-	: m_filename(filename), m_shader(shader)
+FBXModel::FBXModel(const std::string &filename, GLuint shader)
+	: m_shader(shader)
 {
-	m_manager = FbxManager::Create();
-	if (m_manager)
-	{
-		LOG << "Autodesk FBX SDK version : " << m_manager->GetVersion() << ENDN;
-	}
-	FbxIOSettings* ioSetting = FbxIOSettings::Create(m_manager, IOSROOT);
-	m_manager->SetIOSettings(ioSetting);
+	FBXDeviceCreateInfo deviceInfo{};
+	deviceInfo.filename = filename;
+	
+	mDevice = new FBXDevice(deviceInfo);
 
-	m_importer = FbxImporter::Create(m_manager, "");
-	LOG << "Loading : " << m_filename << ENDL;
-	bool init = m_importer->Initialize(m_filename.c_str(), -1, m_manager->GetIOSettings());
-	if (!init)
-	{
-		std::string err = m_importer->GetStatus().GetErrorString();
-		LOG_ERROR(err + " : " + m_filename);
-	}
-
-	m_scene = FbxScene::Create(m_manager, "scene");
-	if (!m_scene)
-	{
-		LOG_ASSERT("failed to create scene");
-	}
-	m_importer->Import(m_scene);
-	setSceneSystem(m_scene);
-	//m_importer->Destroy();
-
-	m_rootNode = m_scene->GetRootNode();
-
-	LOG << "Node Child Nums : " << m_rootNode->GetChildCount() << ENDL;
-
-	m_scene->FillAnimStackNameArray(m_animStatclNameArrays);
-
-	for (int i = 0; i < m_animStatclNameArrays.Size(); ++i)
-	{
-		LOG << "AnimationSample Statck : " << m_animStatclNameArrays[i]->Buffer() << ENDL;
-	}
-
-	//convert triangles
-	FbxGeometryConverter converter(m_manager);
-	converter.Triangulate(m_scene, true);
+	mRootNode = mDevice->getRootNode();
 
 	//ANIMATION TASK 0 1 2
 	//0 = animation infomation (fps, fbx time) scene
-	buildAnimationLayer(mNode);
+	createAnimationSamples(mNode);
 	//1 = bake transform all node
-	bakeNodeTransform(m_rootNode);
+	bakeNodeTransform(mRootNode);
 	//2 = get AnimationSample pointer and convert pivot animations and frame rates
-	AnimationSample* animation = mNode.getAnimationSample();
-	m_rootNode->ConvertPivotAnimationRecursive(NULL,
-		FbxNode::eDestinationPivot, animation->getFps());
+	AnimationSample* sample = mNode.getAnimationSample();
+	mRootNode->ConvertPivotAnimationRecursive(NULL,
+		FbxNode::eDestinationPivot, sample->getFps());
 	//m_rootNode->ConvertPivotAnimationRecursive(,)
 
 	
 
 	//NODE TASK 0 1 2
 	//0 = build bone, mesh nodes
-	loadNodes(m_rootNode, mNode.getBoneNodeRoot(), mNode.getMeshNodeRoot());
+	loadNodes(mRootNode, mNode.getBoneNodeRoot(), mNode.getMeshNodeRoot());
 	//1 = skin for bone id and weight
 	MeshNode* currentMeshNode = mNode.getCurrentMeshNode();
-	buildSkin(m_rootNode, currentMeshNode);
+	buildSkin(mRootNode, currentMeshNode);
 	//2 = build renderable mesh from available mesh node
 	FBXTool::buildMesh(currentMeshNode, m_mesh);
 
-	
-
-	m_importer->Destroy();
 }
 
-void FBXModel::setSceneSystem(FbxScene *pScene)
+bool FBXModel::createAnimationSamples(Node &node)
 {
-	FbxAxisSystem sceneAxis = pScene->GetGlobalSettings().GetAxisSystem();
-	FbxAxisSystem oglAxis(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd,
-		FbxAxisSystem::eRightHanded);
-
-	if (sceneAxis == oglAxis) {
-
-		oglAxis.ConvertScene(pScene);
-	}
-}
-
-bool FBXModel::buildAnimationLayer(Node &node)
-{
-	AnimationSamplePtr animationSamplePtr = AnimationSamplePtr(new AnimationSample);
-	const FbxTakeInfo* takeInfo = m_importer->GetTakeInfo(0);
+	AnimationSamplePtr sample = AnimationSamplePtr(new AnimationSample);
+	const FbxTakeInfo* takeInfo = mDevice->getTakeInfos()[0];
 
 	if (!takeInfo) {
 		LOG_ERROR("failed to find animation take info");
 		return false;
 	}
-	//LOG << "animation take : " <
-	double frameRate = ANIMATION_CURRENT_FRAME_RATE;
-	FbxTime::EMode timeMode;
-	if (m_importer->GetFrameRate(timeMode))
-	{
-		frameRate = FbxTime::GetFrameRate(timeMode);
-
+	float frameRate = ANIMATION_CURRENT_FRAME_RATE;
+	if (mDevice->getSceneFrameRate() > 0.0f) {
+		frameRate = mDevice->getSceneFrameRate();
 	}
-	
-	animationSamplePtr->setFps(frameRate);
 
-	const long startTimeL = takeInfo->mLocalTimeSpan.GetStart().GetMilliSeconds();
-	const long endTimeL = takeInfo->mLocalTimeSpan.GetStop().GetMilliSeconds();
-	int startTime = animationSamplePtr->convertMilliToFrame(startTimeL);
-	int endTime = animationSamplePtr->convertMilliToFrame(endTimeL);
-	animationSamplePtr->setSampleStart(startTime);
-	animationSamplePtr->setSampleEnd(endTime);
+	sample->setName(takeInfo->mName.Buffer());
+	sample->setFps(frameRate);
+
+	const long startTime = takeInfo->mLocalTimeSpan.GetStart().GetMilliSeconds();
+	const long endTime = takeInfo->mLocalTimeSpan.GetStop().GetMilliSeconds();
+	int sampleStart = sample->convertMilliToFrame(startTime);
+	int sampleEnd = sample->convertMilliToFrame(endTime);
+	sample->setSampleStart(sampleStart);
+	sample->setSampleEnd(sampleEnd);
 
 	//get numFrame
-	int frameNum = animationSamplePtr->getSampleEnd() - animationSamplePtr->getSampleStart() - 1;
-	animationSamplePtr->setFrameNums(frameNum);
+	int frameNum = sample->getSampleEnd() - sample->getSampleStart() - 1;
+	sample->setFrameNums(frameNum);
 
 	bool debugAnimationInfo = true;
 	if (debugAnimationInfo)
 	{
-		LOG << "Current Frame Rate : " << frameRate << ENDN;
-		LOG << "start : " << startTime << " end : " << endTime << ENDN;
-		LOG << "frame num : " << frameNum << ENDN;
+		LOG << "created sample name : " << sample->getName() <<" frame per second : " << sample->getFps() << ENDN;
+		LOG << "start : " << sample->getSampleStart() << " end : " << sample->getSampleEnd() << ENDN;
+		LOG	<< "sameple num : " << sample->getSamplesFrameNum() << ENDN;
 	}
 
 	//sample move to node
-	node.setAnimationSample(animationSamplePtr);
+	node.setAnimationSample(sample);
 	return true;
 }
 

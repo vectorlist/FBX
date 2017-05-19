@@ -69,9 +69,6 @@
     <ClInclude Include="..\include\GLEngine\renderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\fbxio.h">
-      <Filter>src\Fbx</Filter>
-    </ClInclude>
     <ClInclude Include="src\fbxmesh.h">
       <Filter>src\Fbx</Filter>
     </ClInclude>
@@ -120,13 +117,13 @@
     <ClInclude Include="src\trackcontainer.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="src\fbxdevice.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fbxio.cpp">
-      <Filter>src\Fbx</Filter>
     </ClCompile>
     <ClCompile Include="src\fbxmesh.cpp">
       <Filter>src\Fbx</Filter>
@@ -163,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="src\animationscene.cpp">
       <Filter>src\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxdevice.cpp">
+      <Filter>src\Fbx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

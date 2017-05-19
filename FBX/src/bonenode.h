@@ -6,7 +6,7 @@
 #include <track.h>
 
 using namespace fbxsdk;
-
+class TrackContainer;
 class BoneNode : public NodeTreeItem<BoneNode>
 {
 public:
@@ -32,6 +32,7 @@ public:
 	FbxAMatrix mInverseTransform;
 
 	/*------------- TRACK ----------------*/
+	TrackContainer* mTrack;
 	//replace to container
 	//allocate Datas tracks
 	void allocateTracks(int frameNum);

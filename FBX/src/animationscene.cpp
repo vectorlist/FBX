@@ -98,6 +98,7 @@ void AnimationScene::boneRecursive(int sample, BoneNode *pBoneNode)
 		KeyVec3 scaleKey;
 		KeyQuaternion rotationKey;
 
+		//TODO : replace Track container
 		//get track from bone node
 		TrackVec3* posTrack = pBoneNode->getPositionTrack();
 		TrackVec3* scaleTrack = pBoneNode->getScaleTrack();
@@ -113,6 +114,8 @@ void AnimationScene::boneRecursive(int sample, BoneNode *pBoneNode)
 		localScale.SetS(scaleKey.mVector);
 		FbxAMatrix localRoatation;
 		localRoatation.SetQ(rotationKey.mQuaternion);
+		//LOG_FBX_MATRIX(localRoatation);
+		//LOG << rotationKey << ENDN;
 
 		//for record all matrix (trans * rot * scale) to this bone node
 		FbxAMatrix& globalTransform = pBoneNode->getGlobalTransfrom();
@@ -127,12 +130,12 @@ void AnimationScene::boneRecursive(int sample, BoneNode *pBoneNode)
 		else
 		{
 			FbxAMatrix localTransform;
-			localTransform.SetT(positionKey.data());
+			localTransform.SetT(positionKey.mVector);
 
 			//record matrix to node
 			globalTransform = localTransform * localRoatation * localScale;
-			LOG << "bone name : " << pBoneNode->getName() << ENDN;
-			LOG_FBX_MATRIX(globalTransform);
+			/*LOG << "bone name : " << pBoneNode->getName() << ENDN;*/
+			//LOG_FBX_MATRIX(globalTransform);
 
 			if (pBoneNode->mFirstChild)
 			{
