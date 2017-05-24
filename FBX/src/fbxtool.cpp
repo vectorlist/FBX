@@ -2,58 +2,6 @@
 #include <log.h>
 #include <bonenode.h>
 #include <meshnode.h>
-#include <logger.h>
-
-void FBXTool::buildMesh(MeshNode *meshNode, FBXMesh &mesh)
-{
-	if (meshNode->getID() > 0) {
-		LOG_ERROR("dosent supported 2more meshes in this version");
-	}
-	std::vector<int> debugIndex;
-	auto& faces = meshNode->getFaces();
-	auto& vertices = meshNode->getVertices();
-	for (auto faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
-	{
-		for (int facePointIndex = 0; facePointIndex < FACE_POINT_MAX; ++facePointIndex)
-		{
-			Face &face = faces[faceIndex];
-			int vertexIndex = face.getVertexIndex(facePointIndex);
-			FBXVertex vertex;
-			vertex.position = vertices[vertexIndex].getPosition();
-			vertex.normal = face.getNormal(facePointIndex);
-			vertex.st = face.getST(facePointIndex);
-
-			//TODO : bone IDs 4s
-			for (int i = 0; i < BONE_COMPONENT_NUM; ++i)
-			{
-				vertex.boneID[i] = vertices[vertexIndex].getBoneID(i);
-				//TODO : bone weight 4s
-				vertex.boneWeight[i] = vertices[vertexIndex].getBoneWeight(i);
-			}
-
-			mesh.vertices.push_back(vertex);
-			mesh.indices.push_back(faceIndex * 3 + facePointIndex);
-			debugIndex.push_back(vertexIndex);
-		}
-	}
-
-
-	mesh.buildBuffer();
-	bool enableWrite = false;
-	if (!enableWrite) return;
-	for (int i = 0; i < mesh.vertices.size(); ++i)
-	{
-		FBXVertex& vertex = mesh.vertices[i];
-		int index = debugIndex[i];
-		LOG_W << "vertexID : " << index
-			<< " boneID : " << vertex.boneID[0] << ", " << vertex.boneID[1] << ", "
-			<< vertex.boneID[2] << ", " << vertex.boneID[3] << ", "
-			<< " boneWeights : " << vertex.boneWeight[0] << ", " << vertex.boneWeight[1] << ", "
-			<< vertex.boneWeight[2] << ", " << vertex.boneWeight[3] << ENDN;
-
-	}
-
-}
 
 float FBXTool::clamp(float val, float fmin, float fmax)
 {
@@ -66,16 +14,6 @@ float FBXTool::clamp(float val, float fmin, float fmax)
 	return val;
 }
 
-KeyVec3 FBXTool::lerp(
-	const KeyVec3& key,
-	const KeyVec3& nextKey,
-	float normalizedTime)
-{
-	//A * T +  B(1.f - T)
-	KeyVec3 result;
-	result.mVector = key.mVector * normalizedTime + (nextKey.mTime * (1.0f - normalizedTime));
-	return result;
-}
 
 void FBXTool::lerp(
 	const KeyVec3& current,
@@ -99,57 +37,43 @@ void FBXTool::lerp(
 }
 
 void FBXTool::slerp(
-	const KeyQuaternion& last,
+	const KeyQuaternion& key,
 	const KeyQuaternion& next,
 	KeyQuaternion& result,
 	float normalizedTime)
 {
 	//http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
-	FbxQuaternion nextQ = next.mQuaternion;
-	
-	double cosTheta =	last[0] * nextQ[0] + last[1] * nextQ[1] +
-						last[2] * nextQ[2] + last[3] * nextQ[3];
+	FbxQuaternion nextQuaternion = next.mQuaternion; //Copy this incase we need to negate it
 
-	//no difference
-	if (cosTheta == 1.0)
+														 // First calcualte the 4D dot product which gives cos theta
+	double cosTheta = key.mQuaternion[0] * nextQuaternion[0] + key.mQuaternion[1] * nextQuaternion[1]
+		+ key.mQuaternion[2] * nextQuaternion[2] + key.mQuaternion[3] * nextQuaternion[3];
+
+	if (cosTheta == 1)
 	{
-		result.mQuaternion = last.mQuaternion;
+		result.mQuaternion = key.mQuaternion; // The two key are the same so just return.
 		return;
 	}
 
-	if (cosTheta < 0)
+	if (cosTheta < 0) // q1 and q2 are more than 90 degrees apart so invert one of them to reduce spinning
 	{
-		//if more than 90deg then flip
 		cosTheta *= -1;
-		nextQ = -next.mQuaternion;
+		nextQuaternion = -next.mQuaternion;
 	}
-	
-	if (cosTheta < 0.99999f)
+
+	if (cosTheta < 0.99999f) // If the keys are different
 	{
-		//difference
+		double theta = acos(cosTheta);
+		double firstKeyWeight = sin((1 - normalizedTime) * theta) / sin(theta);
+		double nextKeyWeight = sin(normalizedTime * theta) / sin(theta);
 
-		//double ratioA = sin((1 - t) * halfTheta) / sinHalfTheta;
-		//double ratioB = sin(t * halfTheta) / sinHalfTheta;
-		////calculate Quaternion.
-		//qm.w = (qa.w * ratioA + qb.w * ratioB);
-		//qm.x = (qa.x * ratioA + qb.x * ratioB);
-		//qm.y = (qa.y * ratioA + qb.y * ratioB);
-		//qm.z = (qa.z * ratioA + qb.z * ratioB);
-		
-		//to half costhea
-		double halfTheta = acos(cosTheta);
-		double weightA = sin((1 - normalizedTime) * halfTheta) / sin(halfTheta);
-		double weightB = sin(normalizedTime * halfTheta) / sin(halfTheta);
+		FbxQuaternion interpolatedQuat = (key.mQuaternion * firstKeyWeight) + (nextQuaternion * nextKeyWeight);
 
-		FbxQuaternion interpolatedQ =
-			(last.mQuaternion  * weightA) + (nextQ * weightB);
-
-		result = KeyQuaternion(interpolatedQ, 0);
-		/*LOG << "interpolated" <<result << ENDN;*/
+		result = KeyQuaternion(interpolatedQuat, 0);
 		return;
 	}
 
-	return lerp(last, next, result, normalizedTime);
+	return lerp(key, next, result,normalizedTime);
 }
 
 

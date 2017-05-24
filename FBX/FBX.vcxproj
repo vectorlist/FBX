@@ -36,17 +36,18 @@
     <ClInclude Include="src\animationrenderer.h" />
     <ClInclude Include="src\bonenode.h" />
     <ClInclude Include="src\face.h" />
+    <ClInclude Include="src\config.h" />
     <ClInclude Include="src\fbxdevice.h" />
-    <ClInclude Include="src\fbxmesh.h" />
-    <ClInclude Include="src\fbxmodel.h" />
+    <ClInclude Include="src\skinmesh.h" />
+    <ClInclude Include="src\fbxcore.h" />
     <ClInclude Include="src\fbxtool.h" />
     <ClInclude Include="src\key.h" />
-    <ClInclude Include="src\logger.h" />
     <ClInclude Include="src\meshnode.h" />
     <ClInclude Include="src\node.h" />
     <ClInclude Include="src\nodetree.h" />
     <ClInclude Include="src\track.h" />
     <ClInclude Include="src\trackcontainer.h" />
+    <ClInclude Include="src\ubo.h" />
     <ClInclude Include="src\vertex.h" />
   </ItemGroup>
   <ItemGroup>
@@ -55,11 +56,10 @@
     <ClCompile Include="src\animationrenderer.cpp" />
     <ClCompile Include="src\bonenode.cpp" />
     <ClCompile Include="src\fbxdevice.cpp" />
-    <ClCompile Include="src\fbxmesh.cpp" />
-    <ClCompile Include="src\fbxmodel.cpp" />
-    <ClCompile Include="src\fbxmodel_ext.cpp" />
+    <ClCompile Include="src\skinmesh.cpp" />
+    <ClCompile Include="src\fbxcore.cpp" />
+    <ClCompile Include="src\fbxcore_ext.cpp" />
     <ClCompile Include="src\fbxtool.cpp" />
-    <ClCompile Include="src\logger.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meshnode.cpp" />
     <ClCompile Include="src\node.cpp" />
@@ -139,7 +139,7 @@
       <AdditionalIncludeDirectories>.;$(SolutionDir)\include\GLEngine;$(SolutionDir)\include\core;$(SolutionDir)\include;$(ProjectDir)\src;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <PreprocessorDefinitions>LOG_W_ENABLE;_USE_MATH_DEFINES;</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LOG_W_ENABLE;FBXSDK_SHARED;_USE_MATH_DEFINES;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)\lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

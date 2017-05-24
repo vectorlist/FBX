@@ -4,12 +4,25 @@
 #include <string>
 #include <vector>
 
+enum ApplicationInfo
+{
+	Maya,Max
+};
+
 struct FBXDeviceCreateInfo
 {
+	FBXDeviceCreateInfo()
+		: filename(""),
+		enablePose(false),
+		enableAnimationStack(false),
+		enableConvertTriangles(false),
+		appInfo(Maya)
+	{}
 	std::string filename;
 	bool enablePose;
 	bool enableAnimationStack;
 	bool enableConvertTriangles;
+	ApplicationInfo appInfo;
 };
 
 class FBXDevice

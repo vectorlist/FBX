@@ -13,8 +13,8 @@ public:
 
 	/*------------ BONE NODE -------------*/
 	BoneNode* getBoneNodeRoot();
-	void addChildBoneNode(BoneNode* parent, BoneNode* node);
 	BoneNode* getBoneNodeByName(const std::string &name);
+	void addChildBoneNode(BoneNode* parent, BoneNode* node);
 
 	/*------------ MESH NODE -------------*/
 	MeshNode* getMeshNodeRoot();

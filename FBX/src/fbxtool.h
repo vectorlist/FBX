@@ -1,7 +1,6 @@
 #pragma once
 
 #include <fbxsdk.h>
-#include <fbxmesh.h>
 #include <vertex.h>
 #include <face.h>
 #include <node.h>
@@ -17,16 +16,8 @@ class FBXTool
 {
 public:
 	//meshnode to renderable mesh
-	static void buildMesh(
-		MeshNode *meshNode,
-		FBXMesh &mesh);
-
+	
 	static float clamp(float val, float fmin, float fmax);
-
-	static KeyVec3 lerp(
-		const KeyVec3& key,
-		const KeyVec3& nextKey,
-		float normalizedTime);
 
 	static void lerp(
 		const KeyVec3& current,

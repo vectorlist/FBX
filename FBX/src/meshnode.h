@@ -23,6 +23,7 @@ public:
 	FaceArray& getFaces();
 	VertexArray& getVertices();
 
+	const FbxAMatrix &getGlobalTransform() const;
 	FbxAMatrix mGlobalMarix;
 	bool isBuilt;
 private:

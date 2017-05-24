@@ -31,6 +31,9 @@
     <Filter Include="src\Fbx">
       <UniqueIdentifier>{99f42c97-d1f9-43ba-958d-dca15719fe6e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Model">
+      <UniqueIdentifier>{c3ee0fcf-d07e-4234-b3b5-619835cc2e36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\core\vec4f.h">
@@ -69,23 +72,11 @@
     <ClInclude Include="..\include\GLEngine\renderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\fbxmesh.h">
-      <Filter>src\Fbx</Filter>
-    </ClInclude>
-    <ClInclude Include="src\fbxmodel.h">
-      <Filter>src\Fbx</Filter>
-    </ClInclude>
     <ClInclude Include="src\fbxtool.h">
       <Filter>src\Fbx</Filter>
     </ClInclude>
     <ClInclude Include="src\bonenode.h">
       <Filter>src\Node</Filter>
-    </ClInclude>
-    <ClInclude Include="src\face.h">
-      <Filter>src\Node</Filter>
-    </ClInclude>
-    <ClInclude Include="src\logger.h">
-      <Filter>src\Fbx</Filter>
     </ClInclude>
     <ClInclude Include="src\key.h">
       <Filter>src\Animation</Filter>
@@ -102,9 +93,6 @@
     <ClInclude Include="src\track.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="src\vertex.h">
-      <Filter>src\Node</Filter>
-    </ClInclude>
     <ClInclude Include="src\animationrenderer.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
@@ -120,19 +108,28 @@
     <ClInclude Include="src\fbxdevice.h">
       <Filter>src\Fbx</Filter>
     </ClInclude>
+    <ClInclude Include="src\fbxcore.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
+    <ClInclude Include="src\skinmesh.h">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ubo.h">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\vertex.h">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\face.h">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config.h">
+      <Filter>src\Fbx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fbxmesh.cpp">
-      <Filter>src\Fbx</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fbxmodel.cpp">
-      <Filter>src\Fbx</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fbxmodel_ext.cpp">
-      <Filter>src\Fbx</Filter>
     </ClCompile>
     <ClCompile Include="src\fbxtool.cpp">
       <Filter>src\Fbx</Filter>
@@ -140,16 +137,10 @@
     <ClCompile Include="src\bonenode.cpp">
       <Filter>src\Node</Filter>
     </ClCompile>
-    <ClCompile Include="src\logger.cpp">
-      <Filter>src\Fbx</Filter>
-    </ClCompile>
     <ClCompile Include="src\meshnode.cpp">
       <Filter>src\Node</Filter>
     </ClCompile>
     <ClCompile Include="src\node.cpp">
-      <Filter>src\Node</Filter>
-    </ClCompile>
-    <ClCompile Include="src\vertex.cpp">
       <Filter>src\Node</Filter>
     </ClCompile>
     <ClCompile Include="src\animationrenderer.cpp">
@@ -163,6 +154,18 @@
     </ClCompile>
     <ClCompile Include="src\fbxdevice.cpp">
       <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxcore.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\fbxcore_ext.cpp">
+      <Filter>src\Fbx</Filter>
+    </ClCompile>
+    <ClCompile Include="src\skinmesh.cpp">
+      <Filter>src\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vertex.cpp">
+      <Filter>src\Model</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

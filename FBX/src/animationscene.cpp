@@ -2,7 +2,6 @@
 #include <node.h>
 #include <fbxtool.h>
 #include <log.h>
-#include <logger.h>
 
 AnimationScene::AnimationScene()
 	: mGlobalStartTime(0),
@@ -80,26 +79,27 @@ void AnimationScene::updateNode(Node *node, const long globalTime)
 	if (sampleFrame > sample->getSamplesFrameNum()) {
 		LOG_ASSERT("out of samples per frame");
 	}
-
+	
 	//TASK 4 : get Child Bone Node and calulate
-	boneRecursive(sampleFrame, rootBoneNode);
+	const FbxAMatrix parentGlobalScale;
+	const FbxAMatrix parentGlobalRotation;
+
+	evalNodes(sampleFrame, rootBoneNode, parentGlobalScale, parentGlobalRotation);
+	//evalFrame(sampleFrame, rootBoneNode);
 }
 
-void AnimationScene::boneRecursive(int sample, BoneNode *pBoneNode)
+void AnimationScene::evalNodes(int sample,
+	BoneNode * pBoneNode,
+	const FbxAMatrix &parentS,
+	const FbxAMatrix &parentR)
 {
-	//TASK 0 : FOR EACH CHILD BONE NODE
-	//BoneNode* node = pBoneNode;
-	//TODO : fix NodeTree
-	for (pBoneNode; pBoneNode != NULL; pBoneNode = pBoneNode->mNext)
+	for (pBoneNode; pBoneNode != NULL; pBoneNode = pBoneNode->next())
 	{
-		//LOG << "founded node : " << pBoneNode->getName() << ENDN;
-		//TASK 0 : get all key at this frame
 		KeyVec3 positionKey;
 		KeyVec3 scaleKey;
 		KeyQuaternion rotationKey;
 
 		//TODO : replace Track container
-		//get track from bone node
 		TrackVec3* posTrack = pBoneNode->getPositionTrack();
 		TrackVec3* scaleTrack = pBoneNode->getScaleTrack();
 		TrackQuaternion* rotTrack = pBoneNode->getQuaternionTrack();
@@ -110,45 +110,86 @@ void AnimationScene::boneRecursive(int sample, BoneNode *pBoneNode)
 		interpolateRoation(sample, rotTrack, rotationKey);
 
 		//Matrix
-		FbxAMatrix localScale;
-		localScale.SetS(scaleKey.mVector);
-		FbxAMatrix localRoatation;
-		localRoatation.SetQ(rotationKey.mQuaternion);
-		//LOG_FBX_MATRIX(localRoatation);
-		//LOG << rotationKey << ENDN;
+		FbxAMatrix localS;
+		localS.SetS(scaleKey.mVector);
+		FbxAMatrix localR;
+		localR.SetQ(rotationKey.mQuaternion);
 
 		//for record all matrix (trans * rot * scale) to this bone node
 		FbxAMatrix& globalTransform = pBoneNode->getGlobalTransfrom();
-
-		//LOG_FBX_MATRIX(localRoatation);
-		//LOG << rotationKey << ENDN;
-		if (pBoneNode->mParent)
+		
+		if (pBoneNode->parent())
 		{
-			//TODO : if found parent record all transform
-			LOG << "found parent" << ENDN;
+			const FbxAMatrix& parentTransform = pBoneNode->mParent->getGlobalTransfrom();
+			FbxAMatrix globalRS;
+
+			if (pBoneNode->getInheritScale())
+			{
+				globalRS = parentR * localR * parentS * localS;
+			}
+			else
+			{
+				globalRS = parentR * localR * localS;
+			}
+			
+			FbxVector4 globalPosion = parentTransform.MultT(positionKey.mVector);
+
+			FbxAMatrix globalPositionMatrix;
+			globalPositionMatrix.SetT(globalPosion);
+			globalTransform = globalPositionMatrix * globalRS;
+
+			if (pBoneNode->child())
+			{
+				FbxAMatrix globalS = parentS * localS;
+				FbxAMatrix globalR = parentR * localR;
+
+				evalNodes(sample, pBoneNode->child(), globalS, globalR);
+			}
 		}
 		else
 		{
-			FbxAMatrix localTransform;
-			localTransform.SetT(positionKey.mVector);
+			FbxAMatrix localT;
+			localT.SetT(positionKey.mVector);
 
-			//record matrix to node
-			globalTransform = localTransform * localRoatation * localScale;
-			/*LOG << "bone name : " << pBoneNode->getName() << ENDN;*/
-			//LOG_FBX_MATRIX(globalTransform);
-
-			if (pBoneNode->mFirstChild)
+			globalTransform = localT * localR * localS;
+		
+			if (pBoneNode->child())
 			{
 				//found child must recursive
-				
 
-				boneRecursive(sample, pBoneNode->mFirstChild);
+
+				evalNodes(sample, pBoneNode->child(), localS, localR);
 			}
 		}
-	} 
-	
-	
-	
+	}
+}
+
+//test
+void AnimationScene::evalFrame(int sample, BoneNode* pNode)
+{
+	for (BoneNode* node = pNode; node != NULL; node = node->mNext)
+	{
+		auto* posTrack = node->getPositionTrack();
+		auto* rotTrack = node->getQuaternionTrack();
+		auto* scaleTrack = node->getScaleTrack();
+
+		auto& posKey = posTrack->getKey(sample);
+		auto& rotKey = rotTrack->getKey(sample);
+		auto& scaleKey = scaleTrack->getKey(sample);
+
+		//FbxAMatrix localpos;
+		//localpos.
+		FbxAMatrix T, R, S;
+		T.SetT(posKey.mVector);
+		R.SetQ(rotKey.mQuaternion);
+		S.SetS(scaleKey.mVector);
+		node->mGlobalTransform = T * R * S;
+
+		if (node->mEndChild)
+		{
+			evalFrame(sample, node->mEndChild);
+		}
+	}
 }
 
 void AnimationScene::interpolatePosition(int sample, TrackVec3 * positionTrack, KeyVec3 &output)
@@ -175,20 +216,20 @@ void AnimationScene::interpolateScale(int sample, TrackVec3* scaleTrack, KeyVec3
 		return;
 	}
 	const KeyVec3 &nextKey = scaleTrack->getKey(sample + 1);
-	float normalizedSample = normalize(lastKey.mTime, nextKey.mTime, mLocalCurrentTime);
-	FBXTool::lerp(lastKey, nextKey, normalizedSample);
+	const float normalizedSample = normalize(lastKey.mTime, nextKey.mTime, mLocalCurrentTime);
+	FBXTool::lerp(lastKey, nextKey, output,normalizedSample);
 }
 
 void AnimationScene::interpolateRoation(int sample, TrackQuaternion* rotationTrack, KeyQuaternion& output)
 {
-	const KeyQuaternion last = rotationTrack->getKey(sample);
-	if (last.mTime == mLocalCurrentTime) {
-		output = last;
+	const KeyQuaternion &lastKey = rotationTrack->getKey(sample);
+	if (lastKey.mTime == mLocalCurrentTime) {
+		output = lastKey;
 		return;
 	}
-	const KeyQuaternion next = rotationTrack->getKey(sample + 1);
-	float normalizedSaple = normalize(last.mTime, next.mTime, mLocalCurrentTime);
-	FBXTool::slerp(last, next, output, normalizedSaple);
+	const KeyQuaternion &next = rotationTrack->getKey(sample + 1);
+	float normalizedSaple = normalize(lastKey.mTime, next.mTime, mLocalCurrentTime);
+	FBXTool::slerp(lastKey, next, output, normalizedSaple);
 }
 
 float AnimationScene::normalize(float last, float next, float current)

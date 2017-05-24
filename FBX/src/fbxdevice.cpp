@@ -52,12 +52,16 @@ FBXDevice::~FBXDevice()
 
 void FBXDevice::setSceneSetting(const FBXDeviceCreateInfo& info)
 {
-	FbxAxisSystem SceneAxisSystem = mScene->GetGlobalSettings().GetAxisSystem();
-	FbxAxisSystem OurAxisSystem(FbxAxisSystem::eYAxis, FbxAxisSystem::eParityOdd, FbxAxisSystem::eRightHanded);
-	if (SceneAxisSystem != OurAxisSystem)
+	if (info.appInfo == Maya)
 	{
-		OurAxisSystem.ConvertScene(mScene);
+		FbxAxisSystem SceneAxisSystem = mScene->GetGlobalSettings().GetAxisSystem();
+		FbxAxisSystem mayaSystem = FbxAxisSystem::MayaYUp;
+		if (SceneAxisSystem != mayaSystem)
+		{
+			mayaSystem.ConvertScene(mScene);
+		}
 	}
+	
 
 	//// Convert Unit System to what is used in this example, if needed
 	//FbxSystemUnit SceneSystemUnit = mScene->GetGlobalSettings().GetSystemUnit();
@@ -83,11 +87,11 @@ void FBXDevice::setSceneSetting(const FBXDeviceCreateInfo& info)
 		mTakeInfos.push_back(takeInfo);
 	}
 
-	FbxTime::EMode timeMode;
+	/*FbxTime::EMode timeMode;
 	if (mImporter->GetFrameRate(timeMode))
 	{
 		mSceneFrameRate = FbxTime::GetFrameRate(timeMode);
-	}
+	}*/
 }
 
 FbxManager* FBXDevice::getManager()

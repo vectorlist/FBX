@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdlib>
 #include <fbxsdk/core/math/fbxvector4.h>
 #include <fbxsdk/core/math/fbxquaternion.h>
 #include <vector>
@@ -49,7 +48,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &o, const KeyVec3 &v)
 	{
-		o << "keyvector( " 
+		o << "keyvec3( " 
 			<< v.mVector[0] << ", " 
 			<< v.mVector[1] << " ," 
 			<< v.mVector[2] << ')';
@@ -101,7 +100,7 @@ public:
 
 	friend std::ostream& operator<<(std::ostream &o, const KeyQuaternion &q)
 	{
-		o << "keyQuaternion( "
+		o << "keyquaternion( "
 			<< q.mQuaternion[0] << ", "
 			<< q.mQuaternion[1] << " ,"
 			<< q.mQuaternion[2] << " ,"

@@ -35,7 +35,7 @@ FbxAMatrix& BoneNode::getGlobalTransfrom()
 	return mGlobalTransform;
 }
 
-const FbxAMatrix& BoneNode::getGlobalMatrix() const
+const FbxAMatrix& BoneNode::getGlobalTransfrom() const
 {
 	// TODO: insert return statement here
 	return mGlobalTransform;
@@ -47,10 +47,25 @@ FbxAMatrix& BoneNode::getInveseLocalTransfrom()
 	return mInverseTransform;
 }
 
-const FbxAMatrix& BoneNode::getInveseLocalMatrix() const
+const FbxAMatrix& BoneNode::getInveseLocalTransfrom() const
 {
 	// TODO: insert return statement here
 	return mInverseTransform;
+}
+
+void BoneNode::setInverseLocalTransfrom(FbxAMatrix &invTransform)
+{
+	mInverseTransform = invTransform;
+}
+
+void BoneNode::setInheritScale(bool inheritScale)
+{
+	mInheritScale = inheritScale;
+}
+
+bool BoneNode::getInheritScale()
+{
+	return mInheritScale;
 }
 
 void BoneNode::resetGlobalID()
@@ -65,7 +80,6 @@ void BoneNode::allocateTracks(int frameNum)
 	mScaleTrack = TrackVec3Ptr(new TrackVec3(frameNum));
 	mQuarternionTrack = TrackQuaternionPtr(new TrackQuaternion(frameNum));
 	alloactedTrackSize = frameNum;
-	LOG << "allocated keys : " << alloactedTrackSize << ENDN;
 }
 
 void BoneNode::addPositionKey(const KeyVec3 &key)

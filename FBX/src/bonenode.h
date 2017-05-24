@@ -18,9 +18,13 @@ public:
 	uint32_t getID();
 
 	FbxAMatrix& getGlobalTransfrom();
-	const FbxAMatrix& getGlobalMatrix() const;
+	const FbxAMatrix& getGlobalTransfrom() const;
 	FbxAMatrix& getInveseLocalTransfrom();
-	const FbxAMatrix& getInveseLocalMatrix() const;
+	const FbxAMatrix& getInveseLocalTransfrom() const;
+
+	void setInverseLocalTransfrom(FbxAMatrix &invTransform);
+	void setInheritScale(bool inheritSacle);
+	bool getInheritScale();
 	static void resetGlobalID();
 private:
 	std::string mName;
@@ -30,7 +34,7 @@ private:
 public:
 	FbxAMatrix mGlobalTransform;
 	FbxAMatrix mInverseTransform;
-
+	bool mInheritScale;
 	/*------------- TRACK ----------------*/
 	TrackContainer* mTrack;
 	//replace to container

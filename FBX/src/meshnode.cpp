@@ -37,6 +37,11 @@ VertexArray& MeshNode::getVertices()
 	return m_vertices;
 }
 
+const FbxAMatrix& MeshNode::getGlobalTransform() const
+{
+	return mGlobalMarix;
+}
+
 void MeshNode::resetGlobalID()
 {
 	global_id = 0;

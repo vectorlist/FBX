@@ -2,6 +2,7 @@
 
 #include <animationsample.h>
 #include <memory>
+#include <fbxsdk.h>
 
 class KeyQuaternion;
 class KeyVec3;
@@ -28,10 +29,14 @@ public:
 	//test
 	void updateNode(Node* node, const long globalTime);
 	//recursive bone nodes and get matrix
-	void boneRecursive(
+	void evalNodes(
 		int sample,
-		BoneNode* pBoneNode);
+		BoneNode* pBoneNode,
+		const FbxAMatrix &parentGlobalScale,
+		const FbxAMatrix &parentGlobalRoataion);
 
+	void evalFrame(int sample, BoneNode* pNode);
+	
 	void clampLocalCurrentTime();
 
 	/*BUILT IN CALC FUNC*/

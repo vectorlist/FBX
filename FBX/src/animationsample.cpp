@@ -13,7 +13,6 @@ AnimationSample::AnimationSample()
 
 }
 
-
 AnimationSample::~AnimationSample()
 {
 }
@@ -48,7 +47,6 @@ void AnimationSample::setSampleEnd(int endSample)
 
 float AnimationSample::getFps() const
 {
-	if (mFps == 0.0f) LOG << "warn fps  is 0.0f" << ENDN;
 	return mFps;
 }
 
@@ -59,7 +57,6 @@ int AnimationSample::getSamplesFrameNum() const
 
 const std::string & AnimationSample::getName() const
 {
-	// TODO: insert return statement here
 	return mName;
 }
 

@@ -1,6 +1,6 @@
 
 #include <util.h>
-#include <fbxmodel.h>
+#include <fbxcore.h>
 #include <shadertool.h>
 #include <animationrenderer.h>
 
@@ -24,12 +24,12 @@ int main(int argc, char* argv[])
 
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
-	FBXModel model("ani.fbx", shader);
+	FBXCore core("maya.fbx");
 
 	//AnimationSample(TEST)
-	AnimationRenderer animRenderer;
-	animRenderer.setRootNode(&model.mNode);
-	animRenderer.setRenderableMesh(&model.m_mesh);
+	AnimationRenderer animRenderer(&core);
+	
+	//animRenderer.setRenderableMesh(&model.mMesh);
 	
 	while (renderer.isRunning)
 	{
@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*ANIMATION MANAGER*/
-		animRenderer.startAnimation();
+		animRenderer.processAnimation();
 
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
@@ -63,13 +63,31 @@ int main(int argc, char* argv[])
 
 #include <fbxtool.h>
 #include <chrono>
+struct martices
+{
+	Matrix4x4 mat0[10];
+	Matrix4x4 mat1;
+};
 
-
+template <class T>
+class SomeUBO
+{
+public:
+	SomeUBO() { init(); };
+	void init() {
+		datasize = sizeof(T);
+	}
+	int datasize;
+};
 
 int main(int argc, char* argv[])
 {
 	Window::setConsoleOutput(10, 10, 700, 800);
 	
+	martices mats;
+	SomeUBO<martices> matubo;
+
+	LOG << matubo.datasize << ENDN;
 
 	system("pause");
 	return 0;

@@ -23,6 +23,7 @@ public:
 	Matrix4x4(const Matrix4x4 &other);
 	Matrix4x4(float other[16]);
 	Matrix4x4(double other[16]);
+	Matrix4x4(const double other[16]);
 	Matrix4x4(float m00, float m01, float m02, float m03,
 		float m10, float m11, float m12, float m13,
 		float m20, float m21, float m22, float m23,
@@ -90,6 +91,29 @@ inline Matrix4x4::Matrix4x4(float other[16])
 }
 
 inline Matrix4x4::Matrix4x4(double other[16])
+{
+	m[0][0] = static_cast<float>(other[0]);
+	m[0][1] = static_cast<float>(other[1]);
+	m[0][2] = static_cast<float>(other[2]);
+	m[0][3] = static_cast<float>(other[3]);
+
+	m[1][0] = static_cast<float>(other[4]);
+	m[1][1] = static_cast<float>(other[5]);
+	m[1][2] = static_cast<float>(other[6]);
+	m[1][3] = static_cast<float>(other[7]);
+
+	m[2][0] = static_cast<float>(other[8]);
+	m[2][1] = static_cast<float>(other[9]);
+	m[2][2] = static_cast<float>(other[10]);
+	m[2][3] = static_cast<float>(other[11]);
+
+	m[3][0] = static_cast<float>(other[12]);
+	m[3][1] = static_cast<float>(other[13]);
+	m[3][2] = static_cast<float>(other[14]);
+	m[3][3] = static_cast<float>(other[15]);
+}
+
+inline Matrix4x4::Matrix4x4(const double other[16])
 {
 	m[0][0] = static_cast<float>(other[0]);
 	m[0][1] = static_cast<float>(other[1]);
