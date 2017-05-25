@@ -79,5 +79,15 @@ AnimationSample* Node::getAnimationSample() const
 	return NULL;
 }
 
+void Node::setAnimationLayers(AnimationLayersPtr layers)
+{
+	mLayers = layers;
+}
+
+AnimationLayers* Node::getAnimationLayers() const
+{
+	return mLayers.get();
+}
+
 
 

@@ -70,6 +70,12 @@ int AnimationSample::getSampleEnd() const
 	return mSampleEnd;
 }
 
+int AnimationSample::getSampleOffset() const
+{
+	int offset = mSampleStart - 1;
+	return offset < 0 ? 0 : offset;
+}
+
 long AnimationSample::convertFrameToMilli(const int frame)
 {
 	return static_cast<long>(floor(frame * mMilliSecondFrame));

@@ -1,6 +1,7 @@
 #include <fbxcore.h>
 #include <log.h>
 #include <fbxtool.h>
+#include <animationlayer.h>
 
 bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode)
 {
@@ -44,6 +45,94 @@ bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* p
 	return true;
 }
 
+//BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
+//{
+//	//we got skeleton attr already convert to skeleton 
+//	const FbxSkeleton* pSkeleton = (FbxSkeleton*)pNode->GetNodeAttribute();
+//
+//	BoneNode* boneNode = NULL;
+//	if (!pSkeleton) {
+//		LOG_ERROR("failed to convert skeleton node");
+//		return  NULL;
+//	}
+//
+//	//allocate new bone node(current)
+//	boneNode = new BoneNode();
+//
+//	//@PARAM (parent, child)
+//	mNode.addChildBoneNode(parent, boneNode);
+//
+//	//set name
+//	auto name = pNode->GetName();
+//	boneNode->setName(name);
+//
+//	//Transforms
+//	const FbxAMatrix globalTransform = pNode->EvaluateGlobalTransform(0, FbxNode::eDestinationPivot);
+//	boneNode->mGlobalTransform = globalTransform;
+//
+//	//TODO : ANIMATION LAYER SAMPLE
+//	/*------------------------ ANIMATION LAYER SAMPLE ------------------------------*/
+//	//replace single sample to layer sample
+//	AnimationSample* animation = mNode.getAnimationSample();
+//	int sampleNum = animation->getSamplesFrameNum();
+//
+//	//TASK 0 1 2
+//	//0 = allocate track and keys
+//	if (sampleNum)
+//	{
+//		boneNode->allocateTracks(sampleNum);
+//	}
+//	//1 = sey keys
+//	int startFrame = animation->getSampleStart();
+//	long startTime = animation->convertFrameToMilli(startFrame);
+//	FbxTime fbxTime;
+//	for (int sample = 0; sample <= sampleNum; ++sample)
+//	{
+//		//LOG << "sample : " << sample << ENDN;
+//		long sampleTime = animation->convertFrameToMilli(sample);
+//		fbxTime.SetMilliSeconds(startTime + sampleTime);
+//
+//		//get local transform
+//		const FbxAMatrix localMatrix =
+//			pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
+//
+//		//TODO : scale key rotation key
+//		KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
+//		KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
+//		KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+//		
+//		//LOG << rotationKey << ENDN;
+//		boneNode->addRotationKey(rotationKey);
+//		boneNode->addPositionKey(positionKey);
+//		boneNode->addScaleKey(scaleKey);
+//		/*LOG << boneNode->getPositionKey(sample) << ENDN;*/
+//	}
+//	/*------------------------- SAMPLE -----------------------------*/
+//	if (parent)
+//	{
+//		//pNode->
+//		auto type = pNode->InheritType.Get();
+//		switch (type)
+//		{
+//		case FbxTransform::eInheritRrs:
+//			boneNode->setInheritScale(false);
+//			break;
+//		case FbxTransform::eInheritRrSs:
+//			LOG_ERROR("RrSs dosent supported");
+//			break;
+//		case FbxTransform::eInheritRSrs:
+//			boneNode->setInheritScale(true);
+//			break;
+//		}
+//	}
+//	else
+//	{
+//		boneNode->setInheritScale(false);
+//	}
+//
+//	return boneNode;
+//}
+
 BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 {
 	//we got skeleton attr already convert to skeleton 
@@ -69,41 +158,73 @@ BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 	const FbxAMatrix globalTransform = pNode->EvaluateGlobalTransform(0, FbxNode::eDestinationPivot);
 	boneNode->mGlobalTransform = globalTransform;
 
-	//TODO : animation stack : pose ..etc
-	AnimationSample* animation = mNode.getAnimationSample();
-	int sampleNum = animation->getSamplesFrameNum();
+	//TODO : ANIMATION LAYER SAMPLE
+	/*------------------------ ANIMATION LAYER SAMPLE ------------------------------*/
+	//replace single sample to layer sample
+	/*AnimationSample* animation = mNode.getAnimationSample();
+	int sampleNum = animation->getSamplesFrameNum();*/
+	AnimationLayers* layers = mNode.getAnimationLayers();
+	int totalSampleFrame = layers->getTotalSampleFrameNum();
+	LOG << "total allocated : "<< totalSampleFrame << ENDN;
+	if(totalSampleFrame)
+		boneNode->allocateTracks(totalSampleFrame);
 
-	//TASK 0 1 2
-	//0 = allocate track and keys
-	if (sampleNum)
+	for (int sampleIndex = 0; sampleIndex < layers->size(); ++sampleIndex)
 	{
-		boneNode->allocateTracks(sampleNum);
-	}
-	//1 = sey keys
-	int startFrame = animation->getSampleStart();
-	long startTime = animation->convertFrameToMilli(startFrame);
-	FbxTime fbxTime;
-	for (int sample = 0; sample <= sampleNum; ++sample)
-	{
-		//LOG << "sample : " << sample << ENDN;
-		long sampleTime = animation->convertFrameToMilli(sample);
-		fbxTime.SetMilliSeconds(startTime + sampleTime);
-
-		//get local transform
-		const FbxAMatrix localMatrix =
-			pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
-
-		//TODO : scale key rotation key
-		KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
-		KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
-		KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+		AnimationSample* sample = layers->getSample(sampleIndex);
 		
-		//LOG << rotationKey << ENDN;
-		boneNode->addRotationKey(rotationKey);
-		boneNode->addPositionKey(positionKey);
-		boneNode->addScaleKey(scaleKey);
-		/*LOG << boneNode->getPositionKey(sample) << ENDN;*/
+		int sampleFrame = sample->getSamplesFrameNum();
+		int startFrame = sample->getSampleStart();
+		long startTime = sample->convertFrameToMilli(startFrame);
+		//LOG << "sample name : " << sample->getName() << " sample frame num : " << sampleFrame << ENDN;
+		FbxTime fbxTime;
+		for (int frame = startFrame; frame < (sampleFrame + startFrame); ++frame)
+		{
+			//LOG << frame << ENDN;
+			long sampleTime = sample->convertFrameToMilli(frame);
+			fbxTime.SetMilliSeconds(startTime + sampleTime);
+
+			//get local transform
+			const FbxAMatrix localMatrix =
+				pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
+
+			//TODO : scale key rotation key
+			KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
+			KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
+			KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+
+			//LOG << rotationKey << ENDN;
+			boneNode->addRotationKey(rotationKey);
+			boneNode->addPositionKey(positionKey);
+			boneNode->addScaleKey(scaleKey);
+		}
 	}
+
+	//int startFrame = animation->getSampleStart();
+	//long startTime = animation->convertFrameToMilli(startFrame);
+	//FbxTime fbxTime;
+	//for (int sample = 0; sample <= sampleNum; ++sample)
+	//{
+	//	//LOG << "sample : " << sample << ENDN;
+	//	long sampleTime = animation->convertFrameToMilli(sample);
+	//	fbxTime.SetMilliSeconds(startTime + sampleTime);
+
+	//	//get local transform
+	//	const FbxAMatrix localMatrix =
+	//		pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
+
+	//	//TODO : scale key rotation key
+	//	KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
+	//	KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
+	//	KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+
+	//	//LOG << rotationKey << ENDN;
+	//	boneNode->addRotationKey(rotationKey);
+	//	boneNode->addPositionKey(positionKey);
+	//	boneNode->addScaleKey(scaleKey);
+		/*LOG << boneNode->getPositionKey(sample) << ENDN;*/
+	//}
+	/*------------------------- SAMPLE -----------------------------*/
 	if (parent)
 	{
 		//pNode->
@@ -210,7 +331,7 @@ void FBXCore::loadNormals(FbxMesh * pMesh, int faceIndex, Face & face)
 	FbxGeometryElementNormal* eNormal = pMesh->GetElementNormal();
 	if (!eNormal) LOG_ERROR("element normal dosent supported");
 
-	for (int faceElement = 0; faceElement < FACE_POINT_NUM; ++faceElement)
+	for (int faceElement = 0; faceElement < FACE_COMPONENT_NUM; ++faceElement)
 	{
 		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
 		vec3f normal;
@@ -228,7 +349,7 @@ void FBXCore::loadSTs(FbxMesh * pMesh, int faceIndex, Face & face)
 	FbxGeometryElementUV* eST = pMesh->GetElementUV();
 	if (!eST) LOG_ERROR("failed to load uv elements");
 
-	for (int faceElement = 0; faceElement < FACE_POINT_NUM; ++faceElement)
+	for (int faceElement = 0; faceElement < FACE_COMPONENT_NUM; ++faceElement)
 	{
 		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
 		vec2f st;

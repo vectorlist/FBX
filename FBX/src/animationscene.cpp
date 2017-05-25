@@ -57,6 +57,37 @@ void AnimationScene::setLoop(bool loop)
 	mIsLoop = loop;
 }
 
+//void AnimationScene::updateNode(Node *node, const long globalTime)
+//{
+//	//input golbalTime must millisecond
+//
+//	//TASK 0 : get Bone Node(root)
+//	BoneNode* rootBoneNode = node->getBoneNodeRoot();
+//
+//	//need to fix
+//	mLocalCurrentTime = (globalTime - mGlobalStartTime);
+//	
+//	//TASK 1 : get animation info from node
+//	AnimationSample* sample = node->getAnimationSample();
+//
+//	//TASK 2 : set to clamp local current time
+//	clampLocalCurrentTime();
+//
+//	//TASK 3 : conversasion animation samples
+//	int sampleFrame = sample->convertMilliToFrame(mLocalCurrentTime);
+//	
+//	if (sampleFrame > sample->getSamplesFrameNum()) {
+//		LOG_ASSERT("out of samples per frame");
+//	}
+//	LOG << sampleFrame << ENDN;
+//	//TASK 4 : get Child Bone Node and calulate
+//	const FbxAMatrix parentGlobalScale;
+//	const FbxAMatrix parentGlobalRotation;
+//
+//	evalNodes(sampleFrame, rootBoneNode, parentGlobalScale, parentGlobalRotation);
+//	//evalFrame(sampleFrame, rootBoneNode);
+//}
+
 void AnimationScene::updateNode(Node *node, const long globalTime)
 {
 	//input golbalTime must millisecond
@@ -64,22 +95,24 @@ void AnimationScene::updateNode(Node *node, const long globalTime)
 	//TASK 0 : get Bone Node(root)
 	BoneNode* rootBoneNode = node->getBoneNodeRoot();
 
-	//need to fix
+	//TODO :: add offsets
 	mLocalCurrentTime = (globalTime - mGlobalStartTime);
-	
+
 	//TASK 1 : get animation info from node
-	AnimationSample* sample = node->getAnimationSample();
+	AnimationSample* sample = node->currentSample;
 
 	//TASK 2 : set to clamp local current time
 	clampLocalCurrentTime();
 
+	int offsetSample = sample->getSampleOffset();
+	//LOG << offsetSample << ENDN;
 	//TASK 3 : conversasion animation samples
-	int sampleFrame = sample->convertMilliToFrame(mLocalCurrentTime);
-	
-	if (sampleFrame > sample->getSamplesFrameNum()) {
+	int sampleFrame = sample->convertMilliToFrame(mLocalCurrentTime) + offsetSample;
+
+	/*if (sampleFrame > sample->getSamplesFrameNum()) {
 		LOG_ASSERT("out of samples per frame");
-	}
-	
+	}*/
+	//LOG << sampleFrame << ENDN;
 	//TASK 4 : get Child Bone Node and calulate
 	const FbxAMatrix parentGlobalScale;
 	const FbxAMatrix parentGlobalRotation;

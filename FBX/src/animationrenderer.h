@@ -4,12 +4,11 @@
 #include <matrix4x4.h>
 #include <ubo.h>
 #include <vector>
-
-#define MAX_BONES			64
+#include <config.h>
 
 struct MatrixUBO
 {
-	Matrix4x4 bones[MAX_BONES];
+	Matrix4x4 bones[BONE_MAX];
 };
 
 class SkinMesh;
@@ -23,8 +22,8 @@ public:
 
 	void render(GLuint shader);
 	
-	//void setAnimationStack(FbxA)
-	void processAnimation();
+	//test animation sample stack
+	void processAnimation(int sampleIndex);
 
 	void updateBoneTransform(Node* pNode);
 	void processBoneNode(BoneNode* rootBoneNode);
@@ -36,12 +35,15 @@ public:
 	float frame;
 	bool isRunning;
 	AnimationScenePtr mScene;
-	/*Matrix4x4 mBoneTransforms[MAX_BONES];*/
+	/*Matrix4x4 mBoneTransforms[BONE_MAX];*/
 	MatrixUBO uboData;
 	std::vector<Matrix4x4> proxys;
 
 	UBO<MatrixUBO> *mBoneUbo;
 
+private:
+	bool hasChanged;
+	int hasSampleIndex = 0;
 };
 
 

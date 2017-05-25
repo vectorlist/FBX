@@ -124,7 +124,10 @@
       <Filter>src\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\config.h">
-      <Filter>src\Fbx</Filter>
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animationlayer.h">
+      <Filter>src\Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="src\vertex.cpp">
       <Filter>src\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animationlayer.cpp">
+      <Filter>src\Animation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

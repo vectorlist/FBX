@@ -28,6 +28,7 @@ public:
 	int getSamplesFrameNum() const;
 	int getSampleStart() const;
 	int getSampleEnd() const;
+	int getSampleOffset() const;
 
 	long convertFrameToMilli(const int frame);
 	int convertMilliToFrame(const long milli);

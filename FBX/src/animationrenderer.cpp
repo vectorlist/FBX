@@ -3,9 +3,10 @@
 #include <fbxcore.h>
 #include <node.h>
 #include <fbxtool.h>
+#include <animationlayer.h>
 
 AnimationRenderer::AnimationRenderer(FBXCore* core)
-	: isRunning(false), mModel(NULL), mCore(core)
+	: isRunning(false), mModel(NULL), mCore(core), hasChanged(false)
 {
 	mScene = AnimationScenePtr(new AnimationScene());
 	//UNIFORM LAYOUT BLOCK 0, 1, 2
@@ -31,13 +32,28 @@ void AnimationRenderer::render(GLuint shader)
 	mModel->render(shader);
 }
 
-void AnimationRenderer::processAnimation()
+void AnimationRenderer::processAnimation(int sampleIndex)
 {
 	if (!mNode) return;
-	AnimationSample* sample = mNode->getAnimationSample();
-	
-	if (!isRunning)
+	//AnimationSample* sample = mNode->getAnimationSample();
+	if (hasSampleIndex != sampleIndex) {
+		hasChanged = true;
+	}
+	if (!isRunning || hasChanged)
 	{
+		//TODO : single sample to layer sample
+		//AnimationSample* sample = mNode->getAnimationSample();
+
+		AnimationSample* sample = NULL;
+		AnimationLayers* layers = mNode->getAnimationLayers();
+		if (sampleIndex == 0) {
+			sample = layers->getSample(sampleIndex);
+		}
+		else {
+			sample = layers->getSample(sampleIndex);
+		}
+		mNode->currentSample = sample;
+		LOG << "change sample layer : " << sample->getName() << ENDN;
 		/*SET SAMPLE*/
 		long start = sample->convertFrameToMilli(sample->getSampleStart());
 		long end = sample->convertFrameToMilli(sample->getSampleEnd());
@@ -47,10 +63,15 @@ void AnimationRenderer::processAnimation()
 		mScene->startAnimation(GET_TIME(), start, end);
 		mScene->setLoop(true);
 		isRunning = true;
+		hasSampleIndex = sampleIndex;
+		hasChanged = false;
 	}
 	else
 	{
-		mScene->updateNode(mNode, GET_TIME());
+		/*if (!sample) {
+			LOG << "no sample" << ENDN;
+		};*/
+		mScene->updateNode(mNode,GET_TIME());
 		updateBoneTransform(mNode);
 	}
 }

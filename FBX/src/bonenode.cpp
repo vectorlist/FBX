@@ -75,7 +75,6 @@ void BoneNode::resetGlobalID()
 
 void BoneNode::allocateTracks(int frameNum)
 {
-	
 	mPositionTrack = TrackVec3Ptr(new TrackVec3(frameNum));
 	mScaleTrack = TrackVec3Ptr(new TrackVec3(frameNum));
 	mQuarternionTrack = TrackQuaternionPtr(new TrackQuaternion(frameNum));

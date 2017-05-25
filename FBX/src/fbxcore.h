@@ -24,7 +24,7 @@ public:
 	GLuint mSahder;
 	FbxNode* mRootNode;
 	FBXDevice* mDevice;
-	
+	AnimationLayers* mLayers;
 	Node mNode;
 
 	bool processSkinNode();
@@ -34,6 +34,7 @@ public:
 	/*--------------- ANIMATION --------------*/
 	//AnimationSample mAnimation;
 	bool createAnimationSamples(Node &node);
+	//bool createAnimationSamples()
 
 	/*--------------- EXT FUNC --------------*/
 

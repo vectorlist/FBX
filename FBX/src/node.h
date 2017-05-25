@@ -4,6 +4,7 @@
 #include <meshnode.h>
 #include <animationscene.h>
 #include <track.h>
+#include <config.h>
 
 class Node
 {
@@ -33,6 +34,10 @@ public:
 	void setAnimationSample(AnimationSamplePtr &animation);
 	AnimationSample* getAnimationSample() const;
 
+	void setAnimationLayers(AnimationLayersPtr layers);
+	AnimationLayers* getAnimationLayers() const;
+	AnimationSample* currentSample = NULL;
 private:
 	AnimationSamplePtr mAnimationSamplePtr;
+	AnimationLayersPtr mLayers;
 };

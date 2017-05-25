@@ -31,6 +31,7 @@
     <ClInclude Include="..\include\GLEngine\shadertool.h" />
     <ClInclude Include="..\include\GLEngine\texturetool.h" />
     <ClInclude Include="..\include\GLEngine\util.h" />
+    <ClInclude Include="src\animationlayer.h" />
     <ClInclude Include="src\animationsample.h" />
     <ClInclude Include="src\animationscene.h" />
     <ClInclude Include="src\animationrenderer.h" />
@@ -51,6 +52,7 @@
     <ClInclude Include="src\vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\animationlayer.cpp" />
     <ClCompile Include="src\animationsample.cpp" />
     <ClCompile Include="src\animationscene.cpp" />
     <ClCompile Include="src\animationrenderer.cpp" />

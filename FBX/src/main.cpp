@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
-	FBXCore core("maya.fbx");
+	FBXCore core("worrior.fbx");
 
 	//AnimationSample(TEST)
 	AnimationRenderer animRenderer(&core);
@@ -39,13 +39,13 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*ANIMATION MANAGER*/
-		animRenderer.processAnimation();
+		animRenderer.processAnimation(renderer.sampleIndex);
 
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
 		ShaderTool::setUniformMatrix4f(shader, camera.view(), "view", true);
 		Matrix4x4 trans;
-		trans.scale(0.1);
+		trans.scale(0.5);
 		ShaderTool::setUniformMatrix4f(shader, trans, "model", true);
 		glUseProgram(0);
 	

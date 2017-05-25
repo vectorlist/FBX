@@ -27,7 +27,8 @@ public:
 	void setLoop(bool loop);
 
 	//test
-	void updateNode(Node* node, const long globalTime);
+	//void updateNode(Node* node, const long globalTime);
+	void updateNode(Node* node,const long globalTime);
 	//recursive bone nodes and get matrix
 	void evalNodes(
 		int sample,

@@ -9,7 +9,8 @@ public:
 	Renderer(){}
 
 	bool isRunning = true;
-
+	//TEST
+	int sampleIndex = 0;
 };
 
 class Timer

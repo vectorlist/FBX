@@ -1,8 +1,9 @@
 #include <fbxdevice.h>
 #include <log.h>
+#include <animationlayer.h>
 
 FBXDevice::FBXDevice(const FBXDeviceCreateInfo &deviceInfo)
-	: mFilename(deviceInfo.filename), mSceneFrameRate(0.f)
+	: mFilename(deviceInfo.filename), mSceneFps(0.f)
 {
 	mManager = FbxManager::Create();
 	if (!mManager)
@@ -42,7 +43,7 @@ FBXDevice::FBXDevice(const FBXDeviceCreateInfo &deviceInfo)
 		LOG_ASSERT("Import failed for file: " + mFilename);
 	}
 
-	setSceneSetting(deviceInfo);
+	processProcedural(deviceInfo);
 }
 
 FBXDevice::~FBXDevice()
@@ -50,7 +51,7 @@ FBXDevice::~FBXDevice()
 	release();
 }
 
-void FBXDevice::setSceneSetting(const FBXDeviceCreateInfo& info)
+void FBXDevice::processProcedural(const FBXDeviceCreateInfo& info)
 {
 	if (info.appInfo == Maya)
 	{
@@ -61,31 +62,22 @@ void FBXDevice::setSceneSetting(const FBXDeviceCreateInfo& info)
 			mayaSystem.ConvertScene(mScene);
 		}
 	}
-	
 
-	//// Convert Unit System to what is used in this example, if needed
-	//FbxSystemUnit SceneSystemUnit = mScene->GetGlobalSettings().GetSystemUnit();
-	//if (SceneSystemUnit.GetScaleFactor() != 1.0)
-	//{
-	//	//The unit in this example is centimeter.
-	//	FbxSystemUnit::cm.ConvertScene(mScene);
-	//}
+	mIsTriangleMesh = isTriangleMesh(mScene->GetRootNode());
 
-	if (info.enableAnimationStack) {
-		mScene->FillAnimStackNameArray(mAnimStackNameArray);
-	}
-
-	if (info.enableConvertTriangles) {
+	if (!mIsTriangleMesh) {
 		FbxGeometryConverter lGeomConverter(mManager);
 		lGeomConverter.Triangulate(mScene, true);
 	}
 
-	int animationStackNum = mImporter->GetAnimStackCount();
-	for(int i = 0; i < animationStackNum; ++i)
-	{
-		FbxTakeInfo* takeInfo = mImporter->GetTakeInfo(i);
-		mTakeInfos.push_back(takeInfo);
-	}
+	//PROCESS ANIMATION INFO
+
+	mScene->FillAnimStackNameArray(mAnimStackNameArray);
+	mLayers = std::make_shared<AnimationLayers>();
+	mLayers->createLayers(mImporter);
+
+	
+
 
 	/*FbxTime::EMode timeMode;
 	if (mImporter->GetFrameRate(timeMode))
@@ -114,17 +106,72 @@ FbxNode* FBXDevice::getRootNode()
 	return mScene->GetRootNode();
 }
 
-const std::vector<FbxTakeInfo*>& FBXDevice::getTakeInfos() const
-{
-	return mTakeInfos;
-}
-
 float FBXDevice::getSceneFrameRate() const
 {
-	return mSceneFrameRate;
+	return mSceneFps;
+}
+
+AnimationLayersPtr FBXDevice::getAnimationLayers()
+{
+	return std::move(mLayers);
 }
 
 
+void FBXDevice::bakeTransforms(FbxNode* pNode) const
+// We set up what we want to bake via ConvertPivotAnimationRecursive.
+// When the destination is set to 0, baking will occur.
+// When the destination value is set to the source¡¯s value, the source values will be retained and not baked.
+{
+	FbxVector4 zeroVector(0, 0, 0);
+
+	pNode->SetPivotState(FbxNode::eSourcePivot, FbxNode::ePivotActive);
+	pNode->SetPivotState(FbxNode::eDestinationPivot, FbxNode::ePivotActive);
+
+	pNode->SetPostRotation(FbxNode::eDestinationPivot, zeroVector);
+	pNode->SetPreRotation(FbxNode::eDestinationPivot, zeroVector);
+	pNode->SetRotationOffset(FbxNode::eDestinationPivot, zeroVector);
+	pNode->SetScalingOffset(FbxNode::eDestinationPivot, zeroVector);
+	pNode->SetRotationPivot(FbxNode::eDestinationPivot, zeroVector);
+	pNode->SetScalingPivot(FbxNode::eDestinationPivot, zeroVector);
+
+	pNode->SetRotationOrder(FbxNode::eDestinationPivot, eEulerXYZ);
+
+	pNode->SetGeometricTranslation(FbxNode::eDestinationPivot,
+		pNode->GetGeometricTranslation(FbxNode::eSourcePivot));
+	pNode->SetGeometricRotation(FbxNode::eDestinationPivot,
+		pNode->GetGeometricRotation(FbxNode::eSourcePivot));
+	pNode->SetGeometricScaling(FbxNode::eDestinationPivot,
+		pNode->GetGeometricScaling(FbxNode::eSourcePivot));
+
+	pNode->SetQuaternionInterpolation(FbxNode::eDestinationPivot, pNode->GetQuaternionInterpolation(FbxNode::eSourcePivot));
+
+	const int childCount = pNode->GetChildCount();
+	for (int childNum = 0; childNum < childCount; childNum++)
+	{
+		bakeTransforms(pNode->GetChild(childNum));
+	}
+
+}
+
+bool FBXDevice::isTriangleMesh(FbxNode *pNode) const
+{
+	const FbxNodeAttribute* pNodeAttr = pNode->GetNodeAttribute();
+	if (pNodeAttr)
+	{
+		const auto type = pNodeAttr->GetAttributeType();
+		if (type == FbxNodeAttribute::eMesh)
+		{
+			auto* pMesh = static_cast<FbxMesh*>(pNode->GetGeometry());
+			return pMesh->IsTriangleMesh();
+		}
+		
+	}
+	for (int childIndex = 0; childIndex < pNode->GetChildCount(); ++childIndex)
+	{
+		FbxNode* pChildNode = pNode->GetChild(childIndex);
+		isTriangleMesh(pChildNode);
+	}
+}
 
 void FBXDevice::release()
 {

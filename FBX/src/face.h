@@ -1,9 +1,8 @@
 #pragma once
 
+#include <config.h>
 #include <vec2f.h>
 #include <vec3f.h>
-
-#define FACE_POINT_NUM		3
 
 class Face
 {
@@ -35,7 +34,7 @@ public:
 	}
 
 private:
-	unsigned int mVerticeIndex[FACE_POINT_NUM];
-	vec3f mNormals[FACE_POINT_NUM];
-	vec2f mSTs[FACE_POINT_NUM];
+	unsigned int mVerticeIndex[FACE_COMPONENT_NUM];
+	vec3f mNormals[FACE_COMPONENT_NUM];
+	vec2f mSTs[FACE_COMPONENT_NUM];
 };

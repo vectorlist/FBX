@@ -2,9 +2,7 @@
 
 #include <fbxsdk/core/math/fbxvector4.h>
 #include <vec3f.h>
-
-#define BONE_COMPONENT_NUM		4
-#define BONE_MAX				64
+#include <config.h>
 
 class Vertex
 {

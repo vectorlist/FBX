@@ -53,6 +53,16 @@ namespace Input
 			case SDL_KEYDOWN:
 				switch (e.key.keysym.sym)
 				{
+				case SDLK_1:
+				{
+					if (renderer.sampleIndex != 0) {
+						renderer.sampleIndex = 0;
+					}
+					else {
+						renderer.sampleIndex = 1;
+					}
+					break;
+				}
 				case SDLK_ESCAPE:
 					renderer.isRunning = false;
 					break;

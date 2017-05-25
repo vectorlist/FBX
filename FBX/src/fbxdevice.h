@@ -3,6 +3,7 @@
 #include <fbxsdk.h>
 #include <string>
 #include <vector>
+#include <config.h>
 
 enum ApplicationInfo
 {
@@ -14,14 +15,10 @@ struct FBXDeviceCreateInfo
 	FBXDeviceCreateInfo()
 		: filename(""),
 		enablePose(false),
-		enableAnimationStack(false),
-		enableConvertTriangles(false),
 		appInfo(Maya)
 	{}
 	std::string filename;
 	bool enablePose;
-	bool enableAnimationStack;
-	bool enableConvertTriangles;
 	ApplicationInfo appInfo;
 };
 
@@ -35,20 +32,25 @@ public:
 	FbxImporter* getImporter();
 	FbxScene* getScene();
 	FbxNode* getRootNode();
-	const std::vector<FbxTakeInfo*>& getTakeInfos() const;
 	float getSceneFrameRate() const;
+	AnimationLayersPtr getAnimationLayers();
 
-	void setSceneSetting(const FBXDeviceCreateInfo& info);
+	void processProcedural(const FBXDeviceCreateInfo& info);
+	void bakeTransforms(FbxNode* pNode) const;
+	bool isTriangleMesh(FbxNode* pNode) const;
 private:
+
 	FbxManager* mManager;
 	FbxScene* mScene;
 	FbxImporter* mImporter;
 	std::string mFilename;
-	std::vector<FbxTakeInfo*> mTakeInfos;
-
+	
 	FbxArray<FbxString*> mAnimStackNameArray;
 	FbxArray<FbxPose*> mPoseArray;
 
-	double mSceneFrameRate;
+	AnimationLayersPtr mLayers;
+
+	double mSceneFps;
+	bool mIsTriangleMesh;
 	void release();
 };

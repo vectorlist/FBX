@@ -24,7 +24,7 @@ void SkinMesh::createMesh(MeshNode *meshNode)
 
 		for (auto faceIndex = 0; faceIndex < faceArray.size(); ++faceIndex)
 		{
-			for (int facePointIndex = 0; facePointIndex < FACE_POINT_NUM; ++facePointIndex)
+			for (int facePointIndex = 0; facePointIndex < FACE_COMPONENT_NUM; ++facePointIndex)
 			{
 				Face &face = faceArray[faceIndex];
 				int vertexIndex = face.getVertexIndex(facePointIndex);
@@ -102,6 +102,11 @@ void SkinMesh::render(GLuint shader)
 	glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+bool SkinMesh::isBuffer()
+{
+	return mIsBuffer;
 }
 
 void SkinMesh::releaseBuffer()

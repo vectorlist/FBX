@@ -8,35 +8,31 @@ FBXCore::FBXCore(const std::string &filename)
 {
 	FBXDeviceCreateInfo deviceInfo{};
 	deviceInfo.filename = filename;
-	deviceInfo.enableConvertTriangles = true;
 	deviceInfo.enablePose = true;
 	deviceInfo.appInfo = Maya;
 
+	//create fbxscene importer manager animation layers
 	mDevice = new FBXDevice(deviceInfo);
 
 	mRootNode = mDevice->getRootNode();
 
-	//ANIMATION TASK 0 1 2
-	//0 = animation infomation (fps, fbx time) scene
+	//TODO replace single sample to layer samples
 	createAnimationSamples(mNode);
-	//1 = bake transform all node
+
+	mNode.setAnimationLayers(mDevice->getAnimationLayers());
+
 	bakeNodeTransform(mRootNode);
-	//2 = get AnimationSample pointer and convert pivot animations and frame rates
+
 	AnimationSample* sample = mNode.getAnimationSample();
 	mRootNode->ConvertPivotAnimationRecursive(NULL,
 		FbxNode::eDestinationPivot, sample->getFps());
-	//m_rootNode->ConvertPivotAnimationRecursive(,)
 
-	
 
-	//NODE TASK 0 1 2
-	//0 = build bone, mesh nodes
 	processNodes(mRootNode, mNode.getBoneNodeRoot(), mNode.getMeshNodeRoot());
-	//1 = skin for bone id and weight
+
 	MeshNode* currentMeshNode = mNode.getCurrentMeshNode();
-	//processSkins(mRootNode, currentMeshNode);
+
 	processSkinNode();
-	//2 = build renderable mesh from available mesh node
 
 	sample->setSampleEnd(sample->getSampleEnd() - sample->getSampleStart());
 	sample->setSampleStart(0);
@@ -198,7 +194,7 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 bool FBXCore::createAnimationSamples(Node &node)
 {
 	AnimationSamplePtr sample = AnimationSamplePtr(new AnimationSample);
-	const FbxTakeInfo* takeInfo = mDevice->getTakeInfos()[0];
+	const FbxTakeInfo* takeInfo = mDevice->getImporter()->GetTakeInfo(0);
 
 	if (!takeInfo) {
 		LOG_ERROR("failed to find animation take info");
@@ -225,7 +221,7 @@ bool FBXCore::createAnimationSamples(Node &node)
 	int frameNum = sample->getSampleEnd() - sample->getSampleStart() - 1;
 	sample->setFrameNums(frameNum);
 
-	bool debugAnimationInfo = true;
+	bool debugAnimationInfo = false;
 	if (debugAnimationInfo)
 	{
 		LOG << "created sample name : " << sample->getName() << " frame per second : " << sample->getFps() << ENDN;

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <config.h>
 #include <vec2f.h>
 #include <vec3f.h>
 #include <vector>
 
-#define MAX_BONE_CONPONENT		4
 
 class MeshNode;
 struct SkinVertex
@@ -13,14 +13,14 @@ struct SkinVertex
 	vec3f position;
 	vec3f normal;
 	vec2f st;
-	float boneWeight[MAX_BONE_CONPONENT];
-	int boneID[MAX_BONE_CONPONENT];
+	float boneWeight[BONE_COMPONENT_NUM];
+	int boneID[BONE_COMPONENT_NUM];
 
 	void setBoneWeights(
 		const float* weights,
 		const unsigned int* ids)
 	{
-		for (int i = 0; i < MAX_BONE_CONPONENT; ++i)
+		for (int i = 0; i < BONE_COMPONENT_NUM; ++i)
 		{
 			boneWeight[i] = weights[i];
 			boneID[i] = ids[i];
@@ -38,9 +38,10 @@ public:
 	void createBuffer();
 	void releaseBuffer();
 	void render(GLuint shader);
+	bool isBuffer();
 	uint32_t indices_num;
 private:
-	GLuint vao = NULL;
+	GLuint vao;
 	GLuint vbo;
 	GLuint ibo;
 
