@@ -35,6 +35,7 @@ public:
 	const LayerInfo& getLayer(unsigned int index) const;
 	int getTotalSampleFrameNum() const;
 	int size() const;
+	void pitchAllLayers();
 private:
 	AnimationSamplePtr createSample(const LayerInfo& info);
 

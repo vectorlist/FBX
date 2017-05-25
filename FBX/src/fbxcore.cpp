@@ -3,6 +3,7 @@
 #include <fbxtool.h>
 #include <meshnode.h>
 #include <animationsample.h>
+#include <animationlayer.h>
 
 FBXCore::FBXCore(const std::string &filename)
 {
@@ -20,6 +21,8 @@ FBXCore::FBXCore(const std::string &filename)
 	createAnimationSamples(mNode);
 
 	mNode.setAnimationLayers(mDevice->getAnimationLayers());
+	//test sample to 0 - END
+	//mNode.getAnimationLayers()->pitchAllLayers();
 
 	bakeNodeTransform(mRootNode);
 

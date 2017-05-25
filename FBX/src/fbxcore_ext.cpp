@@ -166,37 +166,42 @@ BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 	AnimationLayers* layers = mNode.getAnimationLayers();
 	int totalSampleFrame = layers->getTotalSampleFrameNum();
 	LOG << "total allocated : "<< totalSampleFrame << ENDN;
-	if(totalSampleFrame)
-		boneNode->allocateTracks(totalSampleFrame);
-
-	for (int sampleIndex = 0; sampleIndex < layers->size(); ++sampleIndex)
+	if (totalSampleFrame)
 	{
-		AnimationSample* sample = layers->getSample(sampleIndex);
-		
-		int sampleFrame = sample->getSamplesFrameNum();
+		boneNode->allocateTracks(totalSampleFrame);
+	}
+
+	//FINE BY NOW
+	for (int layerIndex = 0; layerIndex < layers->size(); ++layerIndex)
+	{
+		AnimationSample* sample = layers->getSample(layerIndex);
+		//int offset = sample->getSampleOffset();
+		int offset = sample->getSamplesFrameNum();
 		int startFrame = sample->getSampleStart();
 		long startTime = sample->convertFrameToMilli(startFrame);
-		//LOG << "sample name : " << sample->getName() << " sample frame num : " << sampleFrame << ENDN;
+		LOG << "sample name : " << sample->getName() << " sample frame num : " << offset << ENDN;
 		FbxTime fbxTime;
-		for (int frame = startFrame; frame < (sampleFrame + startFrame); ++frame)
+		for (int frame = startFrame; frame < (startFrame + offset); ++frame)
 		{
-			//LOG << frame << ENDN;
 			long sampleTime = sample->convertFrameToMilli(frame);
-			fbxTime.SetMilliSeconds(startTime + sampleTime);
+			fbxTime.SetMilliSeconds(startTime  + sampleTime);
 
 			//get local transform
 			const FbxAMatrix localMatrix =
 				pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
 
-			//TODO : scale key rotation key
+			//conver frame to millisecond for keyframe time
 			KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
 			KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
 			KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
 
-			//LOG << rotationKey << ENDN;
+			//add key to track(allocated frame length)
 			boneNode->addRotationKey(rotationKey);
 			boneNode->addPositionKey(positionKey);
 			boneNode->addScaleKey(scaleKey);
+
+			auto* track = boneNode->getPositionTrack();
+			LOG << frame << " "  << fbxTime.GetFrameCount() << ENDN;
 		}
 	}
 

@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
-	FBXCore core("worrior.fbx");
+	FBXCore core("mayaanim.fbx");
 
 	//AnimationSample(TEST)
 	AnimationRenderer animRenderer(&core);
@@ -84,10 +84,13 @@ int main(int argc, char* argv[])
 {
 	Window::setConsoleOutput(10, 10, 700, 800);
 	
-	martices mats;
-	SomeUBO<martices> matubo;
+	//martices mats;
+	std::vector<martices> mats;
+	for (int i; i < 10; ++i)
+		mats.push_back(martices());
 
-	LOG << matubo.datasize << ENDN;
+	for (auto i : mats)
+		LOG << i << ENDN;
 
 	system("pause");
 	return 0;

@@ -20,7 +20,7 @@ public:
 	{
 		return mKeys[keyIndex];
 	}
-	
+	int size() const { return mKeys.size(); }
 private:
 	KeyVectorArray mKeys;
 };

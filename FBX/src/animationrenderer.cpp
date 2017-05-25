@@ -37,6 +37,7 @@ void AnimationRenderer::processAnimation(int sampleIndex)
 	if (!mNode) return;
 	//AnimationSample* sample = mNode->getAnimationSample();
 	if (hasSampleIndex != sampleIndex) {
+
 		hasChanged = true;
 	}
 	if (!isRunning || hasChanged)

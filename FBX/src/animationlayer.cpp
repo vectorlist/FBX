@@ -82,3 +82,17 @@ AnimationSamplePtr AnimationLayers::createSample(const LayerInfo &info)
 	mTotalSampleNum += sample->getSamplesFrameNum();
 	return std::move(sample);
 }
+
+void AnimationLayers::pitchAllLayers()
+{
+	//set to 0 -- N from N - END
+	for (int i = 0; i < samples.size(); ++i)
+	{
+		auto* sample = samples[i].get();
+		
+		//clamp to 0 - end
+		sample->setSampleEnd(sample->getSampleEnd() - sample->getSampleStart());
+		sample->setSampleStart(0);
+	}
+
+}

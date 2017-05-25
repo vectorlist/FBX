@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{B3D5D92C-D4B0-4034-9617-974C3B95C331}</ProjectGuid>
+    <ProjectGuid>{CFF13784-2B22-4989-8B8F-ECAD4475CF7F}</ProjectGuid>
     <RootNamespace>AnimationWorkspace</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
     <ProjectName>AnimationWorkspace</ProjectName>
