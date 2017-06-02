@@ -5,6 +5,7 @@
 #include <animhandle.h>
 #include <track.h>
 #include <config.h>
+#include <string>
 
 class FlimBoxDevice;
 class Node
@@ -14,27 +15,30 @@ public:
 	~Node();
 
 	/*------------ BONE NODE -------------*/
-	BoneNode* getBoneNodeRoot();
-	BoneNode* getBoneNodeByName(const std::string &name);
-	void addChildBoneNode(BoneNode* parent, BoneNode* node);
+	BoneNode*			getBoneNodeRoot();
+	BoneNode*			getBoneNodeByName(const std::string &name);
+	void				addChildBoneNode(BoneNode* parent, BoneNode* node);
 
 	/*------------ MESH NODE -------------*/
-	MeshNode* getMeshNodeRoot();
-	void addChildMeshNode(MeshNode* parent, MeshNode* node);
-	MeshNode* getCurrentMeshNode();
+	MeshNode*			getMeshNodeRoot();
+	void				addChildMeshNode(MeshNode* parent, MeshNode* node);
+	MeshNode*			getCurrentMeshNode();
 
 	/*------------ ANIMATION -------------*/
-	void setAnimationLayerPtr(animlayer_ptr layerPtr);
-	AnimLayer* getAnimationLayer() const;
+	void				setAnimationLayerPtr(animlayer_ptr layerPtr);
+	AnimLayer*			getAnimationLayer() const;
 
-	void setCurrentSample(AnimSample* sample);
-	AnimSample* getCurrentSample() const;
+	void				setCurrentSample(AnimSample* sample);
+	AnimSample*			getCurrentSample() const;
 
-	bool hasAnimation();
+	bool				hasAnimation();
+	void				setSceneName(const std::string &sceneName);
+	const std::string&	getSceneName() const;
 private:
-	NodeTree<BoneNode> mBoneNodes;
-	NodeTree<MeshNode> mMeshNodes;
+	NodeTree<BoneNode>	mBoneNodes;
+	NodeTree<MeshNode>	mMeshNodes;
 
-	animlayer_ptr mAnimationLayerPtr;
-	AnimSample* mCurrentSample;
+	animlayer_ptr		mAnimationLayerPtr;
+	AnimSample*			mCurrentSample;
+	std::string			mSceneName;
 };

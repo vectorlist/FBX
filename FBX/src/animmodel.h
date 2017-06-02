@@ -13,6 +13,9 @@ struct BoneBufferData
 	bool isAnimation;
 };
 
+
+typedef void(*cbf)(Node* node);
+
 class SkinMesh;
 class Node;
 class AnimModel
@@ -24,23 +27,29 @@ public:
 	void render(GLuint shader);
 	
 	//test animation sample stack
-	void processAnimation(int sampleIndex);
+	void processAnimation();
 
 	void updateBoneTransform(Node* pNode);
 	void processBoneNode(BoneNode* rootBoneNode);
 	void setNodePtr(node_ptr &node);
 	Node* getNode();
+	AnimHandle* getHandle();
 		
 
 	animhandle_ptr m_handle;
 	BoneBufferData m_boneData;
 	std::shared_ptr<UBO<BoneBufferData>> m_boneUbo;
 
-private:
+	void evalCallback();
+	cbf callback;
 	bool hasChanged;
+private:
+	
 	int hasSampleIndex = 0;
 	bool isRunning;
 	bool isAnimatedModel;
+	bool isFirstLoop;
+
 	node_ptr m_nodePtr;
 	Node* m_node;
 	SkinMesh* m_mesh;

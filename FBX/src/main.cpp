@@ -2,6 +2,7 @@
 #include <util.h>
 #include <animmodel.h>
 #include <shadertool.h>
+#include <gui.h>
 
 #define WIDTH		1280
 #define HEIGHT		720
@@ -17,6 +18,7 @@ int main(int argc, char* argv[])
 	SDL_GLContext context;
 	Window::initWindow(window, context, WIDTH, HEIGHT, 1);
 	Renderer renderer;
+	Gui gui(window);
 	Timer timer;
 	Camera camera;
 	camera.setPerspective(45.f, WIDTH / (float)HEIGHT, 0.0001f, 1000.0f);
@@ -24,21 +26,20 @@ int main(int argc, char* argv[])
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
 	
-	//AnimModel animModel("worrior_idle.fbx");
-	//AnimModel animModel("dia.fbx");
-	AnimModel animModel("plane.fbx");
-	
-	//animRenderer.setRenderableMesh(&model.mMesh);
+	AnimModel animModel("worrior.fbx");
+	//AnimModel animModel("plane.fbx");
+	AnimationInfo info;
 	
 	while (renderer.isRunning)
 	{
 		timer.begin();
 		camera.delta = timer.delta;
 		Input::event(renderer, camera);
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*ANIMATION MANAGER*/
-		animModel.processAnimation(renderer.sampleIndex);
+		animModel.processAnimation();
 
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
@@ -47,9 +48,17 @@ int main(int argc, char* argv[])
 		//trans.scale(0.5);
 		ShaderTool::setUniformMatrix4f(shader, trans, "model", true);
 		glUseProgram(0);
-	
+		
+		
 		animModel.render(shader);
-	
+
+		
+		//info.pNode = animModel.getNode();
+		//info.pHandle = animModel.getHandle();
+
+		gui.process(&animModel);
+		gui.render();
+		
 		timer.end(window);
 	}
 
@@ -60,36 +69,35 @@ int main(int argc, char* argv[])
 
 #else
 
-#include <fbxtool.h>
-#include <chrono>
-struct martices
+struct SomeSample
 {
-	Matrix4x4 mat0[10];
-	Matrix4x4 mat1;
+	//i need that char** array of name 
+	char* name;
+	int index;
+	std::string somedata;
+	float length;
+	//many more members.....
 };
 
-template <class T>
-class SomeUBO
-{
-public:
-	SomeUBO() { init(); };
-	void init() {
-		datasize = sizeof(T);
-	}
-	int datasize;
-};
 
 int main(int argc, char* argv[])
 {
 	Window::setConsoleOutput(10, 10, 700, 800);
 	
-	//martices mats;
-	std::vector<martices> mats;
-	for (int i; i < 10; ++i)
-		mats.push_back(martices());
+	std::vector<SomeSample> samples;
 
-	for (auto i : mats)
-		LOG << i << ENDN;
+	for (int i = 0; i < 3; ++i)
+	{
+		SomeSample sample;
+		sample.name = "abc";
+		sample.index = i;
+		samples.push_back(sample);
+	}
+	//added some datas 
+
+	//how to get char data array
+	/*i want char* name array from SomeSample arrays*/
+	char** names = samples.data();
 
 	system("pause");
 	return 0;

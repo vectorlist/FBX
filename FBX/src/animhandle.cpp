@@ -8,6 +8,8 @@ AnimHandle::AnimHandle()
 	mLocalCurrentTime(0),
 	mAnimStartTime(0),
 	mAnimEndTime(0),
+	mLocalFrame(0),
+	mGlobalFrame(0),
 	mIsLoop(true),
 	mIsAnimating(false),
 	mIsPause(false)
@@ -68,7 +70,8 @@ void AnimHandle::updateNodes(Node *node, const long globalTime)
 	clampLocalCurrentTime();
 
 	int sampleFrame = sample->convertMilliToFrame(mLocalCurrentTime) + sample->getSampleBlock();
-
+	mLocalFrame = sampleFrame;
+	mGlobalFrame += mLocalFrame;
 	//LOG << sampleFrame << ENDN;
 
 	const FbxAMatrix parentGlobalScale;
@@ -207,6 +210,21 @@ float AnimHandle::normalize(float last, float next, float current)
 {
 	float normalizedCurrent = (current - last) / (float)(next - last);
 	return normalizedCurrent;
+}
+
+long AnimHandle::getLocalTime() const
+{
+	return mLocalCurrentTime;
+}
+
+int AnimHandle::getLocalFrame() const
+{
+	return mLocalFrame;
+}
+
+int AnimHandle::getGlobalFrame() const
+{
+	return mGlobalFrame;
 }
 
 void AnimHandle::debugSampleKey(const KeyVec3 & last, const KeyVec3 & next)

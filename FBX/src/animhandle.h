@@ -55,12 +55,18 @@ public:
 
 	float normalize(float last, float next, float current);
 
+	long getLocalTime() const;
+	int getLocalFrame() const;
+	int getGlobalFrame() const;
 	void debugSampleKey(const KeyVec3& last, const KeyVec3& next);
 private:
 	long mGlobalStartTime;
 	long mLocalCurrentTime;
 	long mAnimStartTime;
 	long mAnimEndTime;
+
+	int mLocalFrame;
+	int mGlobalFrame;
 
 	bool mIsLoop;
 	bool mIsAnimating;

@@ -31,6 +31,13 @@
     <ClInclude Include="..\include\GLEngine\shadertool.h" />
     <ClInclude Include="..\include\GLEngine\texturetool.h" />
     <ClInclude Include="..\include\GLEngine\util.h" />
+    <ClInclude Include="..\include\imgui\imconfig.h" />
+    <ClInclude Include="..\include\imgui\imgui.h" />
+    <ClInclude Include="..\include\imgui\imgui_impl_sdl_gl3.h" />
+    <ClInclude Include="..\include\imgui\imgui_internal.h" />
+    <ClInclude Include="..\include\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\include\imgui\stb_textedit.h" />
+    <ClInclude Include="..\include\imgui\stb_truetype.h" />
     <ClInclude Include="src\animlayer.h" />
     <ClInclude Include="src\animobject.h" />
     <ClInclude Include="src\animsample.h" />
@@ -40,6 +47,7 @@
     <ClInclude Include="src\face.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\fbxdevice.h" />
+    <ClInclude Include="src\gui.h" />
     <ClInclude Include="src\skinmesh.h" />
     <ClInclude Include="src\fbxcore.h" />
     <ClInclude Include="src\fbxtool.h" />
@@ -53,12 +61,17 @@
     <ClInclude Include="src\point.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\imgui\imgui.cpp" />
+    <ClCompile Include="..\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\include\imgui\imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="src\animlayer.cpp" />
     <ClCompile Include="src\animsample.cpp" />
     <ClCompile Include="src\animhandle.cpp" />
     <ClCompile Include="src\animmodel.cpp" />
     <ClCompile Include="src\bonenode.cpp" />
     <ClCompile Include="src\fbxdevice.cpp" />
+    <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\skinmesh.cpp" />
     <ClCompile Include="src\fbxcore.cpp" />
     <ClCompile Include="src\fbxcore_ext.cpp" />
@@ -138,7 +151,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>.;$(SolutionDir)\include\GLEngine;$(SolutionDir)\include\core;$(SolutionDir)\include;$(ProjectDir)\src;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;$(SolutionDir)\include\imgui;$(SolutionDir)\include\GLEngine;$(SolutionDir)\include\core;$(SolutionDir)\include;$(ProjectDir)\src;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <PreprocessorDefinitions>LOG_W_ENABLE;FBXSDK_SHARED;_USE_MATH_DEFINES;</PreprocessorDefinitions>

@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <string>
 #include <iomanip>
+#include <memory>
 
 #define LOG						std::cout
 #define ENDL					std::endl
@@ -15,7 +16,8 @@
 #define LOG_ERROR(x)				Log::log_error(x)
 #define LOG_ASSERT(x)				Log::log_error(x)
 #define LOG_SHADER_ERROR(x,xx)		Log::log_shader_error(x,xx)
-
+#define STR_FORMAT(x, ...)			Log::str_format(x, ##__VA_ARGS__)
+//#define FOO(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #define SAFE_DELETE(x) if( x ) { delete (x); (x) = NULL; }
 
 namespace Log
@@ -39,6 +41,16 @@ namespace Log
 		//MessageBox(NULL, err.c_str(), "Error", MB_OK);
 		//assert(0 && msg.c_str());
 	}
+
+	template<typename ... Args>
+	std::string str_format(const std::string& format, Args ... args)
+	{
+		size_t size = snprintf(nullptr, 0, format.c_str(), args ...) + 1;
+		std::unique_ptr<char[]> buf(new char[size]);
+		snprintf(buf.get(), size, format.c_str(), args ...);
+		return std::string(buf.get(), buf.get() + size - 1);
+	}
+
 
 	inline void APIENTRY glDebugCallback(GLenum source, GLenum type, GLuint id,
 		GLenum severity, GLsizei length, const GLchar *message, const void *userParam)

@@ -2,7 +2,7 @@
 #include <log.h>
 
 AnimLayer::AnimLayer()
-	: mFps(ANIMATION_DEFAULT_FRAME_RATE)
+	: index(0),mFps(ANIMATION_DEFAULT_FRAME_RATE)
 {
 }
 
@@ -38,7 +38,9 @@ void AnimLayer::createLayers(FbxImporter* importer)
 		baseEndTime = std::max<long>(baseEndTime, endTime);
 		debugSample(sample.get());
 		
+		mSamplesNames.push_back(sample->getName().c_str());
 		mSamples.push_back(std::move(sample));
+		
 	}
 
 	auto sample = std::make_shared<AnimSample>();
@@ -56,6 +58,11 @@ void AnimLayer::createLayers(FbxImporter* importer)
 AnimSample* AnimLayer::getSample(unsigned int index)
 {
 	return mSamples[index].get();
+}
+
+std::vector<const char*> AnimLayer::getSamplesNames()
+{
+	return mSamplesNames;
 }
 
 AnimSample * AnimLayer::getBaseSample()

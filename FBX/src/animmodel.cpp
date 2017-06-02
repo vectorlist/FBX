@@ -6,7 +6,7 @@
 #include <animlayer.h>
 
 AnimModel::AnimModel(const std::string &filename)
-	: isRunning(false), m_node(NULL), m_mesh(NULL), hasChanged(false)
+	: isRunning(false), m_node(NULL), m_mesh(NULL), hasChanged(false), isFirstLoop(true)
 {
 	FBXCore core(filename);
 	setNodePtr(core.mNode);
@@ -35,30 +35,25 @@ void AnimModel::render(GLuint shader)
 	m_mesh->render(shader);
 }
 
-void AnimModel::processAnimation(int sampleIndex)
+void AnimModel::processAnimation()
 {
 	if (!isAnimatedModel) return;
-	//AnimSample* sample = mNode->getAnimationSample();
-	if (hasSampleIndex != sampleIndex) {
 
-		hasChanged = true;
-	}
+	//TODO call back for has change if gui changed(must be trigger has changed)
 	if (!isRunning || hasChanged)
 	{
+		LOG << "has changed" << ENDN;
 		AnimSample* sample = NULL;
-		AnimLayer* layers = m_node->getAnimationLayer();
-		
-		if (sampleIndex == 0) {
-			sample = layers->getSample(sampleIndex);
+		//Set base layer
+		AnimLayer* layer= NULL;
+		if (isFirstLoop) {
+			layer = m_node->getAnimationLayer();
+			m_node->setCurrentSample(layer->getSample(0));
+			isFirstLoop = false;
 		}
-		else {
-			sample = layers->getSample(sampleIndex);
-		}
-		
-		
-		m_node->setCurrentSample(sample);
-		LOG << "change sample layer : " << sample->getName() << ENDN;
-		/*SET SAMPLE*/
+		//we set current sample from gui
+		sample = m_node->getCurrentSample();
+
 		long start = sample->convertFrameToMilli(sample->getSampleStart());
 		long end = sample->convertFrameToMilli(sample->getSampleEnd());
 		
@@ -67,7 +62,6 @@ void AnimModel::processAnimation(int sampleIndex)
 		m_handle->startAnimation(GET_TIME(), start, end);
 		m_handle->setLoop(true);
 		isRunning = true;
-		hasSampleIndex = sampleIndex;
 		hasChanged = false;
 	}
 	else
@@ -114,4 +108,14 @@ void AnimModel::setNodePtr(node_ptr &node)
 Node* AnimModel::getNode()
 {
 	return m_node;
+}
+
+AnimHandle* AnimModel::getHandle()
+{
+	return m_handle.get();
+}
+
+void AnimModel::evalCallback()
+{
+	//callback()
 }

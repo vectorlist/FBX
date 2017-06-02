@@ -78,7 +78,7 @@ void Node::setCurrentSample(AnimSample *sample)
 	mCurrentSample = sample;
 }
 
-AnimSample * Node::getCurrentSample() const
+AnimSample* Node::getCurrentSample() const
 {
 	return mCurrentSample;
 }
@@ -86,6 +86,16 @@ AnimSample * Node::getCurrentSample() const
 bool Node::hasAnimation()
 {
 	return mBoneNodes.size() > 1;
+}
+
+void Node::setSceneName(const std::string &sceneName)
+{
+	mSceneName = sceneName;
+}
+
+const std::string& Node::getSceneName() const
+{
+	return mSceneName;
 }
 
 

@@ -13,9 +13,11 @@ FBXCore::FBXCore(const std::string &filename)
 
 	auto fbxroot = device.getRootNode();
 	auto importer = device.getImporter();
+	auto scene = device.getScene();
+	
 
 	mNode = std::make_shared<Node>();
-
+	mNode->setSceneName(scene->GetName());
 	mNode->setAnimationLayerPtr(device.getAnimationLayer());
 
 	processNodes(fbxroot, mNode->getBoneNodeRoot(), mNode->getMeshNodeRoot());
