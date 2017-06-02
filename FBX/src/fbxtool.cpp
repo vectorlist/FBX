@@ -1,7 +1,5 @@
 #include "fbxtool.h"
 #include <log.h>
-#include <bonenode.h>
-#include <meshnode.h>
 
 float FBXTool::clamp(float val, float fmin, float fmax)
 {
@@ -13,7 +11,6 @@ float FBXTool::clamp(float val, float fmin, float fmax)
 	}
 	return val;
 }
-
 
 void FBXTool::lerp(
 	const KeyVec3& current,

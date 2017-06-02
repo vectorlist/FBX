@@ -1,33 +1,32 @@
 #include <node.h>
+#include <animlayer.h>
 
 Node::Node()
-	: mBoneNodesNum(0), mMeshNodesNum(0)
+	: mCurrentSample(NULL)
 {
 
 }
 
 Node::~Node()
 {
-
+	
 }
 
 /*------------ BONE NODE -------------*/
 
 BoneNode *Node::getBoneNodeRoot()
 {
-	return mBoneNodes.getRoot();
+	return mBoneNodes.mRoot;
 }
 
 void Node::addChildBoneNode(BoneNode* parent, BoneNode* node)
 {
 	mBoneNodes.addChild(parent, node);
-	//increase bone num when add 
-	mBoneNodesNum++;
 }
 
 BoneNode* Node::getBoneNodeByName(const std::string &name)
 {
-	for (BoneNode* node = mBoneNodes.getRoot();
+	for (BoneNode* node = mBoneNodes.mRoot;
 		node != NULL;
 		node = mBoneNodes.getNextChildFirst(node))
 	{
@@ -43,51 +42,50 @@ BoneNode* Node::getBoneNodeByName(const std::string &name)
 
 MeshNode* Node::getMeshNodeRoot()
 {
-	return mMeshNodes.getRoot();
+	return mMeshNodes.mRoot;
 }
 
 void Node::addChildMeshNode(MeshNode* parent, MeshNode *node)
 {
 	mMeshNodes.addChild(parent, node);
-	mMeshNodesNum++;
 }
 
 MeshNode* Node::getCurrentMeshNode()
 {
-	for (auto* node = mMeshNodes.getRoot();
+	for (auto* node = mMeshNodes.mRoot;
 		node != NULL;
 		node = mMeshNodes.getNextChildFirst(node))
 	{
 		if (node) {
-			if (!node->isBuilt) continue;
 			return node;
 		}
 	}
 	return NULL;
 }
 
-void Node::setAnimationSample(AnimationSamplePtr &scene)
+void Node::setAnimationLayerPtr(animlayer_ptr layerPtr)
 {
-	mAnimationSamplePtr = std::move(scene);
+	mAnimationLayerPtr = layerPtr;
 }
 
-AnimationSample* Node::getAnimationSample() const
+AnimLayer* Node::getAnimationLayer() const
 {
-	if (mAnimationSamplePtr) {
-		return mAnimationSamplePtr.get();
-	}
-	return NULL;
+	return mAnimationLayerPtr.get();
 }
 
-void Node::setAnimationLayers(AnimationLayersPtr layers)
+void Node::setCurrentSample(AnimSample *sample)
 {
-	mLayers = layers;
+	mCurrentSample = sample;
 }
 
-AnimationLayers* Node::getAnimationLayers() const
+AnimSample * Node::getCurrentSample() const
 {
-	return mLayers.get();
+	return mCurrentSample;
 }
 
+bool Node::hasAnimation()
+{
+	return mBoneNodes.size() > 1;
+}
 
 

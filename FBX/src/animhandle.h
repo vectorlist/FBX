@@ -1,6 +1,6 @@
 #pragma once
 
-#include <animationsample.h>
+#include <animsample.h>
 #include <memory>
 #include <fbxsdk.h>
 
@@ -10,11 +10,11 @@ class TrackQuaternion;
 class TrackVec3;
 class Node;
 class BoneNode;
-class AnimationScene
+class AnimHandle
 {
 public:
-	AnimationScene();
-	~AnimationScene();
+	AnimHandle();
+	~AnimHandle();
 
 
 	bool startAnimation(
@@ -26,18 +26,15 @@ public:
 	bool isPause() const;
 	void setLoop(bool loop);
 
-	//test
-	//void updateNode(Node* node, const long globalTime);
-	void updateNode(Node* node,const long globalTime);
-	//recursive bone nodes and get matrix
+	
+	void updateNodes(Node* node,const long globalTime);
+	
 	void evalNodes(
 		int sample,
 		BoneNode* pBoneNode,
 		const FbxAMatrix &parentGlobalScale,
 		const FbxAMatrix &parentGlobalRoataion);
 
-	void evalFrame(int sample, BoneNode* pNode);
-	
 	void clampLocalCurrentTime();
 
 	/*BUILT IN CALC FUNC*/
@@ -70,4 +67,4 @@ private:
 	bool mIsPause;
 };
 
-typedef std::shared_ptr<AnimationScene> AnimationScenePtr;
+typedef std::shared_ptr<AnimHandle> animhandle_ptr;

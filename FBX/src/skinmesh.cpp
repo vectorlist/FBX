@@ -1,10 +1,12 @@
 #include <skinmesh.h>
 #include <meshnode.h>
 #include <log.h>
+#include <shadertool.h>
 
 SkinMesh::SkinMesh()
 	: vao(NULL), vbo(NULL), ibo(NULL),mIsBuffer(false)
 {
+
 }
 
 SkinMesh::~SkinMesh()
@@ -16,25 +18,25 @@ void SkinMesh::createMesh(MeshNode *meshNode)
 {
 	for (MeshNode* node = meshNode; node != NULL; node = node->mFirstChild)
 	{
-		if (meshNode->getID() > 0) {
+		if (meshNode->id() > 0) {
 			LOG_ERROR("dosent supported 2more meshes in this version");
 		}
-		auto& faceArray = meshNode->getFaces();
-		auto& vertArray = meshNode->getVertices();
+		auto& faces = meshNode->getFaces();
+		auto& points = meshNode->getPoints();
 
-		for (auto faceIndex = 0; faceIndex < faceArray.size(); ++faceIndex)
+		for (auto faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 		{
 			for (int facePointIndex = 0; facePointIndex < FACE_COMPONENT_NUM; ++facePointIndex)
 			{
-				Face &face = faceArray[faceIndex];
+				Face &face = faces[faceIndex];
 				int vertexIndex = face.getVertexIndex(facePointIndex);
 				SkinVertex vertex;
-				vertex.position = vertArray[vertexIndex].getPosition();
+				vertex.position = points[vertexIndex].getPosition();
 				vertex.normal = face.getNormal(facePointIndex);
 				vertex.st = face.getST(facePointIndex);
 				vertex.setBoneWeights(
-					vertArray[vertexIndex].getBoneWeights(),
-					vertArray[vertexIndex].getBoneIDs());
+					points[vertexIndex].getBoneWeights(),
+					points[vertexIndex].getBoneIDs());
 
 				vertices.push_back(vertex);
 				indices.push_back(faceIndex * 3 + facePointIndex);
@@ -100,7 +102,19 @@ void SkinMesh::render(GLuint shader)
 	glUseProgram(shader);
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, nullptr);
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
+
+	Matrix4x4 trans;
+	trans.translate(vec3f(-2, 0, -2));
+	trans.rotate(AXIS::Y, 90);
+	ShaderTool::setUniformMatrix4f(shader, trans, "model", true);
+	glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, nullptr);
+
+	Matrix4x4 trans1;
+	trans1.translate(vec3f(2, 0, -2));
+	trans1.rotate(AXIS::Y, -90);
+	ShaderTool::setUniformMatrix4f(shader, trans1, "model", true);
+	glDrawElements(GL_TRIANGLES, indices_num, GL_UNSIGNED_INT, nullptr);
 	glUseProgram(0);
 }
 

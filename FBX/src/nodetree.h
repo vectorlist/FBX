@@ -2,16 +2,18 @@
 
 #include <stdlib.h>
 
-template<class T> 
+
+template<class T>
 class NodeTree
 {
 public:
 
 	NodeTree::NodeTree()
-		:
-		mRoot(NULL),
-		mEnd(NULL)
-	{};
+	{
+		mRoot = NULL;
+		mEnd = NULL;
+		count = 0;
+	};
 
 	virtual NodeTree::~NodeTree()
 	{
@@ -21,10 +23,11 @@ public:
 			type = type->mNext;
 			delete temp;
 		}
+		count = 0;
 	};
 
 
-	virtual T* getRoot()
+	virtual T* GetRoot()
 	{
 		return mRoot;
 	}
@@ -34,7 +37,7 @@ public:
 		T *item
 	)
 	{
-		if (parent)	
+		if (parent)
 		{
 			if (parent->mFirstChild)
 			{
@@ -51,7 +54,7 @@ public:
 
 			item->mParent = parent;
 		}
-		else 
+		else
 		{
 			if (mRoot)
 			{
@@ -66,8 +69,9 @@ public:
 				mRoot = item;
 				mEnd = item;
 			}
-
 		}
+		item->mId = count;
+		++count;
 	}
 
 	virtual T* getNextChildFirst(
@@ -97,9 +101,17 @@ public:
 		return NULL;
 	}
 
+
+
 	T *mRoot;
 	T *mEnd;
-
+	
+	int size()
+	{
+		return count + 1;
+	}
+private:
+	int count;
 
 };
 
@@ -109,17 +121,17 @@ class NodeTreeItem
 	friend class NodeTree<T>;
 public:
 	NodeTreeItem::NodeTreeItem()
-		:
-	mNext(NULL),
-	mPrevious(NULL),
-	mParent(NULL),
-	mFirstChild(NULL),
-	mEndChild(NULL)
-	{};
+	{
+		mNext = NULL;
+		mPrevious = NULL;
+		mParent = NULL;
+		mFirstChild = NULL;
+		mEndChild = NULL;
+	};
 
 	virtual NodeTreeItem::~NodeTreeItem()
 	{
-		for (T *item = next(); item != NULL; )
+		for (T *item = mFirstChild; item != NULL; )
 		{
 			T *temp = item;
 			item = item->mNext;
@@ -127,25 +139,16 @@ public:
 		}
 	};
 
-	virtual T* next()
+	int id()
 	{
-		return mNext;
-	}
-
-	virtual T* parent()
-	{
-		return mParent;
-	}
-
-	virtual T* child()
-	{
-		return mFirstChild;
+		return mId;
 	}
 
 	T *mNext;
-	T *mPrevious;		
+	T *mPrevious;
 	T *mParent;
-	T *mFirstChild;		
-	T *mEndChild;		
-							
+	T *mFirstChild;
+	T *mEndChild;
+private:
+	int mId;
 };

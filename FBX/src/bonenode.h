@@ -15,20 +15,18 @@ public:
 
 	void setName(const std::string &name);
 	const std::string& getName() const;
-	uint32_t getID();
+	//uint32_t id();
 
 	FbxAMatrix& getGlobalTransfrom();
 	const FbxAMatrix& getGlobalTransfrom() const;
 	FbxAMatrix& getInveseLocalTransfrom();
 	const FbxAMatrix& getInveseLocalTransfrom() const;
 
-	void setInverseLocalTransfrom(FbxAMatrix &invTransform);
+	void setInverseLocalTransfrom(const FbxAMatrix &invTransform);
 	void setInheritScale(bool inheritSacle);
 	bool getInheritScale();
-	static void resetGlobalID();
 private:
 	std::string mName;
-	uint32_t mID;
 
 	static uint32_t globalID;
 public:
@@ -37,8 +35,6 @@ public:
 	bool mInheritScale;
 	/*------------- TRACK ----------------*/
 	TrackContainer* mTrack;
-	//replace to container
-	//allocate Datas tracks
 	void allocateTracks(int frameNum);
 
 	//Position

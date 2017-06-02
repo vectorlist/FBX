@@ -9,6 +9,11 @@
 #define FACE_COMPONENT_NUM		3
 #define DEFAULT_FPS				30
 
-class AnimationLayers;
-class LayerInfo;
-typedef std::shared_ptr<AnimationLayers> AnimationLayersPtr;
+class Node;
+typedef std::shared_ptr<Node> node_ptr;
+
+//fbx
+class FBXDevice;
+typedef std::shared_ptr<FBXDevice> fbxdevice_ptr;
+class AnimLayer;
+typedef std::shared_ptr<AnimLayer> animlayer_ptr;

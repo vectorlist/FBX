@@ -2,10 +2,11 @@
 
 #include <bonenode.h>
 #include <meshnode.h>
-#include <animationscene.h>
+#include <animhandle.h>
 #include <track.h>
 #include <config.h>
 
+class FlimBoxDevice;
 class Node
 {
 public:
@@ -20,24 +21,20 @@ public:
 	/*------------ MESH NODE -------------*/
 	MeshNode* getMeshNodeRoot();
 	void addChildMeshNode(MeshNode* parent, MeshNode* node);
-	//dont care get by name
 	MeshNode* getCurrentMeshNode();
-	
-
-	NodeTree<BoneNode> mBoneNodes;
-	NodeTree<MeshNode> mMeshNodes;
-	//node bone ID, weight;
-	uint32_t mBoneNodesNum;
-	uint32_t mMeshNodesNum;
 
 	/*------------ ANIMATION -------------*/
-	void setAnimationSample(AnimationSamplePtr &animation);
-	AnimationSample* getAnimationSample() const;
+	void setAnimationLayerPtr(animlayer_ptr layerPtr);
+	AnimLayer* getAnimationLayer() const;
 
-	void setAnimationLayers(AnimationLayersPtr layers);
-	AnimationLayers* getAnimationLayers() const;
-	AnimationSample* currentSample = NULL;
+	void setCurrentSample(AnimSample* sample);
+	AnimSample* getCurrentSample() const;
+
+	bool hasAnimation();
 private:
-	AnimationSamplePtr mAnimationSamplePtr;
-	AnimationLayersPtr mLayers;
+	NodeTree<BoneNode> mBoneNodes;
+	NodeTree<MeshNode> mMeshNodes;
+
+	animlayer_ptr mAnimationLayerPtr;
+	AnimSample* mCurrentSample;
 };

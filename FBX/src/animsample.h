@@ -9,26 +9,30 @@
 #define ANIMATION_FRAME_MAX				1000.f
 #define MILLISECOND						1000.f
 #define MILLIHALFSECOND					500.f
-#define ANIMATION_CURRENT_FRAME_RATE	30.f
+#define ANIMATION_DEFAULT_FRAME_RATE	30.f
 
-class AnimationSample 
+class AnimSample 
 {
 public:
-	AnimationSample();
-	~AnimationSample();
+	AnimSample();
+	~AnimSample();
 
 	void setName(const std::string &name);
 	void setFrameNums(int frameNum);
 	void setFps(float fps);
+	void setFrameStart(int startFrame);
+	void setFrameEnd(int endFrame);
 	void setSampleStart(int startSample);
 	void setSampleEnd(int endSample);
 
 	const std::string& getName() const;
 	float getFps() const;
 	int getSamplesFrameNum() const;
+	int getFrameStart() const;
+	int getFrameEnd() const;
 	int getSampleStart() const;
 	int getSampleEnd() const;
-	int getSampleOffset() const;
+	int getSampleBlock() const;
 
 	long convertFrameToMilli(const int frame);
 	int convertMilliToFrame(const long milli);
@@ -39,10 +43,14 @@ private:
 	int mSampleStart;
 	int mSampleEnd;
 
+	int mFrameStart;
+	int mFrameEnd;
+
 	float mFps;
 	float mMilliSecondFrame;
 	float mMilliSecondPerHalfFrame;
 	
 };
 
-typedef std::shared_ptr<AnimationSample> AnimationSamplePtr;
+class anim_sample_ptr;
+typedef std::shared_ptr<AnimSample> animsample_ptr;

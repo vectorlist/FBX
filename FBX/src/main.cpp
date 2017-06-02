@@ -1,11 +1,10 @@
 
 #include <util.h>
-#include <fbxcore.h>
+#include <animmodel.h>
 #include <shadertool.h>
-#include <animationrenderer.h>
 
-#define WIDTH		720
-#define HEIGHT		640
+#define WIDTH		1280
+#define HEIGHT		720
 
 #define TAKE0
 
@@ -24,10 +23,10 @@ int main(int argc, char* argv[])
 
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
-	FBXCore core("mayaanim.fbx");
-
-	//AnimationSample(TEST)
-	AnimationRenderer animRenderer(&core);
+	
+	//AnimModel animModel("worrior_idle.fbx");
+	//AnimModel animModel("dia.fbx");
+	AnimModel animModel("plane.fbx");
 	
 	//animRenderer.setRenderableMesh(&model.mMesh);
 	
@@ -39,17 +38,17 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*ANIMATION MANAGER*/
-		animRenderer.processAnimation(renderer.sampleIndex);
+		animModel.processAnimation(renderer.sampleIndex);
 
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
 		ShaderTool::setUniformMatrix4f(shader, camera.view(), "view", true);
 		Matrix4x4 trans;
-		trans.scale(0.5);
+		//trans.scale(0.5);
 		ShaderTool::setUniformMatrix4f(shader, trans, "model", true);
 		glUseProgram(0);
 	
-		animRenderer.render(shader);
+		animModel.render(shader);
 	
 		timer.end(window);
 	}

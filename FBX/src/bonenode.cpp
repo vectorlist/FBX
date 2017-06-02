@@ -1,10 +1,9 @@
 #include "BoneNode.h"
 #include <log.h>
 
-uint32_t BoneNode::globalID = 0;
 
 BoneNode::BoneNode()
-	: mID(globalID++), mName("null"), alloactedTrackSize(0)
+	: mName("null"), alloactedTrackSize(0)
 {
 
 }
@@ -12,6 +11,7 @@ BoneNode::BoneNode()
 BoneNode::~BoneNode()
 {
 
+	//LOG << " delete : " << mName << ENDN;
 }
 
 void BoneNode::setName(const std::string & name)
@@ -24,36 +24,27 @@ const std::string& BoneNode::getName() const
 	return mName;
 }
 
-uint32_t BoneNode::getID()
-{
-	return mID;
-}
-
 FbxAMatrix& BoneNode::getGlobalTransfrom()
 {
-	//it can handle outside
 	return mGlobalTransform;
 }
 
 const FbxAMatrix& BoneNode::getGlobalTransfrom() const
 {
-	// TODO: insert return statement here
 	return mGlobalTransform;
 }
 
 FbxAMatrix& BoneNode::getInveseLocalTransfrom()
 {
-	// TODO: insert return statement here
 	return mInverseTransform;
 }
 
 const FbxAMatrix& BoneNode::getInveseLocalTransfrom() const
 {
-	// TODO: insert return statement here
 	return mInverseTransform;
 }
 
-void BoneNode::setInverseLocalTransfrom(FbxAMatrix &invTransform)
+void BoneNode::setInverseLocalTransfrom(const FbxAMatrix &invTransform)
 {
 	mInverseTransform = invTransform;
 }
@@ -66,11 +57,6 @@ void BoneNode::setInheritScale(bool inheritScale)
 bool BoneNode::getInheritScale()
 {
 	return mInheritScale;
-}
-
-void BoneNode::resetGlobalID()
-{
-	globalID = 0;
 }
 
 void BoneNode::allocateTracks(int frameNum)

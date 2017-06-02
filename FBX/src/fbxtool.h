@@ -1,17 +1,11 @@
 #pragma once
 
-#include <fbxsdk.h>
-#include <vertex.h>
-#include <face.h>
-#include <node.h>
-#include <key.h>
 #include <sstream>
+#include <fbxsdk.h>
+#include <key.h>
 
 #define LOG_FBX_MATRIX(x)		FBXTool::logFbxMatrix(x)
 
-class BoneNode;
-class MeshNode;
-class Node;
 class FBXTool
 {
 public:

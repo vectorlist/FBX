@@ -2,84 +2,210 @@
 #include <log.h>
 #include <fbxtool.h>
 #include <meshnode.h>
-#include <animationsample.h>
-#include <animationlayer.h>
+#include <animsample.h>
+#include <animlayer.h>
+#include <fbxdevice.h>
 
 FBXCore::FBXCore(const std::string &filename)
 {
-	FBXDeviceCreateInfo deviceInfo{};
-	deviceInfo.filename = filename;
-	deviceInfo.enablePose = true;
-	deviceInfo.appInfo = Maya;
-
 	//create fbxscene importer manager animation layers
-	mDevice = new FBXDevice(deviceInfo);
+	FBXDevice device(filename);
 
-	mRootNode = mDevice->getRootNode();
+	auto fbxroot = device.getRootNode();
+	auto importer = device.getImporter();
 
-	//TODO replace single sample to layer samples
-	createAnimationSamples(mNode);
+	mNode = std::make_shared<Node>();
 
-	mNode.setAnimationLayers(mDevice->getAnimationLayers());
-	//test sample to 0 - END
-	//mNode.getAnimationLayers()->pitchAllLayers();
+	mNode->setAnimationLayerPtr(device.getAnimationLayer());
 
-	bakeNodeTransform(mRootNode);
+	processNodes(fbxroot, mNode->getBoneNodeRoot(), mNode->getMeshNodeRoot());
 
-	AnimationSample* sample = mNode.getAnimationSample();
-	mRootNode->ConvertPivotAnimationRecursive(NULL,
-		FbxNode::eDestinationPivot, sample->getFps());
-
-
-	processNodes(mRootNode, mNode.getBoneNodeRoot(), mNode.getMeshNodeRoot());
-
-	MeshNode* currentMeshNode = mNode.getCurrentMeshNode();
-
-	processSkinNode();
-
-	sample->setSampleEnd(sample->getSampleEnd() - sample->getSampleStart());
-	sample->setSampleStart(0);
-
+	processSkins(fbxroot, mNode->getCurrentMeshNode());
 }
 
-bool FBXCore::processSkinNode()
+FBXCore::~FBXCore()
 {
-	bool loadedMesh = false;
-	auto meshNodeNum = tempMeshNode.fbxNode.size();
+	
+}
 
-	for (int meshIndex = 0; meshIndex < meshNodeNum; ++meshIndex)
+bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode)
+{
+	BoneNode* newBoneNode = NULL;
+	MeshNode* newMeshNode = NULL;
+
+	const FbxNodeAttribute* pNodeAttr = pNode->GetNodeAttribute();
+	if (pNodeAttr)
 	{
-		FbxGeometry* const geo = tempMeshNode.fbxNode[meshIndex]->GetGeometry();
-		if (!geo) {
-			LOG_ERROR("failed to load geometry");
-			continue;
-		}
-		const FbxSkin* skin = static_cast<const FbxSkin*>(geo->GetDeformer(0, FbxDeformer::eSkin));
-		if (!skin) {
-			LOG_ERROR("failed to load skin");
-			continue;
-		}
-
-		const FbxSkin::EType  skinType = skin->GetSkinningType();
-		switch (skinType)
+		const auto type = pNodeAttr->GetAttributeType();
+		switch (type)
 		{
-		case FbxSkin::eRigid:
-		case FbxSkin::eLinear:
-		case FbxSkin::eDualQuaternion:
-			if (processSkin(geo, tempMeshNode.meshNode[meshIndex]))
-			{
-				loadedMesh = true;
-			}
-			continue;
+		case fbxsdk::FbxNodeAttribute::eMesh:
+			newMeshNode = processMeshNode(pNode, parentMeshNode);
+			break;
+		case fbxsdk::FbxNodeAttribute::eSkeleton:
+			newBoneNode = processBoneNode(pNode, parentBoneNode);
+			break;
+
 		default:
-			LOG_ERROR("unknown skinning type");
+			break;
 		}
 	}
+	for (int childIndex = 0; childIndex < pNode->GetChildCount(); ++childIndex)
+	{
+		FbxNode* pChildNode = pNode->GetChild(childIndex);
+		processNodes(pChildNode,
+			newBoneNode != NULL ? newBoneNode : parentBoneNode,
+			newMeshNode != NULL ? newMeshNode : parentMeshNode);
+	}
+
+	return true;
+}
+
+BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
+{
+	const FbxSkeleton* const pSkeleton = static_cast<const FbxSkeleton*>(pNode->GetNodeAttribute());
+
+	BoneNode* boneNode = NULL;
+	if (!pSkeleton) {
+		LOG_ERROR("failed to convert skeleton node");
+		return  NULL;
+	}
+
+	boneNode = new BoneNode();
+
+	mNode->addChildBoneNode(parent, boneNode);
+
+	//set name
+	auto name = pNode->GetName();
+	boneNode->setName(name);
+	LOG << "id : "  << " " << boneNode->id() << " create bone node : " << boneNode->getName() << ENDN;;
+
+	//Transforms
+	const FbxAMatrix globalTransform = pNode->EvaluateGlobalTransform(0, FbxNode::eDestinationPivot);
+	boneNode->mGlobalTransform = globalTransform;
+
+	//TODO : ANIMATION LAYER SAMPLE
+	/*------------------------ ANIMATION LAYER SAMPLE ------------------------------*/
+	auto layer = mNode->getAnimationLayer();
+	AnimSample* animation = layer->getBaseSample();
+	int sampleNum = animation->getSamplesFrameNum();
+
+	if (sampleNum)
+	{
+		boneNode->allocateTracks(sampleNum);
+	}
+
+	int startFrame = animation->getSampleStart();
+	long startTime = animation->convertFrameToMilli(startFrame);
+	FbxTime fbxTime;
+	for (int sample = 0; sample <= sampleNum; ++sample)
+	{
+		long sampleTime = animation->convertFrameToMilli(sample);
+		fbxTime.SetMilliSeconds(startTime + sampleTime);
+		
+		const FbxAMatrix localMatrix =
+			pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
+
+		//TODO : scale key rotation key
+		KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
+		KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
+		KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+
+		//LOG << rotationKey << ENDN;
+		boneNode->addRotationKey(rotationKey);
+		boneNode->addPositionKey(positionKey);
+		boneNode->addScaleKey(scaleKey);
+		//LOG << sample <<" " << boneNode->getPositionKey(sample) << ENDN;
+	}
+	/*------------------------- SAMPLE -----------------------------*/
+	if (parent)
+	{
+		//pNode->
+		auto type = pNode->InheritType.Get();
+		switch (type)
+		{
+		case FbxTransform::eInheritRrs:
+			boneNode->setInheritScale(false);
+			break;
+		case FbxTransform::eInheritRrSs:
+			LOG_ERROR("RrSs dosent supported");
+			break;
+		case FbxTransform::eInheritRSrs:
+			boneNode->setInheritScale(true);
+			break;
+		}
+	}
+	else
+	{
+		boneNode->setInheritScale(false);
+	}
+
+	return boneNode;
+}
+
+MeshNode* FBXCore::processMeshNode(FbxNode *pNode, MeshNode *parent)
+{
+	FbxMesh* pMesh = pNode->GetMesh();
+	MeshNode* meshNode = NULL;
+
+	if (!pMesh) {
+		LOG << "this node is not supported a mesh" << ENDN;
+		return meshNode;
+	}
+
+	meshNode = new MeshNode;
 	
-	return loadedMesh;
+	mNode->addChildMeshNode(parent, meshNode);
+
+	std::string nodeName = pNode->GetName();
+	meshNode->setName(nodeName);
+
+	LOG << "ID : " << meshNode->id() << " Create Mesh Node : " << meshNode->getName() << ENDN;
+
+	const FbxAMatrix globalMatrix = pNode->EvaluateGlobalTransform();
+	FbxAMatrix localTRS;
+	FbxVector4 T = pNode->LclTranslation.Get();
+	FbxVector4 R = pNode->LclRotation.Get();
+	FbxVector4 S = pNode->LclScaling.Get();
+	localTRS.SetTRS(T, R, S);
+
+	meshNode->setGlobalTransform(localTRS);
+	//meshNode->setGlobalTransform(globalMatrix);
+
+	buildMeshNode(pMesh, meshNode);
+
+	return meshNode;
+}
+
+
+void FBXCore::buildMeshNode(FbxMesh* pMesh, MeshNode* pMeshNode)
+{
+	int vertexNum = pMesh->GetControlPointsCount();
+
+	PointArray& points = pMeshNode->getPoints();
+	points.resize(vertexNum);
+
+	const FbxVector4* const contolPoints = pMesh->GetControlPoints();
+	for (unsigned int vertexIndex = 0; vertexIndex < vertexNum; ++vertexIndex)
+	{
+		points[vertexIndex].setPosition(contolPoints[vertexIndex]);
+	}
+	int faceNums = pMesh->GetPolygonCount();
+
+	FaceArray& faces = pMeshNode->getFaces();
+	faces.resize(faceNums);
+
+	for (int faceIndex = 0; faceIndex < faceNums; ++faceIndex)
+	{
+		Face &face = faces[faceIndex];
+		loadVertexIndices(pMesh, faceIndex, face);
+		loadNormals(pMesh, faceIndex, face);
+		loadSTs(pMesh, faceIndex, face);
+	}
 }
 
 bool FBXCore::processSkins(FbxNode* pNode, MeshNode* meshNode)
+//*Info : create skin vertex data to mehs node (bone id, bone wieght)
 {
 	bool loadedSkin = false;
 
@@ -148,11 +274,9 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 				continue;
 			}
 
-			//Importance get BoneNode by name
 			std::string temp(pLinkBoneNode->GetName());
 
-			//must be boneNodes created
-			BoneNode* boneNode = mNode.getBoneNodeByName(temp);
+			BoneNode* boneNode = mNode->getBoneNodeByName(temp);
 			assert(boneNode);
 
 			FbxAMatrix boneRefMatrix;
@@ -168,7 +292,7 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 			const int *controlPointIndices = pCluster->GetControlPointIndices();
 			const double *controlPointWeights = pCluster->GetControlPointWeights();
 
-			VertexArray& vertexArray = meshNode->getVertices();
+			PointArray& pointArray = meshNode->getPoints();
 			for (int clusterIndex = 0; clusterIndex < clusterIndicesNum; ++clusterIndex)
 			{
 				int controlIndex = controlPointIndices[clusterIndex];
@@ -178,10 +302,10 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 				if (controlWeight < 0.00001f) 
 					continue;
 
-				int boneID = boneNode->getID();
+				int boneID = boneNode->id();
 				
 				//LOG << "id : " << controlIndex << " weight : " << controlWeight << ENDN;
-				if (!vertexArray[controlIndex].addWeight(boneID, controlWeight))
+				if (!pointArray[controlIndex].addWeight(boneID, controlWeight))
 				{
 					return false;
 				}
@@ -190,50 +314,4 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 		}
 	}
 	return true;
-
 }
-
-
-bool FBXCore::createAnimationSamples(Node &node)
-{
-	AnimationSamplePtr sample = AnimationSamplePtr(new AnimationSample);
-	const FbxTakeInfo* takeInfo = mDevice->getImporter()->GetTakeInfo(0);
-
-	if (!takeInfo) {
-		LOG_ERROR("failed to find animation take info");
-		return false;
-	}
-	float frameRate = ANIMATION_CURRENT_FRAME_RATE;
-	FbxTime::EMode fbxTimeMode;
-	if (mDevice->getImporter()->GetFrameRate(fbxTimeMode))
-	{
-		frameRate = FbxTime::GetFrameRate(fbxTimeMode);
-	}
-
-	sample->setName(takeInfo->mName.Buffer());
-	sample->setFps(frameRate);
-
-	const long startTime = takeInfo->mLocalTimeSpan.GetStart().GetMilliSeconds();
-	const long endTime = takeInfo->mLocalTimeSpan.GetStop().GetMilliSeconds();
-	int sampleStart = sample->convertMilliToFrame(startTime);
-	int sampleEnd = sample->convertMilliToFrame(endTime);
-	sample->setSampleStart(sampleStart);
-	sample->setSampleEnd(sampleEnd);
-
-	//get numFrame
-	int frameNum = sample->getSampleEnd() - sample->getSampleStart() - 1;
-	sample->setFrameNums(frameNum);
-
-	bool debugAnimationInfo = false;
-	if (debugAnimationInfo)
-	{
-		LOG << "created sample name : " << sample->getName() << " frame per second : " << sample->getFps() << ENDN;
-		LOG << "start : " << sample->getSampleStart() << " end : " << sample->getSampleEnd() << ENDN;
-		LOG << "sameple num : " << sample->getSamplesFrameNum() << ENDN;
-	}
-
-	//sample move to node
-	node.setAnimationSample(sample);
-	return true;
-}
-

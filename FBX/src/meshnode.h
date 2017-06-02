@@ -2,13 +2,13 @@
 
 #include <nodetree.h>
 #include <face.h>
-#include <vertex.h>
+#include <point.h>
 #include <vector>
 #include <fbxsdk/core/math/fbxaffinematrix.h>
 
 using namespace fbxsdk;
 typedef std::vector<Face> FaceArray;
-typedef std::vector<Vertex> VertexArray;
+typedef std::vector<Point> PointArray;
 
 class MeshNode : public NodeTreeItem<MeshNode>
 {
@@ -18,22 +18,21 @@ public:
 
 	void setName(const std::string &name);
 	const std::string& getName() const;
-	const uint32_t getID() const;
 
 	FaceArray& getFaces();
-	VertexArray& getVertices();
+	PointArray& getPoints();
 
 	const FbxAMatrix &getGlobalTransform() const;
-	FbxAMatrix mGlobalMarix;
-	bool isBuilt;
+	const FbxAMatrix &getLocalTransform() const;
+	void setGlobalTransform(const FbxAMatrix &transform);
+	void setLocalTransform(const FbxAMatrix &transform);
+
 private:
-	static void resetGlobalID();
+	FbxAMatrix m_localTransform;
+	FbxAMatrix m_globalTransform;
 
-	std::string m_name;
-	uint32_t m_id;
-	static uint32_t global_id;
-
-	FaceArray m_faces;
-	VertexArray m_vertices;
+	std::string mName;
+	FaceArray mFaces;
+	PointArray mPoints;
 
 };

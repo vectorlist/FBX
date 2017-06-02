@@ -1,48 +1,51 @@
 #include "meshnode.h"
 
-uint32_t MeshNode::global_id = 0;
-
 MeshNode::MeshNode()
-	: m_id(global_id++), isBuilt(false)
 {
 }
 
 MeshNode::~MeshNode()
 {
-	resetGlobalID();
+	
 }
 
 void MeshNode::setName(const std::string &name)
 {
-	m_name = name;
+	mName = name;
 }
 
 const std::string & MeshNode::getName() const
 {
-	return m_name;
+	return mName;
 }
 
-const uint32_t MeshNode::getID() const
-{
-	return m_id;
-}
 
 FaceArray& MeshNode::getFaces()
 {
-	return m_faces;
+	return mFaces;
 }
 
-VertexArray& MeshNode::getVertices()
+PointArray& MeshNode::getPoints()
 {
-	return m_vertices;
+	return mPoints;
 }
 
 const FbxAMatrix& MeshNode::getGlobalTransform() const
 {
-	return mGlobalMarix;
+	return m_globalTransform;
 }
 
-void MeshNode::resetGlobalID()
+const FbxAMatrix& MeshNode::getLocalTransform() const
 {
-	global_id = 0;
+	return m_localTransform;
+}
+
+void MeshNode::setGlobalTransform(const FbxAMatrix &transform)
+{
+	m_globalTransform = transform;
+}
+
+void MeshNode::setLocalTransform(const FbxAMatrix &transform)
+{
+	m_localTransform = transform;
 }

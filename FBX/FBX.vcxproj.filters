@@ -93,15 +93,6 @@
     <ClInclude Include="src\track.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="src\animationrenderer.h">
-      <Filter>src\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\animationsample.h">
-      <Filter>src\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\animationscene.h">
-      <Filter>src\Animation</Filter>
-    </ClInclude>
     <ClInclude Include="src\trackcontainer.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
@@ -117,17 +108,29 @@
     <ClInclude Include="src\ubo.h">
       <Filter>src\Model</Filter>
     </ClInclude>
-    <ClInclude Include="src\vertex.h">
-      <Filter>src\Model</Filter>
-    </ClInclude>
     <ClInclude Include="src\face.h">
       <Filter>src\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\config.h">
       <Filter>src\Model</Filter>
     </ClInclude>
-    <ClInclude Include="src\animationlayer.h">
+    <ClInclude Include="src\animsample.h">
       <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animhandle.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animmodel.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animobject.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animlayer.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\point.h">
+      <Filter>src\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -146,15 +149,6 @@
     <ClCompile Include="src\node.cpp">
       <Filter>src\Node</Filter>
     </ClCompile>
-    <ClCompile Include="src\animationrenderer.cpp">
-      <Filter>src\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\animationsample.cpp">
-      <Filter>src\Animation</Filter>
-    </ClCompile>
-    <ClCompile Include="src\animationscene.cpp">
-      <Filter>src\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="src\fbxdevice.cpp">
       <Filter>src\Fbx</Filter>
     </ClCompile>
@@ -167,10 +161,16 @@
     <ClCompile Include="src\skinmesh.cpp">
       <Filter>src\Model</Filter>
     </ClCompile>
-    <ClCompile Include="src\vertex.cpp">
-      <Filter>src\Model</Filter>
+    <ClCompile Include="src\animsample.cpp">
+      <Filter>src\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="src\animationlayer.cpp">
+    <ClCompile Include="src\animhandle.cpp">
+      <Filter>src\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animmodel.cpp">
+      <Filter>src\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\animlayer.cpp">
       <Filter>src\Animation</Filter>
     </ClCompile>
   </ItemGroup>

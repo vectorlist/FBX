@@ -124,7 +124,7 @@ namespace Window
 	{
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER);
 
-		window = SDL_CreateWindow("FBX - OpenGL AnimationSample",
+		window = SDL_CreateWindow("FBX - OpenGL AnimSample",
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
 			width,

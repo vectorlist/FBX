@@ -1,5 +1,3 @@
-
-
 #pragma once
 #include <fbxsdk.h>
 #include <GL/glew.h>
@@ -10,9 +8,8 @@
 #include <string>
 #include <map>
 #include <face.h>
-#include <vertex.h>
+#include <point.h>
 #include <node.h>
-#include <fbxdevice.h>
 
 using namespace fbxsdk;
 
@@ -20,42 +17,18 @@ class FBXCore
 {
 public:
 	FBXCore(const std::string &filename);
-
-	GLuint mSahder;
-	FbxNode* mRootNode;
-	FBXDevice* mDevice;
-	AnimationLayers* mLayers;
-	Node mNode;
-
-	bool processSkinNode();
-	bool processSkins(FbxNode* pNode, MeshNode* meshNode);
-	bool processSkin(const FbxGeometry *pGeo, MeshNode* meshNode);
+	~FBXCore();
 	
-	/*--------------- ANIMATION --------------*/
-	//AnimationSample mAnimation;
-	bool createAnimationSamples(Node &node);
-	//bool createAnimationSamples()
-
-	/*--------------- EXT FUNC --------------*/
-
-	bool processNodes(
-		FbxNode* pNode,
-		BoneNode* parentBoneNode,
-		MeshNode* parentMeshNode);
-
+	std::shared_ptr<Node> mNode;
+	bool processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode);
 	BoneNode* processBoneNode(FbxNode* pNode, BoneNode* parent);
 	MeshNode* processMeshNode(FbxNode* pNode, MeshNode* parent);
 
-	//Temportarty
-	struct 
-	{
-		std::vector<MeshNode*> meshNode;
-		std::vector<FbxNode*> fbxNode;
-	}tempMeshNode;
-
-
-	/*--------- BUILT IN MESH FUNC --------*/
-	//build Meshnode faces and vetices(we need resize)
+	/** Info : create skin vertex data to mehs node (bone id, bone wieght)*/
+	bool processSkins(FbxNode* pNode, MeshNode* meshNode);
+	
+	bool processSkin(const FbxGeometry *pGeo, MeshNode* meshNode);
+	
 	void buildMeshNode(FbxMesh* pMesh, MeshNode* pMeshNode);
 
 	void loadVertexIndices(FbxMesh* pMesh, int faceIndex,
@@ -67,7 +40,7 @@ public:
 	void convert3fDataFromElement(
 		FbxLayerElementTemplate<FbxVector4> &element,
 		vec3f &data,
-		int triangleCornerId,
+		int facePointIndex,
 		int vertexIndex);
 
 	void convert2fFromElement(
@@ -81,6 +54,5 @@ public:
 		const unsigned int triangleIndex,
 		const unsigned int triangleCornerId) const;
 
-	void bakeNodeTransform(FbxNode* pNode) const;
 };
 

@@ -4,11 +4,11 @@
 #include <vec3f.h>
 #include <config.h>
 
-class Vertex
+class Point
 {
 public:
-	Vertex();
-	~Vertex();
+	Point();
+	~Point() {};
 
 	bool addWeight(const unsigned int boneID, const float weight);
 
@@ -26,34 +26,57 @@ private:
 	unsigned int mBoneComponentIndex;
 };
 
-inline float Vertex::getBoneWeight(uint32_t index)
+inline Point::Point()
+	: mBoneComponentIndex(0)
+{
+	for (int i = 0; i < BONE_COMPONENT_NUM; ++i)
+	{
+		m_boneIDs[i] = 0;
+		m_boneWeights[i] = 0.0f;
+	}
+}
+
+inline bool Point::addWeight(const unsigned int boneID, const float weight)
+{
+	if (mBoneComponentIndex > BONE_COMPONENT_NUM)
+	{
+		return false;
+	}
+	m_boneIDs[mBoneComponentIndex] = boneID;
+	m_boneWeights[mBoneComponentIndex] = weight;
+	++mBoneComponentIndex;
+	return true;
+}
+
+
+inline float Point::getBoneWeight(uint32_t index)
 {
 	return m_boneWeights[index];
 }
 
-inline float* Vertex::getBoneWeights() 
+inline float* Point::getBoneWeights() 
 {
 	return m_boneWeights;
 }
 
-inline uint32_t Vertex::getBoneID(uint32_t index)
+inline uint32_t Point::getBoneID(uint32_t index)
 {
 	return m_boneIDs[index];
 }
 
-inline uint32_t* Vertex::getBoneIDs()
+inline uint32_t* Point::getBoneIDs()
 {
 	return m_boneIDs;
 }
 
-inline void Vertex::setPosition(const fbxsdk::FbxVector4 &pos)
+inline void Point::setPosition(const fbxsdk::FbxVector4 &pos)
 {
 	m_posotion.x = (float)pos[0];
 	m_posotion.y = (float)pos[1];
 	m_posotion.z = (float)pos[2];
 }
 
-inline vec3f& Vertex::getPosition()
+inline vec3f& Point::getPosition()
 {
 	// TODO: insert return statement here
 	return m_posotion;
