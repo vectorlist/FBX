@@ -7,6 +7,8 @@
 #define SPEED_ROTAION	0.25f
 #define SPEED_MOVEMENT	6.0f
 
+using namespace VML;
+
 enum Camera_Movement {
 	FORWARD,
 	BACKWARD,

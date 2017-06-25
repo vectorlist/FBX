@@ -7,27 +7,24 @@
 #include <algorithm>
 #include <map>
 
+#define FRAME_24		FbxTime::eFrames24
+#define FRAME_30		FbxTime::eFrames30
+
 class AnimLayer
 {
 public:
 	AnimLayer();
-
+	
 	void createLayers(FbxImporter* importer);
-
-	AnimSample*					getSample(unsigned int index);
-	std::vector<const char*>	getSamplesNames();
-	AnimSample*					getBaseSample();
-	int							getSamplesNum() const;
-	float						getFps();
-	int							index;
+	AnimSample* getSample(int index);
+	
+	std::vector<const char*>& GetSamplesNames();
 	static void debugSample(AnimSample* sample);
-private:
 
+	int mIndex;
+	int mNumSamples;
+private:
 	std::vector<animsample_ptr>	mSamples;
 	std::vector<const char*>	mSamplesNames;
-	animsample_ptr				mBaseSample;
-
-	//For Gui
-	float						mFps;
 };
 

@@ -27,7 +27,7 @@ public:
 	void render(GLuint shader);
 	
 	//test animation sample stack
-	void processAnimation();
+	void Update(float delta);
 
 	void updateBoneTransform(Node* pNode);
 	void processBoneNode(BoneNode* rootBoneNode);
@@ -50,9 +50,9 @@ private:
 	bool isAnimatedModel;
 	bool isFirstLoop;
 
-	node_ptr m_nodePtr;
-	Node* m_node;
-	SkinMesh* m_mesh;
+	node_ptr mNodePtr;
+	Node* mNode;
+	SkinMesh* mMesh;
 };
 
 

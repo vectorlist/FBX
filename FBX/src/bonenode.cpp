@@ -59,12 +59,12 @@ bool BoneNode::getInheritScale()
 	return mInheritScale;
 }
 
-void BoneNode::allocateTracks(int frameNum)
+void BoneNode::allocateTracks(int KeyNums)
 {
-	mPositionTrack = TrackVec3Ptr(new TrackVec3(frameNum));
-	mScaleTrack = TrackVec3Ptr(new TrackVec3(frameNum));
-	mQuarternionTrack = TrackQuaternionPtr(new TrackQuaternion(frameNum));
-	alloactedTrackSize = frameNum;
+	mPositionTrack = TrackVec3Ptr(new TrackVec3(KeyNums));
+	mScaleTrack = TrackVec3Ptr(new TrackVec3(KeyNums));
+	mQuarternionTrack = TrackQuaternionPtr(new TrackQuaternion(KeyNums));
+	alloactedTrackSize = KeyNums;
 }
 
 void BoneNode::addPositionKey(const KeyVec3 &key)

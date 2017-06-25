@@ -35,7 +35,7 @@ public:
 	bool mInheritScale;
 	/*------------- TRACK ----------------*/
 	TrackContainer* mTrack;
-	void allocateTracks(int frameNum);
+	void allocateTracks(int KeyNums);
 
 	//Position
 	void addPositionKey(const KeyVec3& key);

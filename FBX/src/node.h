@@ -30,6 +30,7 @@ public:
 
 	void				setCurrentSample(AnimSample* sample);
 	AnimSample*			getCurrentSample() const;
+	AnimSample*			getBaseSample();
 
 	bool				hasAnimation();
 	void				setSceneName(const std::string &sceneName);

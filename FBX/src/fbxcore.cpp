@@ -12,7 +12,7 @@ FBXCore::FBXCore(const std::string &filename)
 	FBXDevice device(filename);
 
 	auto fbxroot = device.getRootNode();
-	auto importer = device.getImporter();
+	mImporter = device.getImporter();
 	auto scene = device.getScene();
 	
 
@@ -21,7 +21,6 @@ FBXCore::FBXCore(const std::string &filename)
 	mNode->setAnimationLayerPtr(device.getAnimationLayer());
 
 	processNodes(fbxroot, mNode->getBoneNodeRoot(), mNode->getMeshNodeRoot());
-
 	processSkins(fbxroot, mNode->getCurrentMeshNode());
 }
 
@@ -86,38 +85,39 @@ BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 	const FbxAMatrix globalTransform = pNode->EvaluateGlobalTransform(0, FbxNode::eDestinationPivot);
 	boneNode->mGlobalTransform = globalTransform;
 
-	//TODO : ANIMATION LAYER SAMPLE
+	//TODO : REPLACE TAKE ANIMATION
 	/*------------------------ ANIMATION LAYER SAMPLE ------------------------------*/
-	auto layer = mNode->getAnimationLayer();
-	AnimSample* animation = layer->getBaseSample();
-	int sampleNum = animation->getSamplesFrameNum();
+	//Base Animation Take
+	FbxTakeInfo* Take = mImporter->GetTakeInfo(0);
+	FbxTime Start = Take->mLocalTimeSpan.GetStart();
+	FbxTime End = Take->mLocalTimeSpan.GetStop();
 
-	if (sampleNum)
-	{
-		boneNode->allocateTracks(sampleNum);
+	FbxTime Length = End.GetFrameCount(FRAME_24) -
+		Start.GetFrameCount(FRAME_24) + 1;
+
+	if (Length.Get()) {
+		//Set Tack Key Nums
+		boneNode->allocateTracks(Length.Get());
 	}
 
-	int startFrame = animation->getSampleStart();
-	long startTime = animation->convertFrameToMilli(startFrame);
-	FbxTime fbxTime;
-	for (int sample = 0; sample <= sampleNum; ++sample)
+	for (FbxLongLong i = Start.GetFrameCount(FRAME_24);
+		i <= End.GetFrameCount(FRAME_24); ++i)
 	{
-		long sampleTime = animation->convertFrameToMilli(sample);
-		fbxTime.SetMilliSeconds(startTime + sampleTime);
 		
-		const FbxAMatrix localMatrix =
-			pNode->EvaluateLocalTransform(fbxTime, FbxNode::eDestinationPivot);
+		FbxTime CurrentTime;
+		CurrentTime.SetFrame(i, FRAME_24);
+		
+		const FbxAMatrix LocalM = pNode->EvaluateLocalTransform(CurrentTime, FbxNode::eDestinationPivot);
 
-		//TODO : scale key rotation key
-		KeyQuaternion rotationKey(localMatrix.GetQ(), sampleTime);
-		KeyVec3 positionKey(localMatrix.GetT(), sampleTime);
-		KeyVec3 scaleKey(localMatrix.GetS(), sampleTime);
+		float CurrentMS = (float)CurrentTime.GetMilliSeconds() / 1000.f;
 
-		//LOG << rotationKey << ENDN;
-		boneNode->addRotationKey(rotationKey);
-		boneNode->addPositionKey(positionKey);
-		boneNode->addScaleKey(scaleKey);
-		//LOG << sample <<" " << boneNode->getPositionKey(sample) << ENDN;
+		KeyQuaternion RotationKey(LocalM.GetQ(), CurrentMS);
+		KeyVec3 PositionKey(LocalM.GetT(), CurrentMS);
+		KeyVec3 ScaleKey(LocalM.GetS(), CurrentMS);
+
+		boneNode->addRotationKey(RotationKey);
+		boneNode->addPositionKey(PositionKey);
+		boneNode->addScaleKey(ScaleKey);
 	}
 	/*------------------------- SAMPLE -----------------------------*/
 	if (parent)

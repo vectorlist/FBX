@@ -293,7 +293,7 @@ inline Matrix4x4 Matrix4x4::transposed() const
 
 inline Matrix4x4 Matrix4x4::rotatedX(float angle) const
 {
-	float t = radians(angle);
+	float t = RADIANS * angle;
 	float sinT = sin(t);
 	float cosT = cos(t);
 
@@ -308,7 +308,7 @@ inline Matrix4x4 Matrix4x4::rotatedX(float angle) const
 
 inline Matrix4x4 Matrix4x4::rotatedY(float angle) const
 {
-	float t = radians(angle);
+	float t = RADIANS * angle;
 	float sinT = sin(t);
 	float cosT = cos(t);
 
@@ -323,7 +323,7 @@ inline Matrix4x4 Matrix4x4::rotatedY(float angle) const
 
 inline Matrix4x4 Matrix4x4::rotatedZ(float angle) const
 {
-	float t = radians(angle);
+	float t = RADIANS * angle;
 	float sinT = sin(t);
 	float cosT = cos(t);
 
@@ -692,6 +692,17 @@ namespace vml
 		model.rotate(AXIS::Y, ry);
 		model.rotate(AXIS::Z, rz);
 		model.scale(vec3f(scale));
+		return model;
+	}
+
+	inline Matrix4x4 transform(const vec3f &pos, const vec3f &rot, const vec3f &scale)
+	{
+		Matrix4x4 model;
+		model.translate(pos);
+		model.rotate(AXIS::X, rot.x);
+		model.rotate(AXIS::Y, rot.y);
+		model.rotate(AXIS::Z, rot.z);
+		model.scale(scale);
 		return model;
 	}
 }

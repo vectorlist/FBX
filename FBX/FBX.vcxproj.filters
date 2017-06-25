@@ -96,9 +96,6 @@
     <ClInclude Include="src\track.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="src\trackcontainer.h">
-      <Filter>src\Animation</Filter>
-    </ClInclude>
     <ClInclude Include="src\fbxdevice.h">
       <Filter>src\Fbx</Filter>
     </ClInclude>
@@ -124,9 +121,6 @@
       <Filter>src\Animation</Filter>
     </ClInclude>
     <ClInclude Include="src\animmodel.h">
-      <Filter>src\Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="src\animobject.h">
       <Filter>src\Animation</Filter>
     </ClInclude>
     <ClInclude Include="src\animlayer.h">

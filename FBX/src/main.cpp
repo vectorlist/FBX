@@ -26,9 +26,10 @@ int main(int argc, char* argv[])
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
 	
-	AnimModel animModel("worrior.fbx");
+	//AnimModel animModel("demon.fbx");
+	AnimModel animModel("demon_idle.fbx");
 	//AnimModel animModel("plane.fbx");
-	AnimationInfo info;
+	//AnimModel animModel("worrior_idle.fbx");
 	
 	while (renderer.isRunning)
 	{
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*ANIMATION MANAGER*/
-		animModel.processAnimation();
+		animModel.Update(timer.delta);
 
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
@@ -51,10 +52,6 @@ int main(int argc, char* argv[])
 		
 		
 		animModel.render(shader);
-
-		
-		//info.pNode = animModel.getNode();
-		//info.pHandle = animModel.getHandle();
 
 		gui.process(&animModel);
 		gui.render();
@@ -71,12 +68,7 @@ int main(int argc, char* argv[])
 
 struct SomeSample
 {
-	//i need that char** array of name 
-	char* name;
-	int index;
-	std::string somedata;
-	float length;
-	//many more members.....
+
 };
 
 
@@ -84,20 +76,18 @@ int main(int argc, char* argv[])
 {
 	Window::setConsoleOutput(10, 10, 700, 800);
 	
-	std::vector<SomeSample> samples;
+	float start = 0.02f;
+	float end = 0.08f;
 
-	for (int i = 0; i < 3; ++i)
-	{
-		SomeSample sample;
-		sample.name = "abc";
-		sample.index = i;
-		samples.push_back(sample);
+	float global = 0.0f;
+	float current = 0.0f;
+	for (global; global < 10.f; global += 0.01f) {
+		Sleep(100);
+		current = fmod(global, end) + start;
+		LOG << current << ENDN;
 	}
-	//added some datas 
 
-	//how to get char data array
-	/*i want char* name array from SomeSample arrays*/
-	char** names = samples.data();
+	
 
 	system("pause");
 	return 0;

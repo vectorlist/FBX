@@ -2,10 +2,12 @@
 
 #include <key.h>
 
+#define TRACK_INTERVAL		1
+
 class TrackVec3
 {
 public:
-	TrackVec3(const int totalKeyNum)
+	TrackVec3(const int totalKeyNum) : mKeyNums(totalKeyNum)
 	{
 		//for acllocate memory this is size 0
 		mKeys.reserve(totalKeyNum);
@@ -20,7 +22,7 @@ public:
 	{
 		return mKeys[keyIndex];
 	}
-	int size() const { return mKeys.size(); }
+	int mKeyNums;
 private:
 	KeyVectorArray mKeys;
 };
@@ -28,7 +30,7 @@ private:
 class TrackQuaternion
 {
 public:
-	TrackQuaternion(const int totalKeyNum)
+	TrackQuaternion(const int totalKeyNum) : mKeyNums(totalKeyNum)
 	{
 		mKeys.reserve(totalKeyNum);
 	}
@@ -42,6 +44,7 @@ public:
 	{
 		return mKeys[keyIndex];
 	}
+	int mKeyNums;
 	KeyQuaternionArray mKeys;
 };
 

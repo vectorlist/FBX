@@ -76,11 +76,11 @@ void FBXDevice::initialize()
 
 	//convert pivot animation recursive all node
 	bakeNodeTransforms(getRootNode());
+	//TODO : fix FbxTime::eFrame 24
 	getRootNode()->ConvertPivotAnimationRecursive(
 		NULL,
 		FbxNode::eDestinationPivot,
-		mLayer->getFps());
-	
+		24.0f);
 }
 
 bool FBXDevice::isTriangleMesh(FbxNode *pNode) const

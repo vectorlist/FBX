@@ -11,10 +11,10 @@ using namespace fbxsdk;
 class Key
 {
 public:
-	Key(long time) : mTime(time){}
+	Key(float time) : mTime(time){}
 	virtual~Key() {};
 	
-	long mTime;
+	float mTime;
 };
 
 class KeyVec3 : public Key
@@ -27,7 +27,7 @@ public:
 		mVector[2] = 0;
 	}
 
-	KeyVec3(double x, double y, double z, long time)
+	KeyVec3(double x, double y, double z, float time)
 		: Key(time)
 	{
 		mVector[0] = x;
@@ -35,7 +35,7 @@ public:
 		mVector[2] = z;
 	}
 
-	KeyVec3(const FbxVector4 &other, long time)
+	KeyVec3(const FbxVector4 &other, float time)
 		: Key(time)
 	{
 		mVector = other;
@@ -54,8 +54,6 @@ public:
 			<< v.mVector[2] << ')';
 		return o;
 	}
-
-//private:
 	FbxVector4 mVector;
 };
 
@@ -72,7 +70,7 @@ public:
 		mQuaternion[3] = 0;
 	}
 
-	KeyQuaternion(double x, double  y, double z, double w, long time)
+	KeyQuaternion(double x, double  y, double z, double w, float time)
 		: Key(time)
 	{
 		mQuaternion[0] = x;
@@ -81,7 +79,7 @@ public:
 		mQuaternion[3] = w;
 	}
 
-	KeyQuaternion(const FbxQuaternion &quaternion, long time)
+	KeyQuaternion(const FbxQuaternion &quaternion, float time)
 		: Key(time)
 	{
 		mQuaternion = quaternion;

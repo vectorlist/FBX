@@ -6,21 +6,13 @@
 #include <stdlib.h>
 #include <vector>
 
-namespace UI = ImGui;
-
-//TODO get Animation Layers
+class SDL_Window;
 class AnimHandle;
 class AnimSample;
 class Node;
 class BoneNode;
 class MeshNode;
 class AnimModel;
-struct AnimationInfo
-{
-	AnimationInfo() : pHandle(NULL), pNode(NULL){}
-	AnimHandle* pHandle;
-	Node* pNode;
-};
 
 struct Widget
 {
@@ -29,7 +21,6 @@ struct Widget
 	std::string name;
 };
 
-class SDL_Window;
 class Gui
 {
 public:
@@ -37,21 +28,18 @@ public:
 	~Gui();
 
 	void initialize();
-	void process(AnimModel* pModel);
+	void process(AnimModel* model);
 	void render();
-	
-	
 private:
-	SDL_Window* m_window;
-	ImGuiIO* m_io;
-
+	SDL_Window* mWindow;
+	ImGuiIO* mIO;
 	Widget m_widget;
 };
 
 namespace SubGui
 {
 	//Node
-	void evalBoneTree(BoneNode* boneNode);
+	void evalBoneTree(BoneNode* boneNode);		/**Create Bone Node*/
 	void evalMeshTree(MeshNode* meshNode);
 	void evalMeshNodeTree(MeshNode* meshnode);
 	void evalBoneNodeTree(BoneNode* boneNode);
@@ -63,11 +51,3 @@ namespace SubGui
 	template<typename ... Args>
 	void evalText(const std::string& code, Args ... args);
 }
-
-struct SampleItem
-{
-	SampleItem() : index(0){}
-	int index;
-	std::vector<const char*> name;
-};
-

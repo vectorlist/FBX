@@ -20,6 +20,7 @@ public:
 	~FBXCore();
 	
 	std::shared_ptr<Node> mNode;
+	FbxImporter* mImporter;
 	bool processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode);
 	BoneNode* processBoneNode(FbxNode* pNode, BoneNode* parent);
 	MeshNode* processMeshNode(FbxNode* pNode, MeshNode* parent);

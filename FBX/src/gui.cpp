@@ -16,11 +16,10 @@
 
 
 Gui::Gui(SDL_Window* window) 
-	: m_window(window)
+	: mWindow(window)
 {
 
-	ImGui_ImplSdlGL3_Init(m_window);
-	m_io = &UI::GetIO();
+	ImGui_ImplSdlGL3_Init(mWindow);
 	initialize();
 }
 
@@ -34,22 +33,31 @@ void Gui::initialize()
 {
 	//WIDGET
 	m_widget.isOpen = true;
-	m_widget.name = "test widget";
+	m_widget.name = "FilmBox Animation";
 
 	//FONT
-	m_io->Fonts->AddFontFromFileTTF("../data/font/consola.ttf", 14);
+	mIO = &ImGui::GetIO();
+	mIO->Fonts->AddFontFromFileTTF("../data/font/consola.ttf", 13.5);
 
 	//STYLE
-	ImGuiStyle& style = UI::GetStyle();
-	style.WindowPadding = ImVec2(10,10);
-	style.WindowRounding = 0.5f;
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowPadding = ImVec2(15, 15);
+	style.WindowRounding = 0.0f;
 	style.FramePadding = ImVec2(5, 5);
-	style.FrameRounding = 0.5;
+	style.FrameRounding = 1.5f;
+	style.ItemSpacing = ImVec2(12, 8);
+	style.ItemInnerSpacing = ImVec2(8, 6);
+	style.IndentSpacing = 25.0f;
+	style.ScrollbarSize = 10.0f;
+	style.ScrollbarRounding = 1.0f;
+	style.GrabMinSize = 5.0f;
+	style.GrabRounding = 1.0f;
+	style.ChildWindowRounding = 1.0f;
 	
 	style.Colors[ImGuiCol_WindowBg] = COLOR_WINDOW;
 	style.Colors[ImGuiCol_TitleBg] = COLOR_LBG;
 	style.Colors[ImGuiCol_TitleBgActive] = COLOR_LBG;
-	style.Colors[ImGuiCol_TitleBgCollapsed] = COLOR_LBGD;
+	style.Colors[ImGuiCol_TitleBgCollapsed] = COLOR_LBG;
 	style.Colors[ImGuiCol_FrameBg] = COLOR_FRAME;
 	style.Colors[ImGuiCol_FrameBgActive] = COLOR_FRAME;
 	style.Colors[ImGuiCol_FrameBgHovered] = COLOR_FRAME;
@@ -57,38 +65,45 @@ void Gui::initialize()
 	style.Colors[ImGuiCol_HeaderActive] = COLOR_LBG;
 	style.Colors[ImGuiCol_HeaderHovered] = COLOR_LBG;
 
+	style.Colors[ImGuiCol_ResizeGrip] = COLOR_LBG;
+	
 }
 
-void Gui::process(AnimModel* pModel)
+void Gui::process(AnimModel* model)
 {
 	SDL_Event e;
 	ImGui_ImplSdlGL3_ProcessEvent(&e);
-	ImGui_ImplSdlGL3_NewFrame(m_window);
+	ImGui_ImplSdlGL3_NewFrame(mWindow);
 
 	//WIDGET
 	ImGui::Begin(m_widget.name.c_str(), &m_widget.isOpen, ImGuiWindowFlags_Modal);
-	ImGui::SetWindowSize(ImVec2(440, 700));
+	ImGui::SetWindowSize(ImVec2(380, 700));
 
+	auto node = model->getNode();
+	auto handle = model->getHandle();
+	
 	//NODE
-	auto node = pModel->getNode();
-	auto handle = pModel->getHandle();
-	std::string sceneName = "scene : ";
-	sceneName += node->getSceneName();
-	ImGui::Text(sceneName.c_str());
-
-	SubGui::evalMeshTree(node->getMeshNodeRoot());
-	SubGui::evalBoneTree(node->getBoneNodeRoot());
-
+	if (ImGui::CollapsingHeader("Node", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		SubGui::evalMeshTree(node->getMeshNodeRoot());
+		SubGui::evalBoneTree(node->getBoneNodeRoot());
+	}
+	
 	//ANIMATION
-	SubGui::evalAnimSamples(pModel);
-	SubGui::evalAnimHandle(handle);
+	if (ImGui::CollapsingHeader("Animation Layer", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		SubGui::evalAnimSamples(model);
+		SubGui::evalAnimHandle(handle);
+	}
+	
 
+	ImGui::CollapsingHeader("node");
 	ImGui::End();
 }
 
 void Gui::render()
 {
-	glViewport(0, 0, (int)m_io->DisplaySize.x, (int)(m_io->DisplaySize.y));
+	glViewport(0, 0, (int)mIO->DisplaySize.x, (int)(mIO->DisplaySize.y));
 	glClearColor(0.2,0.2,0.2,1);
 	//glClear(GL_COLOR_BUFFER_BIT);
 	ImGui::Render();
@@ -99,6 +114,7 @@ void Gui::render()
 namespace SubGui
 {
 	void evalBoneTree(BoneNode* boneNode)
+		/**Create Bone Node*/
 	{
 		if (ImGui::TreeNode("Bone Node"))
 		{
@@ -121,10 +137,9 @@ namespace SubGui
 		for (MeshNode* node = meshNode; node != NULL; node = node->mNext)
 		{
 			const char* nodeName = node->getName().c_str();
-			std::string bits = "";
-			auto id = node->id();
-			auto faceNum = node->getFaces().size();
-			auto pointNum = node->getPoints().size();
+			std::string bits;
+			int faceNum = node->getFaces().size();
+			int pointNum = node->getPoints().size();
 					
 			if (ImGui::TreeNode(nodeName)) {
 
@@ -147,7 +162,7 @@ namespace SubGui
 		for (BoneNode* node = boneNode; node != NULL; node = node->mNext)
 		{
 			const char* nodeName = node->getName().c_str();
-			auto id = node->id();
+			
 			if (ImGui::TreeNode(nodeName)) {
 				if (node->mFirstChild)
 				{
@@ -161,19 +176,21 @@ namespace SubGui
 
 	void evalAnimSamples(AnimModel* model)
 	{
-		ImGui::Separator();
+		//ImGui::Separator();
 		Node* node = model->getNode();
 		AnimLayer* layer = node->getAnimationLayer();
 	
-		if(ImGui::Combo("Animation Sample", &layer->index, layer->getSamplesNames().data(),
-			layer->getSamplesNum()))
+		if(ImGui::Combo("Samples", &layer->mIndex, layer->GetSamplesNames().data(),
+			layer->mNumSamples))
 		{
 			//TODO : replace to more simple callback function
-			node->setCurrentSample(layer->getSample(layer->index));
+			LOG << layer->mIndex << ENDN;
+			node->setCurrentSample(layer->getSample(layer->mIndex));
 			model->hasChanged = true;
 		}
 		//get info
 		AnimSample* currentSample = node->getCurrentSample();
+		if (!currentSample) return;
 		ImGui::Separator();
 		evalAnimSampleInfo(currentSample);
 		ImGui::Separator();
@@ -181,17 +198,19 @@ namespace SubGui
 
 	void evalAnimSampleInfo(AnimSample *sample)
 	{
-		SubGui::evalText("Current Sample : " + sample->getName());
-		evalText("Frame Start : %d Frame End : %d", sample->getFrameStart(), sample->getFrameEnd());
+		SubGui::evalText("Current Sample : " + sample->mName + " (%.1f fps)", sample->mFps);
+		ImGui::Text("Frame Start    : %d", sample->mFrameStart);
+		ImGui::Text("Frame End      : %d", sample->mFrameEnd);
+		ImGui::Text("Frame Length   : %d", sample->mFrameCount);
 	}
 
 	void evalAnimHandle(AnimHandle* handle)
 	{
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 		
-		ImGui::Text("Local Time : %d", handle->getLocalTime());
+		/*ImGui::Text("Local Time : %d", handle->getLocalTime());
 		ImGui::Text("Local Frame : %d",handle->getLocalFrame());
-		ImGui::Text("Global Frame : %d", handle->getGlobalFrame());
+		ImGui::Text("Global Frame : %d", handle->getGlobalFrame());*/
 
 		ImGui::PopItemWidth();
 	}

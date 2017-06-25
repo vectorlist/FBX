@@ -10,30 +10,26 @@ public:
 	Point();
 	~Point() {};
 
-	bool addWeight(const unsigned int boneID, const float weight);
+	float			getBoneWeight(unsigned int index);
+	float*			getBoneWeights();
+	unsigned int	getBoneID(unsigned int index);
+	unsigned int*	getBoneIDs();
+	const vec3f&	getPosition() const;
 
-	float getBoneWeight(uint32_t index);
-	float* getBoneWeights();
-	uint32_t getBoneID(uint32_t index);
-	uint32_t* getBoneIDs();
-
-	void setPosition(const fbxsdk::FbxVector4 &pos);
-	vec3f& getPosition();
+	void			setPosition(const fbxsdk::FbxVector4 &pos);
+	bool			addWeight(const unsigned int boneID, const float weight);
 private:
-	vec3f m_posotion;
-	unsigned int m_boneIDs[BONE_COMPONENT_NUM];
-	float m_boneWeights[BONE_COMPONENT_NUM];
-	unsigned int mBoneComponentIndex;
+	vec3f			mPosition;
+	unsigned int	mBoneIDs[BONE_COMPONENT_NUM];
+	float			mBoneWeights[BONE_COMPONENT_NUM];
+	unsigned int	mBoneComponentIndex;
 };
 
 inline Point::Point()
 	: mBoneComponentIndex(0)
 {
-	for (int i = 0; i < BONE_COMPONENT_NUM; ++i)
-	{
-		m_boneIDs[i] = 0;
-		m_boneWeights[i] = 0.0f;
-	}
+	memset(mBoneIDs, 0, sizeof(mBoneIDs));
+	memset(mBoneWeights, 0.0f, sizeof(mBoneWeights));
 }
 
 inline bool Point::addWeight(const unsigned int boneID, const float weight)
@@ -42,42 +38,41 @@ inline bool Point::addWeight(const unsigned int boneID, const float weight)
 	{
 		return false;
 	}
-	m_boneIDs[mBoneComponentIndex] = boneID;
-	m_boneWeights[mBoneComponentIndex] = weight;
+	mBoneIDs[mBoneComponentIndex] = boneID;
+	mBoneWeights[mBoneComponentIndex] = weight;
 	++mBoneComponentIndex;
 	return true;
 }
 
 
-inline float Point::getBoneWeight(uint32_t index)
+inline float Point::getBoneWeight(unsigned int index)
 {
-	return m_boneWeights[index];
+	return mBoneWeights[index];
 }
 
 inline float* Point::getBoneWeights() 
 {
-	return m_boneWeights;
+	return mBoneWeights;
 }
 
-inline uint32_t Point::getBoneID(uint32_t index)
+inline unsigned int Point::getBoneID(unsigned int index)
 {
-	return m_boneIDs[index];
+	return mBoneIDs[index];
 }
 
-inline uint32_t* Point::getBoneIDs()
+inline unsigned int* Point::getBoneIDs()
 {
-	return m_boneIDs;
+	return mBoneIDs;
 }
 
 inline void Point::setPosition(const fbxsdk::FbxVector4 &pos)
 {
-	m_posotion.x = (float)pos[0];
-	m_posotion.y = (float)pos[1];
-	m_posotion.z = (float)pos[2];
+	mPosition.x = (float)pos[0];
+	mPosition.y = (float)pos[1];
+	mPosition.z = (float)pos[2];
 }
 
-inline vec3f& Point::getPosition()
+inline const vec3f& Point::getPosition() const
 {
-	// TODO: insert return statement here
-	return m_posotion;
+	return mPosition;
 }

@@ -83,6 +83,12 @@ AnimSample* Node::getCurrentSample() const
 	return mCurrentSample;
 }
 
+AnimSample* Node::getBaseSample()
+{
+	//Base Sample
+	return mAnimationLayerPtr->getSample(0);
+}
+
 bool Node::hasAnimation()
 {
 	return mBoneNodes.size() > 1;

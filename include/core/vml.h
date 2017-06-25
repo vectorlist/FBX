@@ -1,5 +1,4 @@
-#ifndef VML
-#define VML
+#pragma once
 
 const float MATRIX_INVERSE_EPSILON = 1e-14f;
 const float MATRIX_EPSILON = 1e-5f;
@@ -54,15 +53,22 @@ const float MATRIX_EPSILON = 1e-5f;
 #undef VML_ORTHO
 #endif // VML_USE_ORTHO
 
-
-const inline float radians(float deg)
+namespace VML
 {
-	return VML_PI / 180.f * deg;
+	const inline float radians(float deg)
+	{
+		return VML_PI / 180.f * deg;
+	}
+
+	const inline float degree(float rad)
+	{
+		return 180.f / VML_PI * rad;
+	}
+
+	inline float normalize(float current, float next, float delta)
+	{
+		return (delta - current) / (float)(next - current);
+	}
 }
 
-const inline float degree(float rad)
-{
-	return 180.f / VML_PI * rad;
-}
 
-#endif // VML

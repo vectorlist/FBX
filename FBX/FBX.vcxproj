@@ -39,7 +39,6 @@
     <ClInclude Include="..\include\imgui\stb_textedit.h" />
     <ClInclude Include="..\include\imgui\stb_truetype.h" />
     <ClInclude Include="src\animlayer.h" />
-    <ClInclude Include="src\animobject.h" />
     <ClInclude Include="src\animsample.h" />
     <ClInclude Include="src\animhandle.h" />
     <ClInclude Include="src\animmodel.h" />
@@ -56,7 +55,6 @@
     <ClInclude Include="src\node.h" />
     <ClInclude Include="src\nodetree.h" />
     <ClInclude Include="src\track.h" />
-    <ClInclude Include="src\trackcontainer.h" />
     <ClInclude Include="src\ubo.h" />
     <ClInclude Include="src\point.h" />
   </ItemGroup>

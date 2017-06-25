@@ -17,60 +17,43 @@ public:
 	~AnimHandle();
 
 
-	bool startAnimation(
-		long globalStartTime,
-		long animationStartTime,
-		long animationEndTime);
-
-	bool isAnimating() const;
-	bool isPause() const;
-	void setLoop(bool loop);
-
-	
-	void updateNodes(Node* node,const long globalTime);
+	void updateNodes(Node* node,const float delta);
 	
 	void evalNodes(
-		int sample,
+		float sample,
 		BoneNode* pBoneNode,
 		const FbxAMatrix &parentGlobalScale,
 		const FbxAMatrix &parentGlobalRoataion);
 
-	void clampLocalCurrentTime();
+	//Replace FrameCoundt to Float Millisec0nds
+	FbxVector4 interpolatePosition(
+		float sample,
+		TrackVec3* Track);
 
-	/*BUILT IN CALC FUNC*/
-	void interpolatePosition(
-		int sample,
-		TrackVec3* positionTrack,
-		KeyVec3& output);
+	FbxVector4 interpolateScale(
+		float sample,
+		TrackVec3* Track);
 
-	void interpolateScale(
-		int sample,
-		TrackVec3* scaleTrack,
-		KeyVec3& output);
+	KeyQuaternion interpolateRotation(
+		float SampleTime, TrackQuaternion* Track);
 
-	void interpolateRoation(
-		int sample,
-		TrackQuaternion* rotationTrack,
-		KeyQuaternion& output);
-
-	float normalize(float last, float next, float current);
-
-	long getLocalTime() const;
-	int getLocalFrame() const;
-	int getGlobalFrame() const;
-	void debugSampleKey(const KeyVec3& last, const KeyVec3& next);
+	FbxVector4 Lerp(
+		const FbxVector4 &Current,
+		const FbxVector4 &Next, 
+		float Percent);
+	void Lerp(	float NormalizeTime,
+				const KeyQuaternion &Current,
+				const KeyQuaternion &Next,
+				KeyQuaternion &Result);
+	void Slerp(
+		const float normalizedTime,
+		const KeyQuaternion &key,
+		const KeyQuaternion &nextKey,
+		KeyQuaternion &result);
 private:
-	long mGlobalStartTime;
-	long mLocalCurrentTime;
-	long mAnimStartTime;
-	long mAnimEndTime;
-
-	int mLocalFrame;
-	int mGlobalFrame;
-
-	bool mIsLoop;
 	bool mIsAnimating;
-	bool mIsPause;
+	float mGlobalTime;
+	float mSpeed;
 };
 
 typedef std::shared_ptr<AnimHandle> animhandle_ptr;

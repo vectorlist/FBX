@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <ostream>
+#include <vml.h>
 #undef min
 #undef max
 class vec3f

@@ -6,7 +6,7 @@
 #include <animlayer.h>
 
 AnimModel::AnimModel(const std::string &filename)
-	: isRunning(false), m_node(NULL), m_mesh(NULL), hasChanged(false), isFirstLoop(true)
+	: isRunning(false), mNode(NULL), mMesh(NULL), hasChanged(false), isFirstLoop(true)
 {
 	FBXCore core(filename);
 	setNodePtr(core.mNode);
@@ -14,10 +14,10 @@ AnimModel::AnimModel(const std::string &filename)
 	m_handle = animhandle_ptr(new AnimHandle());
 	m_boneUbo = std::make_shared<UBO<BoneBufferData>>(0);
 
-	m_mesh = new SkinMesh();
-	m_mesh->createMesh(m_node->getCurrentMeshNode());
+	mMesh = new SkinMesh();
+	mMesh->createMesh(mNode->getCurrentMeshNode());
 
-	isAnimatedModel = m_node->hasAnimation();
+	isAnimatedModel = mNode->hasAnimation();
 	//m_boneData.isAnimation = isAnimatedModel;
 	m_boneData.isAnimation = isAnimatedModel;
 	LOG << "animated ? : " << m_boneData.isAnimation << ENDN;
@@ -26,48 +26,37 @@ AnimModel::AnimModel(const std::string &filename)
 
 AnimModel::~AnimModel()
 {
-	delete m_mesh;
+	delete mMesh;
 }
 
 void AnimModel::render(GLuint shader)
 {
-	if (!m_mesh) return;
-	m_mesh->render(shader);
+	if (!mMesh) return;
+	mMesh->render(shader);
 }
 
-void AnimModel::processAnimation()
+void AnimModel::Update(float delta)
 {
 	if (!isAnimatedModel) return;
 
-	//TODO call back for has change if gui changed(must be trigger has changed)
 	if (!isRunning || hasChanged)
 	{
-		LOG << "has changed" << ENDN;
-		AnimSample* sample = NULL;
-		//Set base layer
-		AnimLayer* layer= NULL;
-		if (isFirstLoop) {
-			layer = m_node->getAnimationLayer();
-			m_node->setCurrentSample(layer->getSample(0));
-			isFirstLoop = false;
+		//Set Current
+		mNode->setCurrentSample(mNode->getBaseSample());
+		LOG << "changed" << ENDN;
+		if (hasChanged) {
+			auto* Layer  = mNode->getAnimationLayer();
+			AnimSample* Sample = Layer->getSample(Layer->mIndex);
+			mNode->setCurrentSample(Sample);
 		}
-		//we set current sample from gui
-		sample = m_node->getCurrentSample();
-
-		long start = sample->convertFrameToMilli(sample->getSampleStart());
-		long end = sample->convertFrameToMilli(sample->getSampleEnd());
-		
-		LOG << "start : " << start << " end : " << end  << ENDN;
-		//set to current (Global time system)
-		m_handle->startAnimation(GET_TIME(), start, end);
-		m_handle->setLoop(true);
 		isRunning = true;
 		hasChanged = false;
 	}
 	else
 	{
-		m_handle->updateNodes(m_node,GET_TIME());
-		updateBoneTransform(m_node);
+		
+		m_handle->updateNodes(mNode, delta);
+		updateBoneTransform(mNode);
 	}
 }
 
@@ -82,7 +71,7 @@ void AnimModel::updateBoneTransform(Node *pNode)
 void AnimModel::processBoneNode(BoneNode * rootBoneNode)
 {
 	//Global
-	FbxAMatrix G = m_node->getCurrentMeshNode()->getGlobalTransform();
+	FbxAMatrix G = mNode->getCurrentMeshNode()->getGlobalTransform();
 	for (BoneNode* node = rootBoneNode; node != NULL; node = node->mNext)
 	{
 		//Lcal
@@ -101,13 +90,13 @@ void AnimModel::processBoneNode(BoneNode * rootBoneNode)
 
 void AnimModel::setNodePtr(node_ptr &node)
 {
-	m_nodePtr = node;
-	m_node = m_nodePtr.get();
+	mNodePtr = node;
+	mNode = mNodePtr.get();
 }
 
 Node* AnimModel::getNode()
 {
-	return m_node;
+	return mNode;
 }
 
 AnimHandle* AnimModel::getHandle()
