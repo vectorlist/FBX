@@ -79,25 +79,34 @@ void Gui::process(AnimModel* model)
 	ImGui::Begin(m_widget.name.c_str(), &m_widget.isOpen, ImGuiWindowFlags_Modal);
 	ImGui::SetWindowSize(ImVec2(380, 700));
 
-	auto node = model->getNode();
-	auto handle = model->getHandle();
+	auto node = model->GetNode();
+	auto handle = model->GetHandle();
+	
 	
 	//NODE
 	if (ImGui::CollapsingHeader("Node", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		SubGui::evalMeshTree(node->getMeshNodeRoot());
-		SubGui::evalBoneTree(node->getBoneNodeRoot());
+		SubGui::evalMeshTree(node->GetMeshNodeRoot());
+		SubGui::evalBoneTree(node->GetBoneNodeRoot());
 	}
 	
 	//ANIMATION
 	if (ImGui::CollapsingHeader("Animation Layer", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		SubGui::evalAnimSamples(model);
-		SubGui::evalAnimHandle(handle);
+		//SubGui::evalAnimHandle(handle);
 	}
 	
+	auto* nextSample = node->GetNextSample();
 
-	ImGui::CollapsingHeader("node");
+	if (ImGui::CollapsingHeader("Next Sample", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		if (nextSample) {
+			SubGui::evalAnimSampleInfo(nextSample);
+		}
+		SubGui::evalAnimHandle(handle);
+	}
+	ImGui::SliderFloat("Weight", &handle->mWeight, 0.0f, 1.0f, "%.4f");
 	ImGui::End();
 }
 
@@ -136,10 +145,10 @@ namespace SubGui
 	{
 		for (MeshNode* node = meshNode; node != NULL; node = node->mNext)
 		{
-			const char* nodeName = node->getName().c_str();
+			const char* nodeName = node->GetName().c_str();
 			std::string bits;
-			int faceNum = node->getFaces().size();
-			int pointNum = node->getPoints().size();
+			int faceNum = node->GetFaces().size();
+			int pointNum = node->GetPoints().size();
 					
 			if (ImGui::TreeNode(nodeName)) {
 
@@ -161,7 +170,7 @@ namespace SubGui
 	{
 		for (BoneNode* node = boneNode; node != NULL; node = node->mNext)
 		{
-			const char* nodeName = node->getName().c_str();
+			const char* nodeName = node->GetName().c_str();
 			
 			if (ImGui::TreeNode(nodeName)) {
 				if (node->mFirstChild)
@@ -177,19 +186,18 @@ namespace SubGui
 	void evalAnimSamples(AnimModel* model)
 	{
 		//ImGui::Separator();
-		Node* node = model->getNode();
-		AnimLayer* layer = node->getAnimationLayer();
+		Node* node = model->GetNode();
+		AnimLayer* layer = node->GetAnimationLayer();
 	
-		if(ImGui::Combo("Samples", &layer->mIndex, layer->GetSamplesNames().data(),
+		if(ImGui::Combo("Samples", &layer->mCurrentSampleIndex, layer->GetSamplesNames().data(),
 			layer->mNumSamples))
 		{
 			//TODO : replace to more simple callback function
-			LOG << layer->mIndex << ENDN;
-			node->setCurrentSample(layer->getSample(layer->mIndex));
+			//node->SetCurrentSample(layer->getSample(layer->mCurrentSampleIndex));
 			model->hasChanged = true;
 		}
 		//get info
-		AnimSample* currentSample = node->getCurrentSample();
+		AnimSample* currentSample = node->GetCurrentSample();
 		if (!currentSample) return;
 		ImGui::Separator();
 		evalAnimSampleInfo(currentSample);
@@ -198,7 +206,7 @@ namespace SubGui
 
 	void evalAnimSampleInfo(AnimSample *sample)
 	{
-		SubGui::evalText("Current Sample : " + sample->mName + " (%.1f fps)", sample->mFps);
+		SubGui::evalText("Current Sample : " + sample->mName + " (%.1f fps)", 24);
 		ImGui::Text("Frame Start    : %d", sample->mFrameStart);
 		ImGui::Text("Frame End      : %d", sample->mFrameEnd);
 		ImGui::Text("Frame Length   : %d", sample->mFrameCount);
@@ -208,10 +216,8 @@ namespace SubGui
 	{
 		ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 		
-		/*ImGui::Text("Local Time : %d", handle->getLocalTime());
-		ImGui::Text("Local Frame : %d",handle->getLocalFrame());
-		ImGui::Text("Global Frame : %d", handle->getGlobalFrame());*/
-
+		ImGui::Text("Current Local Frame : %d", handle->mLocalKeyFrame);
+		
 		ImGui::PopItemWidth();
 	}
 

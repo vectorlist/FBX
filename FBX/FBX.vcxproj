@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\core\color.h" />
     <ClInclude Include="..\include\core\matrix4x4.h" />
+    <ClInclude Include="..\include\core\quaternion.h" />
     <ClInclude Include="..\include\core\vec2f.h" />
     <ClInclude Include="..\include\core\vec3f.h" />
     <ClInclude Include="..\include\core\vec4f.h" />
@@ -43,14 +44,15 @@
     <ClInclude Include="src\animhandle.h" />
     <ClInclude Include="src\animmodel.h" />
     <ClInclude Include="src\bonenode.h" />
+    <ClInclude Include="src\eventhandler.h" />
     <ClInclude Include="src\face.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\fbxdevice.h" />
     <ClInclude Include="src\gui.h" />
+    <ClInclude Include="src\keyhandler.h" />
     <ClInclude Include="src\skinmesh.h" />
     <ClInclude Include="src\fbxcore.h" />
-    <ClInclude Include="src\fbxtool.h" />
-    <ClInclude Include="src\key.h" />
+    <ClInclude Include="src\animkey.h" />
     <ClInclude Include="src\meshnode.h" />
     <ClInclude Include="src\node.h" />
     <ClInclude Include="src\nodetree.h" />
@@ -64,19 +66,18 @@
     <ClCompile Include="..\include\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\include\imgui\imgui_impl_sdl_gl3.cpp" />
     <ClCompile Include="src\animlayer.cpp" />
-    <ClCompile Include="src\animsample.cpp" />
     <ClCompile Include="src\animhandle.cpp" />
     <ClCompile Include="src\animmodel.cpp" />
     <ClCompile Include="src\bonenode.cpp" />
+    <ClCompile Include="src\eventhandler.cpp" />
     <ClCompile Include="src\fbxdevice.cpp" />
     <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\skinmesh.cpp" />
     <ClCompile Include="src\fbxcore.cpp" />
-    <ClCompile Include="src\fbxcore_ext.cpp" />
-    <ClCompile Include="src\fbxtool.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\meshnode.cpp" />
     <ClCompile Include="src\node.cpp" />
+    <ClCompile Include="src\keyhandler.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{c679a6c2-04db-49f3-b981-12c95444b642}</ProjectGuid>

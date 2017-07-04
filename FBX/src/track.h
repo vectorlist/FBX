@@ -1,52 +1,52 @@
 #pragma once
 
-#include <key.h>
+#include <animkey.h>
 
 #define TRACK_INTERVAL		1
 
-class TrackVec3
+class VectorTrack
 {
 public:
-	TrackVec3(const int totalKeyNum) : mKeyNums(totalKeyNum)
+	VectorTrack(const int totalKeyNum) : mKeyNums(totalKeyNum)
 	{
 		//for acllocate memory this is size 0
 		mKeys.reserve(totalKeyNum);
 	}
 
-	void addKey(const KeyVec3 &key)
+	void AddKey(const VectorKey &key)
 	{
 		mKeys.push_back(key);
 	}
 
-	KeyVec3& getKey(int keyIndex)
+	VectorKey& GetKey(int keyIndex)
 	{
 		return mKeys[keyIndex];
 	}
 	int mKeyNums;
 private:
-	KeyVectorArray mKeys;
+	std::vector<VectorKey> mKeys;
 };
 
-class TrackQuaternion
+class QautTrack
 {
 public:
-	TrackQuaternion(const int totalKeyNum) : mKeyNums(totalKeyNum)
+	QautTrack(const int totalKeyNum) : mKeyNums(totalKeyNum)
 	{
 		mKeys.reserve(totalKeyNum);
 	}
 
-	void addKey(const KeyQuaternion& key)
+	void AddKey(const QuatKey& key)
 	{
 		mKeys.push_back(key);
 	}
 
-	KeyQuaternion& getKey(int keyIndex)
+	QuatKey& GetKey(int keyIndex)
 	{
 		return mKeys[keyIndex];
 	}
 	int mKeyNums;
-	KeyQuaternionArray mKeys;
+	std::vector<QuatKey> mKeys;
 };
 
-typedef std::shared_ptr<TrackVec3> TrackVec3Ptr;
-typedef std::shared_ptr<TrackQuaternion> TrackQuaternionPtr;
+typedef std::shared_ptr<VectorTrack> VectorTrackPtr;
+typedef std::shared_ptr<QautTrack> QautTrackPtr;

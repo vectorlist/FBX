@@ -3,7 +3,7 @@
 
 
 BoneNode::BoneNode()
-	: mName("null"), alloactedTrackSize(0)
+	: mName("null"), mAllocatedSize(0)
 {
 
 }
@@ -11,104 +11,123 @@ BoneNode::BoneNode()
 BoneNode::~BoneNode()
 {
 
-	//LOG << " delete : " << mName << ENDN;
 }
 
-void BoneNode::setName(const std::string & name)
+void BoneNode::SetName(const std::string &name)
 {
 	mName = name;
 }
 
-const std::string& BoneNode::getName() const
+const std::string& BoneNode::GetName() const
 {
 	return mName;
 }
 
-FbxAMatrix& BoneNode::getGlobalTransfrom()
+Matrix4x4& BoneNode::GetGlobalTransform()
 {
 	return mGlobalTransform;
 }
 
-const FbxAMatrix& BoneNode::getGlobalTransfrom() const
+const Matrix4x4& BoneNode::GetGlobalTransform() const
 {
 	return mGlobalTransform;
 }
 
-FbxAMatrix& BoneNode::getInveseLocalTransfrom()
+Matrix4x4& BoneNode::GetInveseLocalTransfrom()
 {
 	return mInverseTransform;
 }
 
-const FbxAMatrix& BoneNode::getInveseLocalTransfrom() const
+const Matrix4x4& BoneNode::GetInveseLocalTransfrom() const
 {
 	return mInverseTransform;
 }
 
-void BoneNode::setInverseLocalTransfrom(const FbxAMatrix &invTransform)
+void BoneNode::SetGlobalTransform(const Matrix4x4 &other)
 {
-	mInverseTransform = invTransform;
+	mGlobalTransform = other;
 }
 
-void BoneNode::setInheritScale(bool inheritScale)
+void BoneNode::SetInverseLocalTransfrom(const Matrix4x4 &other)
+{
+	mInverseTransform = other;
+}
+
+void BoneNode::SetInheritScale(bool inheritScale)
 {
 	mInheritScale = inheritScale;
 }
 
-bool BoneNode::getInheritScale()
+bool BoneNode::GetInheritScale()
 {
 	return mInheritScale;
 }
 
-void BoneNode::allocateTracks(int KeyNums)
+void BoneNode::AllocateTracks(int frameNum)
 {
-	mPositionTrack = TrackVec3Ptr(new TrackVec3(KeyNums));
-	mScaleTrack = TrackVec3Ptr(new TrackVec3(KeyNums));
-	mQuarternionTrack = TrackQuaternionPtr(new TrackQuaternion(KeyNums));
-	alloactedTrackSize = KeyNums;
+	mPositionTrack = VectorTrackPtr(new VectorTrack(frameNum));
+	mScaleTrack = VectorTrackPtr(new VectorTrack(frameNum));
+	mRotationTrack = QautTrackPtr(new QautTrack(frameNum));
+	mAllocatedSize = frameNum;
 }
 
-void BoneNode::addPositionKey(const KeyVec3 &key)
+void BoneNode::AddPositionKey(const VectorKey &key)
 {
-	mPositionTrack->addKey(key);
+	mPositionTrack->AddKey(key);
 }
 
-KeyVec3& BoneNode::getPositionKey(int sample)
+VectorKey& BoneNode::GetPositionKey(int frame)
 {
-	return mPositionTrack->getKey(sample);
+	return mPositionTrack->GetKey(frame);
 }
 
-TrackVec3* BoneNode::getPositionTrack()
+VectorTrack* BoneNode::GetPositionTrack()
 {
 	return mPositionTrack.get();
 }
 
-void BoneNode::addScaleKey(const KeyVec3 &key)
+void BoneNode::AddScaleKey(const VectorKey &key)
 {
-	mScaleTrack->addKey(key);
+	mScaleTrack->AddKey(key);
 }
 
-KeyVec3& BoneNode::getScaleKey(int sample)
+VectorKey& BoneNode::GetScaleKey(int frame)
 {
-	return mScaleTrack->getKey(sample);
+	return mScaleTrack->GetKey(frame);
 }
 
-TrackVec3* BoneNode::getScaleTrack()
+VectorTrack* BoneNode::GetScaleTrack()
 {
 	return mScaleTrack.get();
 }
 
-void BoneNode::addRotationKey(const KeyQuaternion &key)
+void BoneNode::AddRotationKey(const QuatKey &key)
 {
-	mQuarternionTrack->addKey(key);
+	mRotationTrack->AddKey(key);
 }
 
-KeyQuaternion& BoneNode::getRotationKey(int sample)
+QuatKey& BoneNode::GetRotationKey(int frame)
 {
-	return mQuarternionTrack->getKey(sample);
+	return mRotationTrack->GetKey(frame);
 }
 
-TrackQuaternion* BoneNode::getQuaternionTrack()
+QautTrack* BoneNode::GetRotationTrack()
 {
-	return mQuarternionTrack.get();
+	return mRotationTrack.get();
+}
+
+void BoneNode::SetNextGlobalTransform(const Matrix4x4 &other)
+{
+	mNextGlobalTransform = other;
+}
+
+Matrix4x4& BoneNode::GetNextGlobalTransform()
+{
+	return mNextGlobalTransform;
+}
+
+const Matrix4x4& BoneNode::GetNextGlobalTransform() const
+{
+	return mNextGlobalTransform;
 }
 

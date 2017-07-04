@@ -1,20 +1,17 @@
-
-#ifndef MATRIX4X4_H
-#define MATRIX4X4_H
+#pragma once
 
 #include <vml.h>
 #include <assert.h>
 #include <vec3f.h>
 #include <vec4f.h>
+//#include <quaternion.h>
 #include <iostream>
 #include <iomanip>
 #include <memory>
 
-enum class AXIS : unsigned int{
+enum class AXIS : unsigned int {
 	X = 0, Y, Z
 };
-
-//row major rule 0 1 2 3 4
 
 class Matrix4x4
 {
@@ -22,55 +19,68 @@ public:
 	Matrix4x4();
 	Matrix4x4(const Matrix4x4 &other);
 	Matrix4x4(float other[16]);
-	Matrix4x4(double other[16]);
+	//Matrix4x4(double other[16]);
 	Matrix4x4(const double other[16]);
 	Matrix4x4(float m00, float m01, float m02, float m03,
 		float m10, float m11, float m12, float m13,
 		float m20, float m21, float m22, float m23,
 		float m30, float m31, float m32, float m33);
-	~Matrix4x4(){};
+	~Matrix4x4() {};
 
-	//static const Matrix4x4 zero;
+	union
+	{
+		struct 
+		{
+			float m[4][4];
+		};
+		struct
+		{
+			float mData[16];
+		};
+	};
+	
+	//float           [16];
 
-	/*OPERATOR*/
+	Matrix4x4		operator*(const Matrix4x4 &other) const;
+	Matrix4x4&		operator*=(const Matrix4x4 &other);
+	//Matrix4x4		operator+(const Matrix4x4 &other) const;
+	vec3f			operator*(const vec3f &v) const;
+	vec4f			operator*(const vec4f &v) const;
+	Matrix4x4		operator*(float f) const;
+	Matrix4x4&		operator*=(float f);
 
-	Matrix4x4 operator*(const Matrix4x4 &other) const;
-	Matrix4x4& operator*=(const Matrix4x4 &other);
-	vec3f operator*(const vec3f &v) const;
-	Matrix4x4 operator*(float f) const;
-	Matrix4x4& operator*=(float f);
+	const float*	operator[](int i) const;
+	float*			operator[](int i);
 
-	const float* operator[](int i) const;
-	float* operator[](int i);
+	void			setRow(int index, const vec4f &v);
+	void			setColumn(int index, const vec4f &v);
 
-	void setRow(int index, const vec4f &v);
-	void setColumn(int index, const vec4f &v);
-	/*FOR GENERIC NORMAL*/
-	vec3f normal(const vec3f &n);
+	void			setToIdentity();
 
-	/*FUNCTION*/
-	void setToIdentity();
-	Matrix4x4& transpose();
-	Matrix4x4 transposed() const;
+	vec3f			normal(const vec3f &n) const;
+	Matrix4x4&		transpose();
+	Matrix4x4		transposed() const;
+	Matrix4x4		inverted() const;
 
-	/*TRANSFORM*/
-	void translate(vec3f t);
-	void rotate(AXIS axis, float angle);
-	void scale(vec3f s);
-	void scale(float s);
+	void			scale(const vec3f &s);
+	void			scale(float s);
+	void			translate(const vec3f &t);
+	void			rotate(AXIS axis, float angle);
 
+	vec3f			getTransform() const;
+	vec3f			getScale() const;
+	//Quaternion		getQuaternion() const;
 
-	float m[4][4];
+	float*			data();
+	const float*	constData() const;
 
-	Matrix4x4 rotatedX(float angle) const;
-	Matrix4x4 rotatedY(float angle) const;
-	Matrix4x4 rotatedZ(float angle) const;
+	static Matrix4x4	rotatedX(float angle);
+	static Matrix4x4	rotatedY(float angle);
+	static Matrix4x4	rotatedZ(float angle);
+	static Matrix4x4	rotationAxis(const vec3f& vector, float angle);
+	static void			normal(vec3f &n, const Matrix4x4 &M);
+	static Matrix4x4	vulkandClip();
 
-	Matrix4x4 inverted() const;
-	static Matrix4x4 vulkandClip();
-
-	inline float* data() { return *m; }
-	inline const float* constData() const { return *m; }
 
 	friend std::ostream& operator<<(std::ostream &o, const Matrix4x4 &mat);
 };
@@ -90,28 +100,28 @@ inline Matrix4x4::Matrix4x4(float other[16])
 	std::memcpy(m, other, sizeof(m));
 }
 
-inline Matrix4x4::Matrix4x4(double other[16])
-{
-	m[0][0] = static_cast<float>(other[0]);
-	m[0][1] = static_cast<float>(other[1]);
-	m[0][2] = static_cast<float>(other[2]);
-	m[0][3] = static_cast<float>(other[3]);
-
-	m[1][0] = static_cast<float>(other[4]);
-	m[1][1] = static_cast<float>(other[5]);
-	m[1][2] = static_cast<float>(other[6]);
-	m[1][3] = static_cast<float>(other[7]);
-
-	m[2][0] = static_cast<float>(other[8]);
-	m[2][1] = static_cast<float>(other[9]);
-	m[2][2] = static_cast<float>(other[10]);
-	m[2][3] = static_cast<float>(other[11]);
-
-	m[3][0] = static_cast<float>(other[12]);
-	m[3][1] = static_cast<float>(other[13]);
-	m[3][2] = static_cast<float>(other[14]);
-	m[3][3] = static_cast<float>(other[15]);
-}
+//inline Matrix4x4::Matrix4x4(double other[16])
+//{
+//	m[0][0] = static_cast<float>(other[0]);
+//	m[0][1] = static_cast<float>(other[1]);
+//	m[0][2] = static_cast<float>(other[2]);
+//	m[0][3] = static_cast<float>(other[3]);
+//
+//	m[1][0] = static_cast<float>(other[4]);
+//	m[1][1] = static_cast<float>(other[5]);
+//	m[1][2] = static_cast<float>(other[6]);
+//	m[1][3] = static_cast<float>(other[7]);
+//
+//	m[2][0] = static_cast<float>(other[8]);
+//	m[2][1] = static_cast<float>(other[9]);
+//	m[2][2] = static_cast<float>(other[10]);
+//	m[2][3] = static_cast<float>(other[11]);
+//
+//	m[3][0] = static_cast<float>(other[12]);
+//	m[3][1] = static_cast<float>(other[13]);
+//	m[3][2] = static_cast<float>(other[14]);
+//	m[3][3] = static_cast<float>(other[15]);
+//}
 
 inline Matrix4x4::Matrix4x4(const double other[16])
 {
@@ -134,6 +144,26 @@ inline Matrix4x4::Matrix4x4(const double other[16])
 	m[3][1] = static_cast<float>(other[13]);
 	m[3][2] = static_cast<float>(other[14]);
 	m[3][3] = static_cast<float>(other[15]);
+
+	/*m[0][0] = static_cast<float>(other[0]);
+	m[1][0] = static_cast<float>(other[1]);
+	m[2][0] = static_cast<float>(other[2]);
+	m[3][0] = static_cast<float>(other[3]);
+
+	m[0][1] = static_cast<float>(other[4]);
+	m[1][1] = static_cast<float>(other[5]);
+	m[2][1] = static_cast<float>(other[6]);
+	m[3][1] = static_cast<float>(other[7]);
+
+	m[0][2] = static_cast<float>(other[8]);
+	m[1][2] = static_cast<float>(other[9]);
+	m[2][2] = static_cast<float>(other[10]);
+	m[3][2] = static_cast<float>(other[11]);
+
+	m[0][3] = static_cast<float>(other[12]);
+	m[1][3] = static_cast<float>(other[13]);
+	m[2][3] = static_cast<float>(other[14]);
+	m[3][3] = static_cast<float>(other[15]);*/
 }
 
 inline Matrix4x4::Matrix4x4(float m00, float m01, float m02, float m03,
@@ -184,6 +214,39 @@ inline Matrix4x4& Matrix4x4::operator*=(const Matrix4x4 &other)
 	return *this;
 }
 
+//inline Matrix4x4 Matrix4x4::operator+(const Matrix4x4 &other) const
+//{
+//	//replace to quaternion
+//	vec3f right;
+//
+//	right.x = m[0][0] + other[0][0];
+//	right.y = m[1][0] + other[1][0];
+//	right.z = m[2][0] + other[2][0];
+//	
+//	vec3f up;
+//	up.x = m[0][1] + other[0][1];
+//	up.y = m[1][1] + other[1][1];
+//	up.z = m[2][1] + other[2][1];
+//
+//	vec3f front;
+//	front.x = m[0][2] + other[0][2];
+//	front.y = m[1][2] + other[1][2];
+//	front.z = m[2][2] + other[2][2];
+//
+//	right = right.normalized();
+//	up = right.normalized();
+//	front = right.normalized();
+//
+//	Matrix4x4 M = {
+//		right.x, up.x, front.x, 0.0f,
+//		right.y, up.y, front.y, 0.0f,
+//		right.z, up.z, front.z, 0.0f,
+//		0.0f, 0.0f, 0.0f, 1.0f
+//	};
+//
+//	return M.transposed();
+//}
+
 
 inline vec3f Matrix4x4::operator*(const vec3f &v) const
 {
@@ -193,6 +256,16 @@ inline vec3f Matrix4x4::operator*(const vec3f &v) const
 	z = v.x * m[2][0] + v.y * m[2][1] + v.z * m[2][2] + m[2][3];
 
 	return vec3f(x, y, z);
+}
+
+inline vec4f Matrix4x4::operator*(const vec4f & v) const
+{
+	float x, y, z, w;
+	x = v.x * m[0][0] + v.y * m[0][1] + v.z * m[0][2] + v.w * m[0][3];
+	y = v.x * m[1][0] + v.y * m[1][1] + v.z * m[1][2] + v.w * m[1][3];
+	z = v.x * m[2][0] + v.y * m[2][1] + v.z * m[2][2] + v.w * m[2][3];
+	w = v.x * m[3][0] + v.y * m[3][1] + v.z * m[3][2] + v.w * m[3][3];
+	return vec4f(x, y, z, w);
 }
 
 inline Matrix4x4 Matrix4x4::operator*(float f) const
@@ -283,103 +356,60 @@ inline Matrix4x4& Matrix4x4::transpose()
 
 inline Matrix4x4 Matrix4x4::transposed() const
 {
-	//from row major rule data to colum major rule
 	Matrix4x4 M;
-	for (int row = 0; row < 4; ++row)
-		for (int col = 0; col < 4; ++col)
-			M.m[row][col] = m[col][row];				//swap datas
+	for (int Row = 0; Row < 4; ++Row)
+		for (int Col = 0; Col < 4; ++Col)
+			M.m[Row][Col] = m[Col][Row];
+
 	return M;
 }
 
-inline Matrix4x4 Matrix4x4::rotatedX(float angle) const
+inline Matrix4x4 Matrix4x4::rotatedX(float angle)
 {
-	float t = RADIANS * angle;
-	float sinT = sin(t);
-	float cosT = cos(t);
+	float T = RADIANS * angle;
+	float SinT = sin(T);
+	float CosT = cos(T);
 
 	Matrix4x4 M = Matrix4x4(
 		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, cosT, -sinT, 0.0f,
-		0.0f, sinT, cosT, 0.0f,
+		0.0f, CosT, -SinT, 0.0f,
+		0.0f, SinT, CosT, 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f);
 
 	return M;
 }
 
-inline Matrix4x4 Matrix4x4::rotatedY(float angle) const
+inline Matrix4x4 Matrix4x4::rotatedY(float angle)
 {
-	float t = RADIANS * angle;
-	float sinT = sin(t);
-	float cosT = cos(t);
+	float T = RADIANS * angle;
+	float SinT = sin(T);
+	float CosT = cos(T);
 
 	Matrix4x4 M = Matrix4x4(
-		cosT, 0.0f, sinT, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		-sinT, 0.0f, cosT, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
+		 CosT, 0.0f, SinT, 0.0f,
+	 	 0.0f, 1.0f, 0.0f, 0.0f,
+		-SinT, 0.0f, CosT, 0.0f,
+		 0.0f, 0.0f, 0.0f, 1.0f);
 
 	return M;
 }
 
-inline Matrix4x4 Matrix4x4::rotatedZ(float angle) const
+inline Matrix4x4 Matrix4x4::rotatedZ(float angle)
 {
-	float t = RADIANS * angle;
-	float sinT = sin(t);
-	float cosT = cos(t);
+	float T = RADIANS * angle;
+	float SinT = sin(T);
+	float CosT = cos(T);
 
 	Matrix4x4 M = Matrix4x4(
-		cosT, -sinT, 0.0f, 0.0f,
-		sinT, cosT, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f);
+		CosT, -SinT,  0.0f,  0.0f,
+		SinT,  CosT,  0.0f,  0.0f,
+		0.0f,  0.0f,  1.0f,  0.0f,
+		0.0f,  0.0f,  0.0f,  1.0f);
+
 	return M;
 }
 
-inline void Matrix4x4::translate(vec3f t)
-{
-	Matrix4x4 M;
-	M.m[0][3] = t.x;
-	M.m[1][3] = t.y;
-	M.m[2][3] = t.z;
-
-
-	*this = *this * M;
-}
-
-inline void Matrix4x4::rotate(AXIS axis, float angle)
-{
-	Matrix4x4 rotM;
-	switch (axis)
-	{
-	case AXIS::X:
-		rotM[0][0] = 1.f;
-		rotM[1][1] = std::cos(angle * RADIANS);
-		rotM[1][2] = -sin(angle * RADIANS);
-		rotM[2][1] = sin(angle * RADIANS);
-		rotM[2][2] = cos(angle * RADIANS);
-		rotM[3][3] = 1.f;
-		break;
-	case AXIS::Y:
-		rotM[0][0] = cos(angle * RADIANS);
-		rotM[0][2] = sin(angle * RADIANS);
-		rotM[1][1] = 1.f;
-		rotM[2][0] = -sin(angle * RADIANS);
-		rotM[2][2] = cos(angle * RADIANS);
-		rotM[3][3] = 1.f;
-		break;
-	case AXIS::Z:
-		rotM[0][0] = cos(angle * RADIANS);
-		rotM[0][1] = -sin(angle * RADIANS);
-		rotM[1][0] = sin(angle * RADIANS);
-		rotM[1][1] = cos(angle * RADIANS);
-		rotM[2][2] = 1.f;
-		break;
-	}
-
-	*this = *this * rotM;
-}
-
-inline void Matrix4x4::scale(vec3f s)
+inline void Matrix4x4::scale(const vec3f &s)
 {
 	Matrix4x4 M;
 	M.m[0][0] *= s.x;
@@ -397,6 +427,84 @@ inline void Matrix4x4::scale(float s)
 	M.m[2][2] *= s;
 
 	*this = *this * M;
+}
+
+inline void Matrix4x4::translate(const vec3f &t)
+{
+	Matrix4x4 M;
+
+	M.m[0][3] = t.x;
+	M.m[1][3] = t.y;
+	M.m[2][3] = t.z;
+
+	*this = *this * M;
+}
+
+inline void Matrix4x4::rotate(AXIS axis, float angle)
+{
+	Matrix4x4 RotM;
+	switch (axis)
+	{
+	case AXIS::X:
+		RotM[0][0] = 1.f;
+		RotM[1][1] = std::cos(angle * RADIANS);
+		RotM[1][2] = -sin(angle * RADIANS);
+		RotM[2][1] = sin(angle * RADIANS);
+		RotM[2][2] = cos(angle * RADIANS);
+		RotM[3][3] = 1.f;
+		break;
+	case AXIS::Y:
+		RotM[0][0] = cos(angle * RADIANS);
+		RotM[0][2] = sin(angle * RADIANS);
+		RotM[1][1] = 1.f;
+		RotM[2][0] = -sin(angle * RADIANS);
+		RotM[2][2] = cos(angle * RADIANS);
+		RotM[3][3] = 1.f;
+		break;
+	case AXIS::Z:
+		RotM[0][0] = cos(angle * RADIANS);
+		RotM[0][1] = -sin(angle * RADIANS);
+		RotM[1][0] = sin(angle * RADIANS);
+		RotM[1][1] = cos(angle * RADIANS);
+		RotM[2][2] = 1.f;
+		break;
+	}
+
+	*this = *this * RotM;
+}
+
+inline vec3f Matrix4x4::getTransform() const
+{
+	vec3f T;
+	T.x = m[0][3];
+	T.y = m[1][3];
+	T.z = m[2][3];
+	return T;
+}
+
+inline vec3f Matrix4x4::getScale() const
+{
+	vec3f S;
+	S.x = vec3f(m[0][0], m[1][0], m[2][0]).length();
+	S.y = vec3f(m[0][1], m[1][1], m[2][1]).length();
+	S.z = vec3f(m[0][2], m[1][2], m[2][2]).length();
+	return S;
+}
+
+//inline Quaternion Matrix4x4::getQuaternion() const
+//{
+//	Quaternion Q(*this);
+//	return Q;
+//}
+
+inline float* Matrix4x4::data()
+{
+	return *m;
+}
+
+inline const float* Matrix4x4::constData() const
+{
+	return *m;
 }
 
 inline Matrix4x4 Matrix4x4::inverted() const
@@ -434,7 +542,7 @@ inline Matrix4x4 Matrix4x4::inverted() const
 	float det = m00 * inv[0][0] + m01 * inv[1][0] +
 		m02 * inv[2][0] + m03 * inv[3][0];
 	if (fabs(det) < MATRIX_EPSILON) {
-		//return;
+
 	}
 	float invDet = 1.0f / det;
 
@@ -473,20 +581,20 @@ inline Matrix4x4 Matrix4x4::inverted() const
 
 inline Matrix4x4 Matrix4x4::vulkandClip()
 {
-	Matrix4x4 clip = {
+	Matrix4x4 Clip = {
 		1.0f,  0.0f,  0.0f,  0.0f,
 		0.0f, -1.0f,  0.0f,  0.0f,
 		0.0f,  0.0f,  0.5f,  0.5f,
 		0.0f,  0.0f,  0.0f,  1.0f
 	};
-	return clip;
+	return Clip;
 }
 
 
 
-inline vec3f Matrix4x4::normal(const vec3f &n)
+inline vec3f Matrix4x4::normal(const vec3f &n) const
 {
-	float x, y, z;
+	float x, y, z, w;
 	x = n.x * m[0][0] + n.y * m[0][1] + n.z * m[0][2];
 	y = n.x * m[1][0] + n.y * m[1][1] + n.z * m[1][2];
 	z = n.x * m[2][0] + n.y * m[2][1] + n.z * m[2][2];
@@ -494,7 +602,50 @@ inline vec3f Matrix4x4::normal(const vec3f &n)
 	return vec3f(x, y, z).normalized();
 }
 
+inline Matrix4x4 Matrix4x4::rotationAxis(const vec3f& vector, float angle)
+{
+	Matrix4x4 temp;
 
+	float sin_a = sin(angle);
+	float cos_a = cos(angle);
+
+	float x_y = vector.x * vector.y;
+	float x_z = vector.x * vector.z;
+	float y_z = vector.y * vector.z;
+
+	temp[0][0] = 1 + (1 - cos_a) * (vector.x * vector.x - 1);
+	temp[1][0] = -vector.z * sin_a + (1 - cos_a) * x_y;
+	temp[2][0] = vector.y * sin_a + (1 - cos_a) * x_z;
+	temp[3][0] = 0;
+
+	temp[0][1] = vector.z * sin_a + (1 - cos_a) * x_y;
+	temp[1][1] = 1 + (1 - cos_a) * (vector.y * vector.y - 1);
+	temp[2][1] = -vector.x * sin_a + (1 - cos_a) * y_z;
+	temp[3][1] = 0;
+
+	temp[0][2] = -vector.y * sin_a + (1 - cos_a) * x_z;
+	temp[1][2] = vector.x * sin_a + (1 - cos_a) * y_z;
+	temp[2][2] = 1 + (1 - cos_a) * (vector.z * vector.z - 1);
+	temp[3][2] = 0;
+
+	temp[0][3] = 0;
+	temp[1][3] = 0;
+	temp[2][3] = 0;
+	temp[3][3] = 1;
+
+	return temp;
+}
+
+inline void Matrix4x4::normal(vec3f &n, const Matrix4x4 &m)
+{
+	float x, y, z;
+	x = n.x * m[0][0] + n.y * m[0][1] + n.z * m[0][2];
+	y = n.x * m[1][0] + n.y * m[1][1] + n.z * m[1][2];
+	z = n.x * m[2][0] + n.y * m[2][1] + n.z * m[2][2];
+	n.x = x;
+	n.y = y;
+	n.z = z;
+}
 
 inline std::ostream& operator<<(std::ostream &o, const Matrix4x4 &mat)
 {
@@ -555,7 +706,7 @@ namespace vml
 	inline Matrix4x4 perspective(float fovY, float aspect, float znear, float zfar)
 	{
 #	if VML_COORDINATE_SYSTEM == VML_LEFT_HAND
-		if(VML_VULKAN_CLIP)
+		if (VML_VULKAN_CLIP)
 			return Matrix4x4::vulkandClip() * perspectiveLH(fovY, aspect, znear, zfar);
 		return perspectiveLH(fovY, aspect, znear, zfar);
 #	else
@@ -563,42 +714,42 @@ namespace vml
 			return Matrix4x4::vulkandClip() * perspectiveRH(fovY, aspect, znear, zfar);
 		return perspectiveRH(fovY, aspect, znear, zfar);	//row for ray tracing(d12)
 #	endif 
-		
+
 	}
 
-	inline Matrix4x4 lookAtRH(const vec3f &eye,const vec3f& center,const vec3f& upvector)
+	inline Matrix4x4 lookAtRH(const vec3f &eye, const vec3f& center, const vec3f& upvector)
 	{
 		vec3f const forward = (center - eye).normalized();
-		vec3f const right	= vec3f::cross(forward, upvector).normalized();
-		vec3f const up		= vec3f::cross(right, forward);
+		vec3f const right = vec3f::cross(forward, upvector).normalized();
+		vec3f const up = vec3f::cross(right, forward);
 
-		float x = -vec3f::dot(  right, eye);
-		float y = -vec3f::dot(     up, eye);
-		float z =  vec3f::dot(forward, eye);
+		float x = -vec3f::dot(right, eye);
+		float y = -vec3f::dot(up, eye);
+		float z = vec3f::dot(forward, eye);
 
 		Matrix4x4 view = {
-		       right.x,     right.y,	 right.z,		x,
-			      up.x,        up.y,        up.z,		y,
-			-forward.x,  -forward.y,  -forward.z,		z,
-				 0.0f,      0.0f,       0.0f,    1.0f};
+			   right.x,          right.y,		     right.z,			x,
+			      up.x,				up.y,				up.z,			y,
+			-forward.x,       -forward.y,         -forward.z,		    z,
+			      0.0f,             0.0f,               0.0f,         1.0f };
 		return view;
 	}
 
 	inline Matrix4x4 lookAtLH(const vec3f &eye, const vec3f& center, const vec3f& upvector)
 	{
 		vec3f const forward = (center - eye).normalized();
-		vec3f const right	= vec3f::cross(upvector, forward).normalized();
-		vec3f const up		= vec3f::cross(forward, right);
+		vec3f const right = vec3f::cross(upvector, forward).normalized();
+		vec3f const up = vec3f::cross(forward, right);
 
-		float x = -vec3f::dot(	 right, eye);
-		float y = -vec3f::dot(	    up, eye);
-		float z = -vec3f::dot( forward, eye);
+		float x = -vec3f::dot(right, eye);
+		float y = -vec3f::dot(up, eye);
+		float z = -vec3f::dot(forward, eye);
 
 		Matrix4x4 view = {
-			   right.x,     right.y,	 right.z,		x,
-			      up.x,        up.y,        up.z,		y,
+			right.x,     right.y,	 right.z,		x,
+			up.x,        up.y,        up.z,		y,
 			-forward.x,  -forward.y,  -forward.z,		z,
-			      0.0f,        0.0f,        0.0f,     1.0f };
+			0.0f,        0.0f,        0.0f,     1.0f };
 		return view;
 	}
 
@@ -643,31 +794,6 @@ namespace vml
 		return clip * proj;
 	}
 
-	//right hand for default
-	inline Matrix4x4 ortho(float left, float right,float bottom, float top)
-	{
-		Matrix4x4 proj;
-		proj[0][0] = 2.f / (right - left);
-		proj[1][1] = 2.f / (top - bottom);
-		proj[2][2] = -1.f;
-		proj[0][3] = -(right + left) / (right - left);
-		proj[1][3] = -(top + bottom) / (top - bottom);
-		return proj;
-	}
-
-	inline Matrix4x4 ortho(float left, float right, float bottom, float top,
-		float znear, float zfar)
-	{
-		Matrix4x4 proj;
-		proj[0][0] = 2.f / (right - left);
-		proj[1][1] = 2.f / (top - bottom);
-		proj[2][2] = -2.f / (zfar - znear);
-		proj[0][3] = -(right + left) / (right - left);
-		proj[1][3] = -(top + bottom) / (top - bottom);
-		proj[2][3] = -(zfar + znear) / (zfar - znear);
-		return proj;
-	}
-
 	//opengl static scale matrix
 	inline Matrix4x4 scale(const Matrix4x4 &mat, float s)
 	{
@@ -695,16 +821,37 @@ namespace vml
 		return model;
 	}
 
-	inline Matrix4x4 transform(const vec3f &pos, const vec3f &rot, const vec3f &scale)
+	//right hand for default
+	inline Matrix4x4 ortho(float left, float right, float bottom, float top)
 	{
-		Matrix4x4 model;
-		model.translate(pos);
-		model.rotate(AXIS::X, rot.x);
-		model.rotate(AXIS::Y, rot.y);
-		model.rotate(AXIS::Z, rot.z);
-		model.scale(scale);
-		return model;
+		Matrix4x4 proj;
+		proj[0][0] = 2.f / (right - left);
+		proj[1][1] = 2.f / (top - bottom);
+		proj[2][2] = -1.f;
+		proj[0][3] = -(right + left) / (right - left);
+		proj[1][3] = -(top + bottom) / (top - bottom);
+		return proj;
+	}
+
+	inline Matrix4x4 ortho(
+		float left, float right, float bottom, float top, float znear, float zfar)
+	{
+		Matrix4x4 result;
+		result[0][0] = 2.f / (right - left);
+		result[1][1] = 2.f / (top - bottom);
+		result[2][2] = -(2.f) / (zfar - znear);
+		result[0][3] = -(right + left) / (right - left);
+		result[1][3] = -(top + bottom) / (top - bottom);
+		result[2][3] = -(zfar + znear) / (zfar - znear);
+		return result;
+	}
+
+	inline void getT(Matrix4x4& mat, vec3f &translation)
+	{
+		translation.x += mat[0][3];
+		translation.y += mat[1][3];
+		translation.z += mat[2][3];
 	}
 }
 
-#endif // MATRIX4X4_H
+

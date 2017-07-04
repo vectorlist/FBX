@@ -1,11 +1,10 @@
 
-#ifndef VEC3F_H
-#define VEC3F_H
+#pragma once
 
+#include <vml.h>
 #include <algorithm>
 #include <assert.h>
 #include <ostream>
-#include <vml.h>
 #undef min
 #undef max
 class vec3f
@@ -45,6 +44,7 @@ public:
 	static vec3f reflect(const vec3f &dir, const vec3f &n);
 	static vec3f min(const vec3f &v1, const vec3f &v2);
 	static vec3f max(const vec3f &v1, const vec3f &v2);
+	static vec3f lerp(const vec3f& start, const vec3f &end, float factor);
 
 	/*-------------------------------------------------*/
 	float maxComponent() const { return std::max(std::max(x, y), z); }
@@ -268,9 +268,14 @@ inline vec3f vec3f::max(const vec3f &v1, const vec3f &v2)
 		std::max(v1.z, v2.z));
 }
 
+inline vec3f vec3f::lerp(const vec3f &start, const vec3f &end, float factor)
+{
+	return start + (end - start) * factor;
+	//return (start + vec3f(factor) * (end - start));
+}
+
 inline std::ostream& operator<<(std::ostream &o, const vec3f &v)
 {
 	o << "vec3( " << v.x << ", " << v.y << " ," << v.z << ')';
 	return o;
 }
-#endif //VEC3F_H

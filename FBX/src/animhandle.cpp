@@ -1,15 +1,18 @@
+#include <config.h>
 #include <animhandle.h>
 #include <node.h>
-#include <fbxtool.h>
 #include <log.h>
+#include <animlayer.h>
 
 AnimHandle::AnimHandle()
 	:
 	mIsAnimating(false),
 	mSpeed(1.0f),
-	mGlobalTime(0.0f)
+	mGlobalTime(0.0f),
+	mLocalKeyFrame(0)
 {
 
+	mSpeed = 1.f;
 }
 
 
@@ -18,216 +21,239 @@ AnimHandle::~AnimHandle()
 
 }
 
-void AnimHandle::updateNodes(Node *node, const float delta)
+void AnimHandle::UpdateNodes(Node *node, const float delta)
 {
-	BoneNode* RootBoneNode = node->getBoneNodeRoot();
-	AnimSample* Sample = node->getCurrentSample();
+	BoneNode* root = node->GetBoneNodeRoot();
+	AnimSample* sample = node->GetCurrentSample();
 
-	//Increase Global time at runtime
-	mGlobalTime += delta;
-
-	//LOG << Sample->mStart << ENDN;
-	//Global % Animation Length + Animation Start Time
-	float SampleTime = fmod(mGlobalTime, Sample->mDuration) + Sample->mStart;
-
-	//LOG << "Global : " << mGlobalTime << " Sample : " <<SampleTime << ENDN;
+	mGlobalTime += delta * mSpeed;
 	
-	const FbxAMatrix parentGlobalScale;
-	const FbxAMatrix parentGlobalRotation;
+	//Global % Animation Length + Animation Start Time
+	float sampleTime = fmod(mGlobalTime, sample->mDuration) + sample->mStart;
 
-	evalNodes(SampleTime, RootBoneNode, parentGlobalScale, parentGlobalRotation);
+	int sampleFrame = GetLocalFrame(sampleTime, root->GetPositionTrack());
+
+	const Matrix4x4 ParentS;
+	const Matrix4x4 ParentR;
+
+	AnimSample* nextSample = node->GetNextSample();
+	if (!nextSample) {
+		mWeight = 0.0f;
+	}
+	if (nextSample && sample != nextSample) 
+	{
+		//LOG << "walk" << ENDN;
+		float nextSampleTime = GetLocalTime(mGlobalTime, nextSample);
+		int nextSampleFrame = GetLocalFrame(nextSampleTime, root->GetPositionTrack());
+		if (mWeight != 1.0f) {
+			mWeight = GetLocalFactor(nextSampleFrame, nextSample);
+		}
+		
+		//LOG << "c : " << sampleFrame <<" n : " <<nextSampleFrame << ENDN;
+		//mWeight = GetLocalFactor(nextSampleFrame, nextSample);
+		const Matrix4x4 R;
+		const Matrix4x4 S;
+		//EvalNextNodes(nextSampleTime, nextSampleFrame, root, S, R);
+		EvalNextNodes(nextSampleTime, nextSampleFrame, root, S, R);
+	}
+	/*else {
+		EvalNodes(sampleTime, sampleFrame, root, ParentS, ParentR);
+	}*/
+	/*EvalBlendNodes(SampleTime, mLocalKeyFrame, Root, parentS, parentS);*/
+	EvalNodes(sampleTime, sampleFrame, root, ParentS, ParentR);
 }
 
-void AnimHandle::evalNodes(float sample,
+void AnimHandle::EvalNodes(
+	float sample,
+	int frame,
 	BoneNode * pBoneNode,
-	const FbxAMatrix &parentS,
-	const FbxAMatrix &parentR)
+	const Matrix4x4 &ParentS,
+	const Matrix4x4 &ParentR)
 {
 	for (pBoneNode; pBoneNode != NULL; pBoneNode = pBoneNode->mNext)
 	{
-	
-		//TODO : replace Track container
-		TrackVec3* PositionTrack = pBoneNode->getPositionTrack();
-		TrackVec3* ScaleTrack = pBoneNode->getScaleTrack();
-		TrackQuaternion* RotationTrack = pBoneNode->getQuaternionTrack();
+		VectorTrack* PositionTrack = pBoneNode->GetPositionTrack();
+		VectorTrack* ScaleTrack = pBoneNode->GetScaleTrack();
+		QautTrack* RotationTrack = pBoneNode->GetRotationTrack();
 
-		//interpolate each
-		auto Position = interpolatePosition(sample, PositionTrack);
-		auto Scale = interpolateScale(sample, ScaleTrack);
-		auto Roatation = interpolateRotation(sample, RotationTrack);
+		auto Position	= InterpolatePosition(sample, frame,PositionTrack);
+		auto Scale		= InterpolateScale(sample, frame,ScaleTrack);
+		auto Roatation	= InterpolateRotation(sample, frame,RotationTrack);
 		
-		//Matrix
-		FbxAMatrix localS;
-		localS.SetS(Scale);
-		FbxAMatrix localR;
-		localR.SetQ(Roatation.mQuaternion);
-
-		//for record all matrix (trans * rot * scale) to this bone node
-		FbxAMatrix& globalTransform = pBoneNode->getGlobalTransfrom();
+		Matrix4x4 LocalS;
+		LocalS.scale(Scale);
+		Matrix4x4 LocalR = Roatation.GetMatrix();
 		
+		Matrix4x4& GlobalTransform = pBoneNode->GetGlobalTransform();
+		//LOG << GlobalTransform << ENDN;
 		if (pBoneNode->mParent)
 		{
-			const FbxAMatrix& parentTransform = pBoneNode->mParent->getGlobalTransfrom();
-			FbxAMatrix globalRS;
+			const Matrix4x4& ParentTransform = pBoneNode->mParent->GetGlobalTransform();
+			Matrix4x4 GlobalRS;
 
-			if (pBoneNode->getInheritScale())
+			if (pBoneNode->GetInheritScale())
 			{
-				globalRS = parentR * localR * parentS * localS;
+				GlobalRS = ParentR * LocalR * ParentS * LocalS;
 			}
 			else
 			{
-				globalRS = parentR * localR * localS;
+				GlobalRS = ParentR * LocalR * LocalS;
 			}
 			
-			FbxVector4 globalPosion = parentTransform.MultT(Position);
+			vec3f GlobalPosion = ParentTransform * Position;
 
-			FbxAMatrix globalT;
-			globalT.SetT(globalPosion);
-			globalTransform = globalT * globalRS;
+			Matrix4x4 GlobalT;
+			GlobalT.translate(GlobalPosion);
+			GlobalTransform = GlobalT * GlobalRS;
 
 			if (pBoneNode->mFirstChild)
 			{
-				FbxAMatrix globalS = parentS * localS;
-				FbxAMatrix globalR = parentR * localR;
+				Matrix4x4 GlobalS = ParentS * LocalS;
+				Matrix4x4 GlobalR = ParentR * LocalR;
 
-				evalNodes(sample, pBoneNode->mFirstChild, globalS, globalR);
+				EvalNodes(sample, frame, pBoneNode->mFirstChild, GlobalS, GlobalR);
 			}
 		}
 		else
 		{
-			FbxAMatrix localT;
-			localT.SetT(Position);
-
-			globalTransform = localT * localR * localS;
-		
+			Matrix4x4 LocalT;
+			LocalT.translate(Position);
+			GlobalTransform = LocalT * LocalR * LocalS;
+			
 			if (pBoneNode->mFirstChild)
 			{
-				evalNodes(sample, pBoneNode->mFirstChild, localS, localR);
+				EvalNodes(sample, frame, pBoneNode->mFirstChild, LocalS, LocalR);
 			}
 		}
 	}
 }
 
-
-
-FbxVector4 AnimHandle::interpolatePosition(float SampleTime, TrackVec3 *Track)
+void AnimHandle::EvalNextNodes(
+	float sample,
+	int frame,
+	BoneNode * pBoneNode,
+	const Matrix4x4 &ParentS,
+	const Matrix4x4 &ParentR)
 {
-	FbxVector4 Position;
-	int Frame = 0;
-	for (int i = 0; i < Track->mKeyNums - 1; ++i) {
-		if (SampleTime < (float)Track->getKey(i + 1).mTime)
+	for (pBoneNode; pBoneNode != NULL; pBoneNode = pBoneNode->mNext)
+	{
+		VectorTrack* PositionTrack = pBoneNode->GetPositionTrack();
+		VectorTrack* ScaleTrack = pBoneNode->GetScaleTrack();
+		QautTrack* RotationTrack = pBoneNode->GetRotationTrack();
+
+		auto Position = InterpolatePosition(sample, frame, PositionTrack);
+		auto Scale = InterpolateScale(sample, frame, ScaleTrack);
+		auto Roatation = InterpolateRotation(sample, frame, RotationTrack);
+
+		Matrix4x4 LocalS;
+		LocalS.scale(Scale);
+		Matrix4x4 LocalR = Roatation.GetMatrix();
+		
+		//For Next Sample (UBO)
+		Matrix4x4& nextTransform = pBoneNode->GetNextGlobalTransform();
+
+		if (pBoneNode->mParent)
 		{
-			//Current Frame;
-			Frame = i;
-			break;
+			const Matrix4x4& ParentTransform = pBoneNode->mParent->GetNextGlobalTransform();
+			Matrix4x4 GlobalRS;
+
+			if (pBoneNode->GetInheritScale())
+			{
+				GlobalRS = ParentR * LocalR * ParentS * LocalS;
+			}
+			else
+			{
+				GlobalRS = ParentR * LocalR * LocalS;
+			}
+
+			vec3f GlobalPosion = ParentTransform * Position;
+
+			Matrix4x4 GlobalT;
+			GlobalT.translate(GlobalPosion);
+			nextTransform = GlobalT * GlobalRS;
+
+			if (pBoneNode->mFirstChild)
+			{
+				Matrix4x4 GlobalS = ParentS * LocalS;
+				Matrix4x4 GlobalR = ParentR * LocalR;
+
+				EvalNextNodes(sample, frame, pBoneNode->mFirstChild, GlobalS, GlobalR);
+			}
+		}
+		else
+		{
+			Matrix4x4 LocalT;
+			LocalT.translate(Position);
+			nextTransform = LocalT * LocalR * LocalS;
+
+			if (pBoneNode->mFirstChild)
+			{
+				EvalNextNodes(sample, frame, pBoneNode->mFirstChild, LocalS, LocalR);
+			}
 		}
 	}
+}
 
-	//Get Current Key and Next Key
-	KeyVec3 Current = Track->getKey(Frame);
-	KeyVec3 Next = Track->getKey(Frame + TRACK_INTERVAL);
+vec3f AnimHandle::InterpolatePosition(float sample, int frame,VectorTrack *track)
+{
+	vec3f position;
+	const VectorKey& current = track->GetKey(frame);
+	const VectorKey& next = track->GetKey(frame + TRACK_INTERVAL);
 	
-	//Found Noramlized Time Btw Two Keys
-	float NormalizedTime = VML::normalize(Current.mTime, Next.mTime, SampleTime);
+	float factor = vml::normalize(current.mTime, next.mTime, sample);
 
-	//Lerp
-	Position = Lerp(Current.mVector, Next.mVector, NormalizedTime);
-	return Position;
+	position = vec3f::lerp(current.mVector, next.mVector, factor);
+	return position;
 }
 
-FbxVector4 AnimHandle::interpolateScale(float SampleTime, TrackVec3* Track)
+vec3f AnimHandle::InterpolateScale(float sample, int frame,VectorTrack* track)
 {
-	FbxVector4 Scale;
-	int Frame = 0;
-	for (int i = 0; i < Track->mKeyNums - 1; ++i)
-	{
-		if (SampleTime < (float)Track->getKey(i + 1).mTime)
+	vec3f scale;
+	const VectorKey& current = track->GetKey(frame);
+	const VectorKey& next = track->GetKey(frame + TRACK_INTERVAL);
+
+	float factor = vml::normalize(current.mTime, next.mTime, sample);
+
+	scale = vec3f::lerp(current.mVector, next.mVector, factor);
+	return scale;
+}
+
+Quaternion AnimHandle::InterpolateRotation(float sample, int frame,QautTrack* track)
+{
+	Quaternion rotation;
+	const QuatKey &current = track->GetKey(frame);
+	const QuatKey &next = track->GetKey(frame + TRACK_INTERVAL);
+
+	float factor = vml::normalize(current.mTime, next.mTime, sample);
+
+	Quaternion::Interpolate(rotation, current.mQaut, next.mQaut, factor);
+	rotation.Noramlize();
+	return rotation;
+}
+
+float AnimHandle::GetLocalTime(float globalTime, AnimSample * sample)
+{
+	return fmod(globalTime, sample->mDuration) + sample->mStart;
+}
+
+int AnimHandle::GetLocalFrame(float sample, VectorTrack *Track)
+{
+	int frame = 0;
+	for (int i = 0; i < Track->mKeyNums - 1; ++i) {
+		if (sample < Track->GetKey(i + 1).mTime)
 		{
-			Frame = i;
+			frame = i;
 			break;
 		}
 	}
-	KeyVec3 Current = Track->getKey(Frame);
-	KeyVec3 Next = Track->getKey(Frame + TRACK_INTERVAL);
-
-	float NormalizedTime = VML::normalize(Current.mTime, Next.mTime, SampleTime);
-
-	Scale = Lerp(Current.mVector, Next.mVector, NormalizedTime);
-	return Scale;
+	return frame;
 }
 
-KeyQuaternion AnimHandle::interpolateRotation(float SampleTime, TrackQuaternion* Track)
+float AnimHandle::GetLocalFactor(int frame, AnimSample *Sample)
 {
-	KeyQuaternion Rotation;
-	int Frame = 0;
-	for (int i = 0; i < Track->mKeyNums - 1; ++i)
-	{
-		if (SampleTime < (float)Track->getKey(i + 1).mTime)
-		{
-			Frame = i;
-			break;
-		}
-	}
-
-	KeyQuaternion Current = Track->getKey(Frame);
-	KeyQuaternion Next = Track->getKey(Frame + TRACK_INTERVAL);
-
-	float NormalizedTime = VML::normalize(Current.mTime, Next.mTime, SampleTime);
-
-	Slerp(NormalizedTime, Current, Next, Rotation);
-	return Rotation;
+	float frameStart = static_cast<float>(frame);
+	float frameEnd = static_cast<float>(Sample->mFrameStart + Sample->mFrameCount -3);
+	float result = vml::normalize(0.0f, frameEnd, frameStart);
+	return result;
 }
 
-FbxVector4 AnimHandle::Lerp(const FbxVector4 &Current, const FbxVector4 &Next, float Percent)
-{
-	//https://keithmaggio.wordpress.com/2011/02/15/math-magician-lerp-slerp-and-nlerp/
-	return Current + (Next - Current) * Percent;
-}
-
-void AnimHandle::Slerp(
-	const float normalizedTime, 
-	const KeyQuaternion &key,
-	const KeyQuaternion &nextKey,
-	KeyQuaternion &result)
-{
-	FbxQuaternion nextQuaternion = nextKey.mQuaternion; //Copy this incase we need to negate it
-
-														 // First calcualte the 4D dot product which gives cos theta
-	double cosTheta = key.mQuaternion[0] * nextQuaternion[0] + key.mQuaternion[1] * nextQuaternion[1]
-		+ key.mQuaternion[2] * nextQuaternion[2] + key.mQuaternion[3] * nextQuaternion[3];
-
-	if (cosTheta == 1)
-	{
-		result.mQuaternion = key.mQuaternion; // The two key are the same so just return.
-		return;
-	}
-
-	if (cosTheta < 0) // q1 and q2 are more than 90 degrees apart so invert one of them to reduce spinning
-	{
-		cosTheta *= -1;
-		nextQuaternion = -nextKey.mQuaternion;
-	}
-
-	if (cosTheta < 0.99999f) // If the keys are different
-	{
-		double theta = acos(cosTheta);
-		double firstKeyWeight = sin((1 - normalizedTime) * theta) / sin(theta);
-		double nextKeyWeight = sin(normalizedTime * theta) / sin(theta);
-
-		FbxQuaternion interpolatedQuat = (key.mQuaternion * firstKeyWeight) + (nextQuaternion * nextKeyWeight);
-
-		result = KeyQuaternion(interpolatedQuat, 0);
-		return;
-	}
-
-	return Lerp(normalizedTime, key, nextKey, result); 
-}
-
-void AnimHandle::Lerp(
-	float NormalizeTime,
-	const KeyQuaternion &Current,
-	const KeyQuaternion &Next,
-	KeyQuaternion &Result)
-{
-	Result.mQuaternion = Current.mQuaternion + (Next.mQuaternion - Current.mQuaternion) * NormalizeTime;
-}

@@ -7,7 +7,8 @@
 #include <config.h>
 #include <string>
 
-class FlimBoxDevice;
+class AnimNode;
+class FlimBoxNode;
 class Node
 {
 public:
@@ -15,31 +16,31 @@ public:
 	~Node();
 
 	/*------------ BONE NODE -------------*/
-	BoneNode*			getBoneNodeRoot();
-	BoneNode*			getBoneNodeByName(const std::string &name);
-	void				addChildBoneNode(BoneNode* parent, BoneNode* node);
+	BoneNode*			GetBoneNodeRoot();
+	BoneNode*			GetBoneNodeByName(const std::string &name);
+	void				AddChildBoneNode(BoneNode* parent, BoneNode* node);
 
 	/*------------ MESH NODE -------------*/
-	MeshNode*			getMeshNodeRoot();
-	void				addChildMeshNode(MeshNode* parent, MeshNode* node);
-	MeshNode*			getCurrentMeshNode();
+	MeshNode*			GetMeshNodeRoot();
+	void				AddChildMeshNode(MeshNode* parent, MeshNode* node);
+	MeshNode*			GetCurrentMeshNode();
 
 	/*------------ ANIMATION -------------*/
-	void				setAnimationLayerPtr(animlayer_ptr layerPtr);
-	AnimLayer*			getAnimationLayer() const;
+	void				SetAnimationLayerPtr(animlayer_ptr layerPtr);
+	AnimLayer*			GetAnimationLayer() const;
 
-	void				setCurrentSample(AnimSample* sample);
-	AnimSample*			getCurrentSample() const;
-	AnimSample*			getBaseSample();
+	void				SetCurrentSample(AnimSample* sample);
+	AnimSample*			GetCurrentSample() const;
+	void				SetNextSample(AnimSample* sample);
+	AnimSample*			GetNextSample() const;
+	AnimSample*			GetBaseSample();
 
-	bool				hasAnimation();
-	void				setSceneName(const std::string &sceneName);
-	const std::string&	getSceneName() const;
+	bool				HasAnimation();
 private:
 	NodeTree<BoneNode>	mBoneNodes;
 	NodeTree<MeshNode>	mMeshNodes;
 
 	animlayer_ptr		mAnimationLayerPtr;
 	AnimSample*			mCurrentSample;
-	std::string			mSceneName;
+	AnimSample*			mNextSample;
 };

@@ -7,13 +7,13 @@
 class Face
 {
 public:
-	void			setVertexIndex(int facePointIndex, int vertexIndex);
-	void			setNormal(int facePointIndex, const vec3f& normal);
-	void			setST(int facePointIndex, const vec2f& st);
+	void			SetVertexIndex(int facePointIndex, int vertexIndex);
+	void			SetNormal(int facePointIndex, const vec3f& normal);
+	void			SetST(int facePointIndex, const vec2f& st);
 
-	unsigned int	getVertexIndex(int facePointIndex);
-	vec3f&			getNormal(int facePointIndex);
-	vec2f&			getST(int facePointIndex);
+	unsigned int	GetVertexIndex(int facePointIndex);
+	vec3f&			GetNormal(int facePointIndex);
+	vec2f&			GetST(int facePointIndex);
 
 private:
 	unsigned int	mVerticeIndex[FACE_COMPONENT_NUM];
@@ -21,32 +21,32 @@ private:
 	vec2f			mSTs[FACE_COMPONENT_NUM];
 };
 
-inline void Face::setVertexIndex(int facePointIndex, int vertexIndex)
+inline void Face::SetVertexIndex(int facePointIndex, int vertexIndex)
 {
 	mVerticeIndex[facePointIndex] = vertexIndex;
 }
 
-inline void Face::setNormal(int facePointIndex, const vec3f& normal)
+inline void Face::SetNormal(int facePointIndex, const vec3f& normal)
 {
 	mNormals[facePointIndex] = normal;
 }
 
-inline void Face::setST(int facePointIndex, const vec2f& st)
+inline void Face::SetST(int facePointIndex, const vec2f& st)
 {
 	mSTs[facePointIndex] = st;
 }
 
-inline unsigned int Face::getVertexIndex(int facePointIndex)
+inline unsigned int Face::GetVertexIndex(int facePointIndex)
 {
 	return mVerticeIndex[facePointIndex];
 }
 
-inline vec3f& Face::getNormal(int facePointIndex)
+inline vec3f& Face::GetNormal(int facePointIndex)
 {
 	return mNormals[facePointIndex];
 }
 
-inline vec2f& Face::getST(int facePointIndex)
+inline vec2f& Face::GetST(int facePointIndex)
 {
 	return mSTs[facePointIndex];
 }

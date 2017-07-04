@@ -75,12 +75,14 @@ void FBXDevice::initialize()
 	mLayer->createLayers(mImporter);
 
 	//convert pivot animation recursive all node
-	bakeNodeTransforms(getRootNode());
+	bakeNodeTransforms(GetRootNode());
 	//TODO : fix FbxTime::eFrame 24
-	getRootNode()->ConvertPivotAnimationRecursive(
+	GetRootNode()->ConvertPivotAnimationRecursive(
 		NULL,
 		FbxNode::eDestinationPivot,
 		24.0f);
+
+	SetPoses();
 }
 
 bool FBXDevice::isTriangleMesh(FbxNode *pNode) const
@@ -145,27 +147,56 @@ void FBXDevice::bakeNodeTransforms(FbxNode* pNode) const
 	}
 }
 
-FbxManager* FBXDevice::getManager()
+//const FbxArray<FbxPose *> & lPoseArray = gSceneContext->GetPoseArray();
+//for (int lPoseIndex = 0; lPoseIndex < lPoseArray.GetCount(); ++lPoseIndex)
+//{
+//	if (lPoseArray[lPoseIndex]->IsBindPose())
+//	{
+//		glutAddMenuEntry(lPoseArray[lPoseIndex]->GetName(), lPoseIndex);
+//		lBindPoseCount++;
+//	}
+//}
+
+void FBXDevice::SetPoses()
+{
+	
+	//TODO : it must be 3 Poses
+	auto PoseNum = mScene->GetPoseCount();
+
+	for (int i = 0; i < PoseNum; ++i)
+	{
+		auto* pose = mScene->GetPose(i);
+		mPoses.push_back(pose);
+	}
+}
+
+void FBXDevice::LoadPoseNodes(FbxPose* pose, FbxNode* node)
+{
+	//TODO : get pose Matrix for blend animation (Weight B) 
+	
+}
+
+FbxManager* FBXDevice::GetManager()
 {
 	return mManager;
 }
 
-FbxImporter* FBXDevice::getImporter()
+FbxImporter* FBXDevice::GetImporter()
 {
 	return mImporter;
 }
 
-FbxScene* FBXDevice::getScene()
+FbxScene* FBXDevice::GetScene()
 {
 	return mScene;
 }
 
-FbxNode* FBXDevice::getRootNode()
+FbxNode* FBXDevice::GetRootNode()
 {
 	return mScene->GetRootNode();
 }
 
-animlayer_ptr FBXDevice::getAnimationLayer()
+animlayer_ptr FBXDevice::GetAnimationLayer()
 {
 	return std::move(mLayer);
 }

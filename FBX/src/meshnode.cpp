@@ -9,43 +9,42 @@ MeshNode::~MeshNode()
 	
 }
 
-void MeshNode::setName(const std::string &name)
+void MeshNode::SetName(const std::string &name)
 {
 	mName = name;
 }
 
-const std::string & MeshNode::getName() const
+const std::string& MeshNode::GetName() const
 {
 	return mName;
 }
 
-
-FaceArray& MeshNode::getFaces()
+std::vector<Face>& MeshNode::GetFaces()
 {
 	return mFaces;
 }
 
-PointArray& MeshNode::getPoints()
+std::vector<Point>& MeshNode::GetPoints()
 {
 	return mPoints;
 }
 
-const FbxAMatrix& MeshNode::getGlobalTransform() const
+const Matrix4x4& MeshNode::GetGlobalTransform() const
 {
-	return m_globalTransform;
+	return mGlobal;
 }
 
-const FbxAMatrix& MeshNode::getLocalTransform() const
+const Matrix4x4& MeshNode::GetLocalTransform() const
 {
-	return m_localTransform;
+	return mLocal;
 }
 
-void MeshNode::setGlobalTransform(const FbxAMatrix &transform)
+void MeshNode::SetGlobalTransform(const Matrix4x4 &transform)
 {
-	m_globalTransform = transform;
+	mGlobal = transform;
 }
 
-void MeshNode::setLocalTransform(const FbxAMatrix &transform)
+void MeshNode::SetLocalTransform(const Matrix4x4 &transform)
 {
-	m_localTransform = transform;
+	mLocal = transform;
 }

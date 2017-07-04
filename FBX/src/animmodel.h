@@ -6,18 +6,18 @@
 #include <vector>
 #include <config.h>
 
+class SkinMesh;
+class Node;
 struct BoneBufferData
 {
-	BoneBufferData() : isAnimation(true){}
-	Matrix4x4 bones[BONE_MAX];
-	bool isAnimation;
+	BoneBufferData() : Weight(1.0f),IsAnimation(true){}
+	Matrix4x4	CurrentBones[BONE_MAX];
+	Matrix4x4	NextBones[BONE_MAX];
+	float		Weight;
+	bool		IsAnimation;
 };
 
 
-typedef void(*cbf)(Node* node);
-
-class SkinMesh;
-class Node;
 class AnimModel
 {
 public:
@@ -29,19 +29,18 @@ public:
 	//test animation sample stack
 	void Update(float delta);
 
-	void updateBoneTransform(Node* pNode);
-	void processBoneNode(BoneNode* rootBoneNode);
+	void UpdateBoneTransform(Node* pNode);
+	void ProcessBoneNode(BoneNode* rootBoneNode);
+	void ProcessNextBoneNode(BoneNode* rootBoneNode);
 	void setNodePtr(node_ptr &node);
-	Node* getNode();
-	AnimHandle* getHandle();
+	Node* GetNode();
+	AnimHandle* GetHandle();
+	void moveEvent();
 		
-
-	animhandle_ptr m_handle;
-	BoneBufferData m_boneData;
+	animhandle_ptr mHandle;
+	BoneBufferData mBoneData;
 	std::shared_ptr<UBO<BoneBufferData>> m_boneUbo;
 
-	void evalCallback();
-	cbf callback;
 	bool hasChanged;
 private:
 	

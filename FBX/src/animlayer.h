@@ -9,7 +9,7 @@
 
 #define FRAME_24		FbxTime::eFrames24
 #define FRAME_30		FbxTime::eFrames30
-
+class AnimStack;
 class AnimLayer
 {
 public:
@@ -19,9 +19,8 @@ public:
 	AnimSample* getSample(int index);
 	
 	std::vector<const char*>& GetSamplesNames();
-	static void debugSample(AnimSample* sample);
 
-	int mIndex;
+	int mCurrentSampleIndex;
 	int mNumSamples;
 private:
 	std::vector<animsample_ptr>	mSamples;

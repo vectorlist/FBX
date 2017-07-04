@@ -2,7 +2,6 @@
 #include <skinmesh.h>
 #include <fbxcore.h>
 #include <node.h>
-#include <fbxtool.h>
 #include <animlayer.h>
 
 AnimModel::AnimModel(const std::string &filename)
@@ -11,22 +10,22 @@ AnimModel::AnimModel(const std::string &filename)
 	FBXCore core(filename);
 	setNodePtr(core.mNode);
 
-	m_handle = animhandle_ptr(new AnimHandle());
+	mHandle = animhandle_ptr(new AnimHandle());
 	m_boneUbo = std::make_shared<UBO<BoneBufferData>>(0);
 
 	mMesh = new SkinMesh();
-	mMesh->createMesh(mNode->getCurrentMeshNode());
+	mMesh->createMesh(mNode->GetCurrentMeshNode());
 
-	isAnimatedModel = mNode->hasAnimation();
-	//m_boneData.isAnimation = isAnimatedModel;
-	m_boneData.isAnimation = isAnimatedModel;
-	LOG << "animated ? : " << m_boneData.isAnimation << ENDN;
+	isAnimatedModel = mNode->HasAnimation();
+	//mBoneData.isAnimation = isAnimatedModel;
+	mBoneData.IsAnimation = isAnimatedModel;
+	
 }
 
 
 AnimModel::~AnimModel()
 {
-	delete mMesh;
+	SAFE_DELETE(mMesh);
 }
 
 void AnimModel::render(GLuint shader)
@@ -42,48 +41,107 @@ void AnimModel::Update(float delta)
 	if (!isRunning || hasChanged)
 	{
 		//Set Current
-		mNode->setCurrentSample(mNode->getBaseSample());
-		LOG << "changed" << ENDN;
+		if (mNode->GetAnimationLayer()->mNumSamples > 1) {
+			auto* Layer = mNode->GetAnimationLayer();
+			AnimSample* Sample = Layer->getSample(1);		//for idle
+			mNode->SetCurrentSample(Sample);
+		}
+		else {
+			mNode->SetCurrentSample(mNode->GetBaseSample());
+		}
+
+		//TODO : More simple
 		if (hasChanged) {
-			auto* Layer  = mNode->getAnimationLayer();
-			AnimSample* Sample = Layer->getSample(Layer->mIndex);
-			mNode->setCurrentSample(Sample);
+			auto* Layer  = mNode->GetAnimationLayer();
+			AnimSample* Sample = Layer->getSample(Layer->mCurrentSampleIndex);
+			mNode->SetCurrentSample(Sample);
 		}
 		isRunning = true;
 		hasChanged = false;
 	}
 	else
 	{
-		
-		m_handle->updateNodes(mNode, delta);
-		updateBoneTransform(mNode);
+		moveEvent();
+
+		mHandle->UpdateNodes(mNode, delta);
+		UpdateBoneTransform(mNode);
+	
+		//mHandle->UpdateNodes(mNode, delta);
+		//UpdateBoneTransform(mNode);
 	}
 }
 
-void AnimModel::updateBoneTransform(Node *pNode)
+void AnimModel::UpdateBoneTransform(Node *pNode)
 {
-	BoneNode* rootBoneNode = pNode->getBoneNodeRoot();
+	BoneNode* rootBoneNode = pNode->GetBoneNodeRoot();
+	ProcessBoneNode(rootBoneNode);
+	ProcessNextBoneNode(rootBoneNode);
 
-	processBoneNode(rootBoneNode);
-	m_boneUbo->updateBuffer(&m_boneData);
+	m_boneUbo->updateBuffer(&mBoneData);
 }
 
-void AnimModel::processBoneNode(BoneNode * rootBoneNode)
+void AnimModel::ProcessBoneNode(BoneNode * rootBoneNode)
 {
 	//Global
-	FbxAMatrix G = mNode->getCurrentMeshNode()->getGlobalTransform();
+	Matrix4x4 G = mNode->GetCurrentMeshNode()->GetGlobalTransform();
 	for (BoneNode* node = rootBoneNode; node != NULL; node = node->mNext)
 	{
-		//Lcal
-		auto L = node->getGlobalTransfrom();
-		//Local Inv
-		auto LInv = node->getInveseLocalTransfrom();
-		int boneID = node->id();
+		const auto local = node->GetGlobalTransform();
+		//const auto tlocal = node->GetNextGlobalTransform();
+		
 
-		m_boneData.bones[boneID] = Matrix4x4(L * LInv * G);
+
+		const auto localInv = node->GetInveseLocalTransfrom();
+
+		int boneID = node->GetId();
+
+		mBoneData.CurrentBones[boneID] = (local * localInv).transposed();
+		//mBoneData.CurrentBones[boneID] = (local).transposed();
+		
 		if (node->mFirstChild)
 		{
-			processBoneNode(node->mFirstChild);
+			ProcessBoneNode(node->mFirstChild);
+		}
+	}
+
+	//for (BoneNode* node = rootBoneNode; node != NULL; node = node->mNext)
+	//{
+	//	//Matrix4x4 local;
+	//	//local.rotate(AXIS::Y, 90);
+	//	//local.translate(vec3f(0, 0, 3));
+	//	auto local = node->GetNextGlobalTransform();
+	//	//auto local = node->GetGlobalTransform();
+	//	
+	//	auto invLocal = node->GetInveseLocalTransfrom();
+	//	mBoneData.NextBones[node->GetId()] = (local * invLocal).transposed();
+	//	if (node->mFirstChild)
+	//	{
+	//		ProcessBoneNode(node->mFirstChild);
+	//	}
+	//}
+	mBoneData.Weight = mHandle->mWeight;
+}
+
+void AnimModel::ProcessNextBoneNode(BoneNode * rootBoneNode)
+{
+	for (BoneNode* node = rootBoneNode; node != NULL; node = node->mNext)
+	{
+		//Matrix4x4 local;
+		//local.rotate(AXIS::Y, 90);
+		//local.translate(vec3f(0, 0, 3));
+		const auto tlocal = node->GetNextGlobalTransform();
+		//const auto local = node->GetGlobalTransform();
+
+		/*LOG << "t : " << tlocal << ENDN;
+		LOG << "l : " << local << ENDN;*/
+		
+		const auto invLocal = node->GetInveseLocalTransfrom();
+		int boneID = node->GetId();
+		
+		mBoneData.NextBones[boneID] = (tlocal * invLocal).transposed();
+		if (node->mFirstChild)
+		{
+			ProcessNextBoneNode(node->mFirstChild);
 		}
 	}
 }
@@ -94,17 +152,37 @@ void AnimModel::setNodePtr(node_ptr &node)
 	mNode = mNodePtr.get();
 }
 
-Node* AnimModel::getNode()
+Node* AnimModel::GetNode()
 {
 	return mNode;
 }
 
-AnimHandle* AnimModel::getHandle()
+AnimHandle* AnimModel::GetHandle()
 {
-	return m_handle.get();
+	return mHandle.get();
 }
 
-void AnimModel::evalCallback()
+void AnimModel::moveEvent()
 {
-	//callback()
+	if(KeyHandler::isKeyPress(KEY_W))
+	{
+		AnimLayer* layer = mNode->GetAnimationLayer();
+		AnimSample* sample = layer->getSample(2);
+		mNode->SetNextSample(sample);
+	}
+	if (KeyHandler::isKeyUp(KEY_W))
+	{
+		mNode->SetNextSample(NULL);
+	}
+
+	if (KeyHandler::isKeyPress(KEY_R))
+	{
+		AnimLayer* layer = mNode->GetAnimationLayer();
+		AnimSample* sample = layer->getSample(3);
+		mNode->SetNextSample(sample);
+	}
+	if (KeyHandler::isKeyUp(KEY_R))
+	{
+		mNode->SetNextSample(NULL);
+	}
 }

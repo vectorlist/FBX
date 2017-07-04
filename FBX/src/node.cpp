@@ -2,7 +2,7 @@
 #include <animlayer.h>
 
 Node::Node()
-	: mCurrentSample(NULL)
+	: mCurrentSample(NULL), mNextSample(NULL)
 {
 
 }
@@ -14,23 +14,23 @@ Node::~Node()
 
 /*------------ BONE NODE -------------*/
 
-BoneNode *Node::getBoneNodeRoot()
+BoneNode *Node::GetBoneNodeRoot()
 {
 	return mBoneNodes.mRoot;
 }
 
-void Node::addChildBoneNode(BoneNode* parent, BoneNode* node)
+void Node::AddChildBoneNode(BoneNode* parent, BoneNode* node)
 {
-	mBoneNodes.addChild(parent, node);
+	mBoneNodes.AddChild(parent, node);
 }
 
-BoneNode* Node::getBoneNodeByName(const std::string &name)
+BoneNode* Node::GetBoneNodeByName(const std::string &name)
 {
 	for (BoneNode* node = mBoneNodes.mRoot;
 		node != NULL;
-		node = mBoneNodes.getNextChildFirst(node))
+		node = mBoneNodes.GetNextChildFirst(node))
 	{
-		if (node->getName() == name) {
+		if (node->GetName() == name) {
 			return node;
 		}
 	}
@@ -40,21 +40,21 @@ BoneNode* Node::getBoneNodeByName(const std::string &name)
 
 /*------------ MESH NODE -------------*/
 
-MeshNode* Node::getMeshNodeRoot()
+MeshNode* Node::GetMeshNodeRoot()
 {
 	return mMeshNodes.mRoot;
 }
 
-void Node::addChildMeshNode(MeshNode* parent, MeshNode *node)
+void Node::AddChildMeshNode(MeshNode* parent, MeshNode *node)
 {
-	mMeshNodes.addChild(parent, node);
+	mMeshNodes.AddChild(parent, node);
 }
 
-MeshNode* Node::getCurrentMeshNode()
+MeshNode* Node::GetCurrentMeshNode()
 {
 	for (auto* node = mMeshNodes.mRoot;
 		node != NULL;
-		node = mMeshNodes.getNextChildFirst(node))
+		node = mMeshNodes.GetNextChildFirst(node))
 	{
 		if (node) {
 			return node;
@@ -63,45 +63,44 @@ MeshNode* Node::getCurrentMeshNode()
 	return NULL;
 }
 
-void Node::setAnimationLayerPtr(animlayer_ptr layerPtr)
+void Node::SetAnimationLayerPtr(animlayer_ptr layerPtr)
 {
 	mAnimationLayerPtr = layerPtr;
 }
 
-AnimLayer* Node::getAnimationLayer() const
+AnimLayer* Node::GetAnimationLayer() const
 {
 	return mAnimationLayerPtr.get();
 }
 
-void Node::setCurrentSample(AnimSample *sample)
+void Node::SetCurrentSample(AnimSample *sample)
 {
 	mCurrentSample = sample;
 }
 
-AnimSample* Node::getCurrentSample() const
+AnimSample* Node::GetCurrentSample() const
 {
 	return mCurrentSample;
 }
 
-AnimSample* Node::getBaseSample()
+void Node::SetNextSample(AnimSample *sample)
+{
+	mNextSample = sample;
+}
+
+AnimSample* Node::GetNextSample() const
+{
+	return mNextSample;
+}
+
+AnimSample* Node::GetBaseSample()
 {
 	//Base Sample
 	return mAnimationLayerPtr->getSample(0);
 }
 
-bool Node::hasAnimation()
+bool Node::HasAnimation()
 {
-	return mBoneNodes.size() > 1;
+	return mBoneNodes.Size() > 0;
 }
-
-void Node::setSceneName(const std::string &sceneName)
-{
-	mSceneName = sceneName;
-}
-
-const std::string& Node::getSceneName() const
-{
-	return mSceneName;
-}
-
 

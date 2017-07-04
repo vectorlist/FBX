@@ -18,25 +18,25 @@ void SkinMesh::createMesh(MeshNode *meshNode)
 {
 	for (MeshNode* node = meshNode; node != NULL; node = node->mFirstChild)
 	{
-		if (meshNode->id() > 0) {
+		if (meshNode->GetId() > 0) {
 			LOG_ERROR("dosent supported 2more meshes in this version");
 		}
-		auto& faces = meshNode->getFaces();
-		auto& points = meshNode->getPoints();
+		auto& faces = meshNode->GetFaces();
+		auto& points = meshNode->GetPoints();
 
 		for (auto faceIndex = 0; faceIndex < faces.size(); ++faceIndex)
 		{
 			for (int facePointIndex = 0; facePointIndex < FACE_COMPONENT_NUM; ++facePointIndex)
 			{
 				Face &face = faces[faceIndex];
-				int vertexIndex = face.getVertexIndex(facePointIndex);
+				int vertexIndex = face.GetVertexIndex(facePointIndex);
 				SkinVertex vertex;
-				vertex.position = points[vertexIndex].getPosition();
-				vertex.normal = face.getNormal(facePointIndex);
-				vertex.st = face.getST(facePointIndex);
+				vertex.position = points[vertexIndex].GetPosition();
+				vertex.normal = face.GetNormal(facePointIndex);
+				vertex.st = face.GetST(facePointIndex);
 				vertex.setBoneWeights(
-					points[vertexIndex].getBoneWeights(),
-					points[vertexIndex].getBoneIDs());
+					points[vertexIndex].GetBoneWeights(),
+					points[vertexIndex].GetBoneIDs());
 
 				vertices.push_back(vertex);
 				indices.push_back(faceIndex * 3 + facePointIndex);
@@ -44,6 +44,8 @@ void SkinMesh::createMesh(MeshNode *meshNode)
 			}
 		}
 		createBuffer();
+		faces.clear();
+		points.clear();
 	}
 	
 }

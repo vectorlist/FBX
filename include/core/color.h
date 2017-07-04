@@ -1,6 +1,4 @@
-
-#ifndef COLOR_H
-#define COLOR_H
+#pragma once
 
 #include <algorithm>
 #include <memory>
@@ -195,5 +193,3 @@ inline Color Color::gamma(const Color &c, float gamma)
 }
 
 typedef std::unique_ptr<Color[]> ColorPtr;
-
-#endif//COLOR_H

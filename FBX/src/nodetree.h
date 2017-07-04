@@ -32,7 +32,7 @@ public:
 		return mRoot;
 	}
 
-	virtual void addChild(
+	virtual void AddChild(
 		T *parent,
 		T *item
 	)
@@ -74,7 +74,7 @@ public:
 		++count;
 	}
 
-	virtual T* getNextChildFirst(
+	virtual T* GetNextChildFirst(
 		T *item
 	)
 	{
@@ -101,12 +101,10 @@ public:
 		return NULL;
 	}
 
-
-
 	T *mRoot;
 	T *mEnd;
 	
-	int size()
+	int Size()
 	{
 		return count + 1;
 	}
@@ -139,7 +137,7 @@ public:
 		}
 	};
 
-	int id()
+	int GetId()
 	{
 		return mId;
 	}

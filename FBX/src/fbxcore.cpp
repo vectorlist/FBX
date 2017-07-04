@@ -1,27 +1,27 @@
 #include <fbxcore.h>
 #include <log.h>
-#include <fbxtool.h>
 #include <meshnode.h>
 #include <animsample.h>
 #include <animlayer.h>
 #include <fbxdevice.h>
+#include <matrix4x4.h>
+#include <quaternion.h>
 
 FBXCore::FBXCore(const std::string &filename)
 {
 	//create fbxscene importer manager animation layers
-	FBXDevice device(filename);
+	FBXDevice Device(filename);
 
-	auto fbxroot = device.getRootNode();
-	mImporter = device.getImporter();
-	auto scene = device.getScene();
+	auto FbxRoot = Device.GetRootNode();
+	mImporter = Device.GetImporter();
+	auto Scene = Device.GetScene();
 	
 
 	mNode = std::make_shared<Node>();
-	mNode->setSceneName(scene->GetName());
-	mNode->setAnimationLayerPtr(device.getAnimationLayer());
+	mNode->SetAnimationLayerPtr(Device.GetAnimationLayer());
 
-	processNodes(fbxroot, mNode->getBoneNodeRoot(), mNode->getMeshNodeRoot());
-	processSkins(fbxroot, mNode->getCurrentMeshNode());
+	ProcessNodes(FbxRoot, mNode->GetBoneNodeRoot(), mNode->GetMeshNodeRoot());
+	ProcessSkins(FbxRoot, mNode->GetCurrentMeshNode());
 }
 
 FBXCore::~FBXCore()
@@ -29,7 +29,7 @@ FBXCore::~FBXCore()
 	
 }
 
-bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode)
+bool FBXCore::ProcessNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* parentMeshNode)
 {
 	BoneNode* newBoneNode = NULL;
 	MeshNode* newMeshNode = NULL;
@@ -41,10 +41,10 @@ bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* p
 		switch (type)
 		{
 		case fbxsdk::FbxNodeAttribute::eMesh:
-			newMeshNode = processMeshNode(pNode, parentMeshNode);
+			newMeshNode = ProcessMeshNode(pNode, parentMeshNode);
 			break;
 		case fbxsdk::FbxNodeAttribute::eSkeleton:
-			newBoneNode = processBoneNode(pNode, parentBoneNode);
+			newBoneNode = ProcessBoneNode(pNode, parentBoneNode);
 			break;
 
 		default:
@@ -54,7 +54,7 @@ bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* p
 	for (int childIndex = 0; childIndex < pNode->GetChildCount(); ++childIndex)
 	{
 		FbxNode* pChildNode = pNode->GetChild(childIndex);
-		processNodes(pChildNode,
+		ProcessNodes(pChildNode,
 			newBoneNode != NULL ? newBoneNode : parentBoneNode,
 			newMeshNode != NULL ? newMeshNode : parentMeshNode);
 	}
@@ -62,7 +62,7 @@ bool FBXCore::processNodes(FbxNode* pNode, BoneNode* parentBoneNode, MeshNode* p
 	return true;
 }
 
-BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
+BoneNode* FBXCore::ProcessBoneNode(FbxNode* pNode, BoneNode* parent)
 {
 	const FbxSkeleton* const pSkeleton = static_cast<const FbxSkeleton*>(pNode->GetNodeAttribute());
 
@@ -74,16 +74,17 @@ BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 
 	boneNode = new BoneNode();
 
-	mNode->addChildBoneNode(parent, boneNode);
+	mNode->AddChildBoneNode(parent, boneNode);
 
 	//set name
 	auto name = pNode->GetName();
-	boneNode->setName(name);
-	LOG << "id : "  << " " << boneNode->id() << " create bone node : " << boneNode->getName() << ENDN;;
+	boneNode->SetName(name);
+	LOG << "id : " << boneNode->GetId() << " create bone node : " << boneNode->GetName() << ENDN;;
 
 	//Transforms
-	const FbxAMatrix globalTransform = pNode->EvaluateGlobalTransform(0, FbxNode::eDestinationPivot);
-	boneNode->mGlobalTransform = globalTransform;
+	const FbxAMatrix FBXGlobal = pNode->EvaluateGlobalTransform(0, FbxNode::eDestinationPivot);
+	boneNode->SetGlobalTransform(Matrix4x4(FBXGlobal.Transpose()));
+	boneNode->SetNextGlobalTransform(Matrix4x4(FBXGlobal.Transpose()));
 
 	//TODO : REPLACE TAKE ANIMATION
 	/*------------------------ ANIMATION LAYER SAMPLE ------------------------------*/
@@ -97,29 +98,34 @@ BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 
 	if (Length.Get()) {
 		//Set Tack Key Nums
-		boneNode->allocateTracks(Length.Get());
+		boneNode->AllocateTracks(Length.Get());
 	}
 
 	for (FbxLongLong i = Start.GetFrameCount(FRAME_24);
 		i <= End.GetFrameCount(FRAME_24); ++i)
 	{
 		
-		FbxTime CurrentTime;
-		CurrentTime.SetFrame(i, FRAME_24);
+		FbxTime currentFbxTime;
+		currentFbxTime.SetFrame(i, FRAME_24);
 		
-		const FbxAMatrix LocalM = pNode->EvaluateLocalTransform(CurrentTime, FbxNode::eDestinationPivot);
+		const FbxAMatrix FBXLocal = pNode->EvaluateLocalTransform(currentFbxTime, FbxNode::eDestinationPivot);
+		//convert Fbx Matrix to Matrix4x4
+		Matrix4x4 LocalM(FBXLocal.Transpose());
 
-		float CurrentMS = (float)CurrentTime.GetMilliSeconds() / 1000.f;
+		auto Prositon = LocalM.getTransform();
+		auto Scale = LocalM.getScale();
+		auto Rotation = Quaternion(LocalM);
+	
+		float currentTime = (float)currentFbxTime.GetMilliSeconds() / 1000.f;
 
-		KeyQuaternion RotationKey(LocalM.GetQ(), CurrentMS);
-		KeyVec3 PositionKey(LocalM.GetT(), CurrentMS);
-		KeyVec3 ScaleKey(LocalM.GetS(), CurrentMS);
+		VectorKey PositionKey(Prositon, currentTime);
+		VectorKey ScaleKey(Scale, currentTime);
+		QuatKey RotationKey(Rotation, currentTime);
 
-		boneNode->addRotationKey(RotationKey);
-		boneNode->addPositionKey(PositionKey);
-		boneNode->addScaleKey(ScaleKey);
+		boneNode->AddPositionKey(PositionKey);
+		boneNode->AddScaleKey(ScaleKey);
+		boneNode->AddRotationKey(RotationKey);
 	}
-	/*------------------------- SAMPLE -----------------------------*/
 	if (parent)
 	{
 		//pNode->
@@ -127,25 +133,25 @@ BoneNode* FBXCore::processBoneNode(FbxNode* pNode, BoneNode* parent)
 		switch (type)
 		{
 		case FbxTransform::eInheritRrs:
-			boneNode->setInheritScale(false);
+			boneNode->SetInheritScale(false);
 			break;
 		case FbxTransform::eInheritRrSs:
 			LOG_ERROR("RrSs dosent supported");
 			break;
 		case FbxTransform::eInheritRSrs:
-			boneNode->setInheritScale(true);
+			boneNode->SetInheritScale(true);
 			break;
 		}
 	}
 	else
 	{
-		boneNode->setInheritScale(false);
+		boneNode->SetInheritScale(false);
 	}
 
 	return boneNode;
 }
 
-MeshNode* FBXCore::processMeshNode(FbxNode *pNode, MeshNode *parent)
+MeshNode* FBXCore::ProcessMeshNode(FbxNode *pNode, MeshNode *parent)
 {
 	FbxMesh* pMesh = pNode->GetMesh();
 	MeshNode* meshNode = NULL;
@@ -157,12 +163,12 @@ MeshNode* FBXCore::processMeshNode(FbxNode *pNode, MeshNode *parent)
 
 	meshNode = new MeshNode;
 	
-	mNode->addChildMeshNode(parent, meshNode);
+	mNode->AddChildMeshNode(parent, meshNode);
 
 	std::string nodeName = pNode->GetName();
-	meshNode->setName(nodeName);
+	meshNode->SetName(nodeName);
 
-	LOG << "ID : " << meshNode->id() << " Create Mesh Node : " << meshNode->getName() << ENDN;
+	LOG << "ID : " << meshNode->GetId() << " Create Mesh Node : " << meshNode->GetName() << ENDN;
 
 	const FbxAMatrix globalMatrix = pNode->EvaluateGlobalTransform();
 	FbxAMatrix localTRS;
@@ -171,43 +177,42 @@ MeshNode* FBXCore::processMeshNode(FbxNode *pNode, MeshNode *parent)
 	FbxVector4 S = pNode->LclScaling.Get();
 	localTRS.SetTRS(T, R, S);
 
-	meshNode->setGlobalTransform(localTRS);
-	//meshNode->setGlobalTransform(globalMatrix);
+	Matrix4x4 LocalM(localTRS.Transpose());
+	meshNode->SetGlobalTransform(LocalM);
 
-	buildMeshNode(pMesh, meshNode);
+	BuildMeshNode(pMesh, meshNode);
 
 	return meshNode;
 }
 
 
-void FBXCore::buildMeshNode(FbxMesh* pMesh, MeshNode* pMeshNode)
+void FBXCore::BuildMeshNode(FbxMesh* pMesh, MeshNode* pMeshNode)
 {
 	int vertexNum = pMesh->GetControlPointsCount();
 
-	PointArray& points = pMeshNode->getPoints();
+	auto& points = pMeshNode->GetPoints();
 	points.resize(vertexNum);
 
 	const FbxVector4* const contolPoints = pMesh->GetControlPoints();
 	for (unsigned int vertexIndex = 0; vertexIndex < vertexNum; ++vertexIndex)
 	{
-		points[vertexIndex].setPosition(contolPoints[vertexIndex]);
+		points[vertexIndex].SetPosition(contolPoints[vertexIndex]);
 	}
 	int faceNums = pMesh->GetPolygonCount();
 
-	FaceArray& faces = pMeshNode->getFaces();
+	auto& faces = pMeshNode->GetFaces();
 	faces.resize(faceNums);
 
 	for (int faceIndex = 0; faceIndex < faceNums; ++faceIndex)
 	{
 		Face &face = faces[faceIndex];
-		loadVertexIndices(pMesh, faceIndex, face);
-		loadNormals(pMesh, faceIndex, face);
-		loadSTs(pMesh, faceIndex, face);
+		LoadVertexIndices(pMesh, faceIndex, face);
+		LoadNormals(pMesh, faceIndex, face);
+		LoadSTs(pMesh, faceIndex, face);
 	}
 }
 
-bool FBXCore::processSkins(FbxNode* pNode, MeshNode* meshNode)
-//*Info : create skin vertex data to mehs node (bone id, bone wieght)
+bool FBXCore::ProcessSkins(FbxNode* pNode, MeshNode* meshNode)
 {
 	bool loadedSkin = false;
 
@@ -232,7 +237,7 @@ bool FBXCore::processSkins(FbxNode* pNode, MeshNode* meshNode)
 		case FbxSkin::eLinear:
 		case FbxSkin::eRigid:
 		case FbxSkin::eDualQuaternion:
-			if (processSkin(pGeometry, meshNode)) {
+			if (ProcessSkin(pGeometry, meshNode)) {
 				loadedSkin = true;
 			}
 			continue;
@@ -244,14 +249,13 @@ bool FBXCore::processSkins(FbxNode* pNode, MeshNode* meshNode)
 	return loadedSkin;
 }
 
-bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
+bool FBXCore::ProcessSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 {
-	//get vertice from mesh node
-	const int vertexNum = pGeo->GetControlPointsCount();
+	const int VertexNum = pGeo->GetControlPointsCount();
 
-	const int skinNum = pGeo->GetDeformerCount(FbxDeformer::eSkin);
+	const int SkinNum = pGeo->GetDeformerCount(FbxDeformer::eSkin);
 
-	for (int skinIndex = 0; skinIndex < skinNum; ++skinIndex)
+	for (int skinIndex = 0; skinIndex < SkinNum; ++skinIndex)
 	{
 		FbxSkin* pSkin = static_cast<FbxSkin*>(pGeo->GetDeformer(skinIndex, FbxDeformer::eSkin));
 		const int clusterNum = pSkin->GetClusterCount();
@@ -276,38 +280,37 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 				continue;
 			}
 
-			std::string temp(pLinkBoneNode->GetName());
+			std::string BoneName(pLinkBoneNode->GetName());
 
-			BoneNode* boneNode = mNode->getBoneNodeByName(temp);
+			BoneNode* boneNode = mNode->GetBoneNodeByName(BoneName);
 			assert(boneNode);
 
-			FbxAMatrix boneRefMatrix;
-			pCluster->GetTransformLinkMatrix(boneRefMatrix);
+			FbxAMatrix LinkedMatrix;
+			pCluster->GetTransformLinkMatrix(LinkedMatrix);
 
-			FbxAMatrix boneRefMatrixInverse;
-			boneRefMatrixInverse = boneRefMatrix.Inverse();
+			FbxAMatrix LinkedInverseMatrix;
+			LinkedInverseMatrix = LinkedMatrix.Inverse();
 			
-			//LOG_FBX_MATRIX(boneRefMatrixInverse);
-			boneNode->setInverseLocalTransfrom(boneRefMatrixInverse);
+			boneNode->SetInverseLocalTransfrom(Matrix4x4(LinkedInverseMatrix.Transpose()));
 			
-			const int clusterIndicesNum = pCluster->GetControlPointIndicesCount();
-			const int *controlPointIndices = pCluster->GetControlPointIndices();
-			const double *controlPointWeights = pCluster->GetControlPointWeights();
+			const int ClusterIndicesNum = pCluster->GetControlPointIndicesCount();
+			const int *ControlPointIndices = pCluster->GetControlPointIndices();
+			const double *ControlPointWeights = pCluster->GetControlPointWeights();
 
-			PointArray& pointArray = meshNode->getPoints();
-			for (int clusterIndex = 0; clusterIndex < clusterIndicesNum; ++clusterIndex)
+			auto& PointArray = meshNode->GetPoints();
+			for (int clusterIndex = 0; clusterIndex < ClusterIndicesNum; ++clusterIndex)
 			{
-				int controlIndex = controlPointIndices[clusterIndex];
-				assert(controlIndex < vertexNum);
+				int ControlIndex = ControlPointIndices[clusterIndex];
+				assert(ControlIndex < VertexNum);
 
-				float controlWeight = (float)controlPointWeights[clusterIndex];
-				if (controlWeight < 0.00001f) 
+				float ControlWeight = (float)ControlPointWeights[clusterIndex];
+				if (ControlWeight < 0.00001f)
 					continue;
 
-				int boneID = boneNode->id();
+				int boneID = boneNode->GetId();
 				
 				//LOG << "id : " << controlIndex << " weight : " << controlWeight << ENDN;
-				if (!pointArray[controlIndex].addWeight(boneID, controlWeight))
+				if (!PointArray[ControlIndex].AddWeight(boneID, ControlWeight))
 				{
 					return false;
 				}
@@ -316,4 +319,187 @@ bool FBXCore::processSkin(const FbxGeometry *pGeo, MeshNode* meshNode)
 		}
 	}
 	return true;
+}
+
+void FBXCore::LoadVertexIndices(FbxMesh *pMesh, int faceIndex, Face &face)
+{
+	for (int i = 0; i < 3; ++i)
+	{
+		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, i);
+		face.SetVertexIndex(i, vertexIndex);
+	}
+}
+
+void FBXCore::LoadNormals(FbxMesh * pMesh, int faceIndex, Face &face)
+{
+	if (pMesh->GetElementNormalCount() > 1) {
+		LOG_ERROR("only one set of normal currenty supported");
+	}
+	FbxGeometryElementNormal* eNormal = pMesh->GetElementNormal();
+	if (!eNormal) LOG_ERROR("element normal dosent supported");
+
+	for (int facePointIndex = 0; facePointIndex < FACE_COMPONENT_NUM; ++facePointIndex)
+	{
+		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, facePointIndex);
+		vec3f normal;
+		ConvertVector3FromElement(*eNormal, normal, (faceIndex * 3) + facePointIndex, vertexIndex);
+		face.SetNormal(facePointIndex, normal);
+	}
+}
+
+void FBXCore::LoadSTs(FbxMesh * pMesh, int faceIndex, Face & face)
+{
+	if (pMesh->GetElementUVCount() != 0) {
+		//LOG_ERROR("uv dosent supported");
+	}
+
+	FbxGeometryElementUV* eST = pMesh->GetElementUV();
+	if (!eST) LOG_ERROR("failed to load uv elements");
+
+	for (int faceElement = 0; faceElement < FACE_COMPONENT_NUM; ++faceElement)
+	{
+		int vertexIndex = pMesh->GetPolygonVertex(faceIndex, faceElement);
+		vec2f st;
+		ConvertVector2FromElement(*eST, st, faceIndex, faceElement, vertexIndex);
+		face.SetST(faceElement, st);
+	}
+}
+
+void FBXCore::ConvertVector3FromElement(
+	FbxLayerElementTemplate<FbxVector4> &element,
+	vec3f &data,
+	int facePointIndex,
+	int vertexIndex)
+{
+	switch (element.GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+	{
+		switch (element.GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector4 fbxData = element.GetDirectArray().GetAt(vertexIndex);
+			data[0] = static_cast<float>(fbxData[0]);
+			data[1] = static_cast<float>(fbxData[1]);
+			data[2] = static_cast<float>(fbxData[2]);
+		}
+		break;
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = element.GetIndexArray().GetAt(vertexIndex);
+			FbxVector4 fbxData = element.GetDirectArray().GetAt(id);
+			data[0] = static_cast<float>(fbxData[0]);
+			data[1] = static_cast<float>(fbxData[1]);
+			data[2] = static_cast<float>(fbxData[2]);
+		}
+		break;
+		default:
+			LOG_ERROR("unkown element");
+			break;
+		}
+	}
+	break;
+	case FbxGeometryElement::eByPolygonVertex:
+	{
+		switch (element.GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector4 fbxData = element.GetDirectArray().GetAt(facePointIndex);
+			data[0] = static_cast<float>(fbxData[0]);
+			data[1] = static_cast<float>(fbxData[1]);
+			data[2] = static_cast<float>(fbxData[2]);
+		}
+		break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int indexId = element.GetIndexArray().GetAt(facePointIndex);
+			FbxVector4 fbxData = element.GetDirectArray().GetAt(indexId);
+			data[0] = static_cast<float>(fbxData[0]);
+			data[1] = static_cast<float>(fbxData[1]);
+			data[2] = static_cast<float>(fbxData[2]);
+		}
+		break;
+
+		default:
+			LOG_ERROR("unknown element");
+			break;
+		}
+	}
+	default:
+		break;
+	}
+}
+
+void FBXCore::ConvertVector2FromElement(
+	FbxLayerElementTemplate<FbxVector2> &element,
+	vec2f &data,
+	int triangleIndex,
+	int triangleCornerId,
+	int vertexIndex)
+{
+	switch (element.GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+	{
+		switch (element.GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector2 fbxData = element.GetDirectArray().GetAt(vertexIndex);
+			data.x = static_cast<float>(fbxData[0]);
+			data.y = static_cast<float>(fbxData[1]);
+		}
+		break;
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = element.GetIndexArray().GetAt(vertexIndex);
+			FbxVector2 fbxUvs = element.GetDirectArray().GetAt(id);
+			data.x = static_cast<float>(fbxUvs[0]);
+			data.y = static_cast<float>(fbxUvs[1]);
+		}
+		break;
+		default:
+			LOG_ERROR("unknown element");
+			break;
+		}
+	}
+	break;
+	case FbxGeometryElement::eByPolygonVertex:
+	{
+		switch (element.GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			unsigned int uvIndex = element.GetIndexArray().GetAt(GetUVVertexIndex(triangleIndex, triangleCornerId));
+			FbxVector2 fbxData = element.GetDirectArray().GetAt(uvIndex);
+			data.x = static_cast<float>(fbxData[0]);
+			data.y = static_cast<float>(fbxData[1]);
+		}
+		break;
+		default:
+			LOG_ERROR("unknown element");
+			break;
+		}
+	}
+	break;
+	default:
+		LOG_ERROR("unknown element");
+		break;
+	}
+}
+
+const unsigned int FBXCore::GetUVVertexIndex(
+	const unsigned int triangleIndex,
+	const unsigned int triangleCornerId) const
+{
+	return triangleIndex * 3 + triangleCornerId;
+}
+
+void FBXCore::ProcessPoses(FbxNode *pNode, FbxImporter *importer)
+{
+	//TODO : add Pose Matrix to each boneNode
 }

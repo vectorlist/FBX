@@ -37,26 +37,11 @@
     <Filter Include="imgui">
       <UniqueIdentifier>{fa52f21a-0554-4747-9d6b-7fdc5969970b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Handler">
+      <UniqueIdentifier>{34f07378-7755-4ea0-b4a2-6cd9e00ada3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\core\vec4f.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\core\vml.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\core\color.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\core\matrix4x4.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\core\vec2f.h">
-      <Filter>core</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\core\vec3f.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\GLEngine\shadertool.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -75,14 +60,8 @@
     <ClInclude Include="..\include\GLEngine\renderer.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="src\fbxtool.h">
-      <Filter>src\Fbx</Filter>
-    </ClInclude>
     <ClInclude Include="src\bonenode.h">
       <Filter>src\Node</Filter>
-    </ClInclude>
-    <ClInclude Include="src\key.h">
-      <Filter>src\Animation</Filter>
     </ClInclude>
     <ClInclude Include="src\meshnode.h">
       <Filter>src\Node</Filter>
@@ -109,9 +88,6 @@
       <Filter>src\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\face.h">
-      <Filter>src\Model</Filter>
-    </ClInclude>
-    <ClInclude Include="src\config.h">
       <Filter>src\Model</Filter>
     </ClInclude>
     <ClInclude Include="src\animsample.h">
@@ -153,13 +129,43 @@
     <ClInclude Include="..\include\imgui\imgui_impl_sdl_gl3.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\core\vec2f.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\vec3f.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\vec4f.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\vml.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\color.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\matrix4x4.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\quaternion.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\keyhandler.h">
+      <Filter>src\Handler</Filter>
+    </ClInclude>
+    <ClInclude Include="src\animkey.h">
+      <Filter>src\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config.h">
+      <Filter>src\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eventhandler.h">
+      <Filter>src\Handler</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\fbxtool.cpp">
-      <Filter>src\Fbx</Filter>
     </ClCompile>
     <ClCompile Include="src\bonenode.cpp">
       <Filter>src\Node</Filter>
@@ -176,14 +182,8 @@
     <ClCompile Include="src\fbxcore.cpp">
       <Filter>src\Fbx</Filter>
     </ClCompile>
-    <ClCompile Include="src\fbxcore_ext.cpp">
-      <Filter>src\Fbx</Filter>
-    </ClCompile>
     <ClCompile Include="src\skinmesh.cpp">
       <Filter>src\Model</Filter>
-    </ClCompile>
-    <ClCompile Include="src\animsample.cpp">
-      <Filter>src\Animation</Filter>
     </ClCompile>
     <ClCompile Include="src\animhandle.cpp">
       <Filter>src\Animation</Filter>
@@ -208,6 +208,12 @@
     </ClCompile>
     <ClCompile Include="..\include\imgui\imgui_impl_sdl_gl3.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\keyhandler.cpp">
+      <Filter>src\Handler</Filter>
+    </ClCompile>
+    <ClCompile Include="src\eventhandler.cpp">
+      <Filter>src\Handler</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

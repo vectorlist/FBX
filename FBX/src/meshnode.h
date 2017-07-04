@@ -4,11 +4,7 @@
 #include <face.h>
 #include <point.h>
 #include <vector>
-#include <fbxsdk/core/math/fbxaffinematrix.h>
-
-using namespace fbxsdk;
-typedef std::vector<Face> FaceArray;
-typedef std::vector<Point> PointArray;
+#include <matrix4x4.h>
 
 class MeshNode : public NodeTreeItem<MeshNode>
 {
@@ -16,23 +12,23 @@ public:
 	MeshNode();
 	~MeshNode();
 
-	void setName(const std::string &name);
-	const std::string& getName() const;
+	void					SetName(const std::string &name);
+	const std::string&		GetName() const;
 
-	FaceArray& getFaces();
-	PointArray& getPoints();
+	std::vector<Face>&		GetFaces();
+	std::vector<Point>&		GetPoints();
 
-	const FbxAMatrix &getGlobalTransform() const;
-	const FbxAMatrix &getLocalTransform() const;
-	void setGlobalTransform(const FbxAMatrix &transform);
-	void setLocalTransform(const FbxAMatrix &transform);
+	const Matrix4x4&		GetGlobalTransform() const;
+	const Matrix4x4&		GetLocalTransform() const;
+	void					SetGlobalTransform(const Matrix4x4 &transform);
+	void					SetLocalTransform(const Matrix4x4 &transform);
 
 private:
-	FbxAMatrix m_localTransform;
-	FbxAMatrix m_globalTransform;
+	Matrix4x4				mGlobal;
+	Matrix4x4				mLocal;
 
-	std::string mName;
-	FaceArray mFaces;
-	PointArray mPoints;
+	std::string				mName;
+	std::vector<Face>		mFaces;
+	std::vector<Point>		mPoints;
 
 };

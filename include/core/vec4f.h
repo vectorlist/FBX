@@ -1,5 +1,4 @@
-#ifndef VEC4F_H
-#define VEC4F_H
+#pragma once
 
 #include <algorithm>
 #include <iostream>
@@ -19,4 +18,3 @@ inline std::ostream& operator<<(std::ostream &o, const vec4f &v)
 	return o;
 }
 
-#endif //VEC4F_H

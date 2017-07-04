@@ -1,4 +1,4 @@
-
+#include <config.h>
 #include <util.h>
 #include <animmodel.h>
 #include <shadertool.h>
@@ -8,7 +8,6 @@
 #define HEIGHT		720
 
 #define TAKE0
-
 #ifdef TAKE0
 
 int main(int argc, char* argv[])
@@ -17,31 +16,42 @@ int main(int argc, char* argv[])
 	SDL_Window* window;
 	SDL_GLContext context;
 	Window::initWindow(window, context, WIDTH, HEIGHT, 1);
+
+	//Get Native Window Info
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	SDL_GetWindowWMInfo(window, &info);
+
+	HWND handle = info.info.win.window;
+	EventHandler::SetNativeWindow(handle);
+
 	Renderer renderer;
 	Gui gui(window);
 	Timer timer;
 	Camera camera;
 	camera.setPerspective(45.f, WIDTH / (float)HEIGHT, 0.0001f, 1000.0f);
-
+	camera.setLookAt(vec3f(0, 3, 10), vec3f(0,2,0), vec3f(0, 1, 0));
 	//FBX
 	GLuint shader = LOAD_SHADER("shader.vert", "shader.frag");
 	
 	//AnimModel animModel("demon.fbx");
-	AnimModel animModel("demon_idle.fbx");
-	//AnimModel animModel("plane.fbx");
-	//AnimModel animModel("worrior_idle.fbx");
+	//AnimModel animModel("demon_idle.fbx");
+	//AnimModel animModel("demon_walk.fbx");
+	AnimModel animModel("nd.fbx");
+
 	
 	while (renderer.isRunning)
 	{
 		timer.begin();
 		camera.delta = timer.delta;
-		Input::event(renderer, camera);
+		//Input::event(renderer, camera);
+		EventHandler::Event(&renderer);
 		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		/*ANIMATION MANAGER*/
 		animModel.Update(timer.delta);
-
+	
 		glUseProgram(shader);
 		ShaderTool::setUniformMatrix4f(shader, camera.proj(), "proj", true);
 		ShaderTool::setUniformMatrix4f(shader, camera.view(), "view", true);
@@ -50,9 +60,8 @@ int main(int argc, char* argv[])
 		ShaderTool::setUniformMatrix4f(shader, trans, "model", true);
 		glUseProgram(0);
 		
-		
 		animModel.render(shader);
-
+		
 		gui.process(&animModel);
 		gui.render();
 		
@@ -66,9 +75,21 @@ int main(int argc, char* argv[])
 
 #else
 
-struct SomeSample
+#include <vec3f.h>
+struct SomeMatrix
 {
-
+	SomeMatrix(){}
+	union
+	{
+		struct 
+		{
+			float x, y, z;
+		};
+		struct
+		{
+			float data[3];
+		};
+	};
 };
 
 
@@ -76,17 +97,12 @@ int main(int argc, char* argv[])
 {
 	Window::setConsoleOutput(10, 10, 700, 800);
 	
-	float start = 0.02f;
-	float end = 0.08f;
+	
+	SomeMatrix mat;
 
-	float global = 0.0f;
-	float current = 0.0f;
-	for (global; global < 10.f; global += 0.01f) {
-		Sleep(100);
-		current = fmod(global, end) + start;
-		LOG << current << ENDN;
-	}
-
+	mat.x = 100;
+	mat.y = 200;
+	LOG << mat.data[0] << " " << mat.data[1] << ENDN;
 	
 
 	system("pause");

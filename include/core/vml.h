@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 const float MATRIX_INVERSE_EPSILON = 1e-14f;
 const float MATRIX_EPSILON = 1e-5f;
 
@@ -7,6 +9,12 @@ const float MATRIX_EPSILON = 1e-5f;
 
 #define RADIANS VML_PI / 180.f
 #define DEGREES 180.f / VML_PI
+
+#define FLOAT_EPSILON	0.00001f
+#define	FLOAT_EQUAL( a, b )		( abs((a) - (b) ) < FLOAT_EPSILON )
+#define	FLOAT_ZERO(a)			( abs((a)) < FLOAT_EPSILON )
+#define	VECTOR_ZERO(v)			( FLOAT_ZERO((v).x) && FLOAT_ZERO((v).y) && FLOAT_ZERO((v).z) )
+
 
 #define VML_DEPTH_ZERO_TO_ONE			0x00000001
 #define VML_DEPTH_NEGATIVE_ONE_TO_ONE	0x00000002
@@ -53,7 +61,7 @@ const float MATRIX_EPSILON = 1e-5f;
 #undef VML_ORTHO
 #endif // VML_USE_ORTHO
 
-namespace VML
+namespace vml
 {
 	const inline float radians(float deg)
 	{
@@ -65,10 +73,29 @@ namespace VML
 		return 180.f / VML_PI * rad;
 	}
 
-	inline float normalize(float current, float next, float delta)
+	const inline float clamp(float value, float _min = 0.0f, float _max = 1.0f)
 	{
-		return (delta - current) / (float)(next - current);
+		if (value < _min)
+			return _min;
+		else if (value > _max)
+			return _max;
+
+		return value;
 	}
+
+	const inline float clampMinusOneToPlusOne(float value)
+	{
+		if (value < -1.0f)
+			return -1.0f;
+		else if (value > 1.0f)
+			return 1.0f;
+
+		return value;
+	}
+
+	const inline float normalize(float current, float next, float factor)
+	{
+		return (factor - current) / (next - current);
+	}
+
 }
-
-

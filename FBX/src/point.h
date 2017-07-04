@@ -10,14 +10,14 @@ public:
 	Point();
 	~Point() {};
 
-	float			getBoneWeight(unsigned int index);
-	float*			getBoneWeights();
+	float			GetBoneWeight(unsigned int index);
+	float*			GetBoneWeights();
 	unsigned int	getBoneID(unsigned int index);
-	unsigned int*	getBoneIDs();
-	const vec3f&	getPosition() const;
+	unsigned int*	GetBoneIDs();
+	const vec3f&	GetPosition() const;
 
-	void			setPosition(const fbxsdk::FbxVector4 &pos);
-	bool			addWeight(const unsigned int boneID, const float weight);
+	void			SetPosition(const fbxsdk::FbxVector4 &pos);
+	bool			AddWeight(const unsigned int boneID, const float weight);
 private:
 	vec3f			mPosition;
 	unsigned int	mBoneIDs[BONE_COMPONENT_NUM];
@@ -32,7 +32,7 @@ inline Point::Point()
 	memset(mBoneWeights, 0.0f, sizeof(mBoneWeights));
 }
 
-inline bool Point::addWeight(const unsigned int boneID, const float weight)
+inline bool Point::AddWeight(const unsigned int boneID, const float weight)
 {
 	if (mBoneComponentIndex > BONE_COMPONENT_NUM)
 	{
@@ -45,12 +45,12 @@ inline bool Point::addWeight(const unsigned int boneID, const float weight)
 }
 
 
-inline float Point::getBoneWeight(unsigned int index)
+inline float Point::GetBoneWeight(unsigned int index)
 {
 	return mBoneWeights[index];
 }
 
-inline float* Point::getBoneWeights() 
+inline float* Point::GetBoneWeights() 
 {
 	return mBoneWeights;
 }
@@ -60,19 +60,19 @@ inline unsigned int Point::getBoneID(unsigned int index)
 	return mBoneIDs[index];
 }
 
-inline unsigned int* Point::getBoneIDs()
+inline unsigned int* Point::GetBoneIDs()
 {
 	return mBoneIDs;
 }
 
-inline void Point::setPosition(const fbxsdk::FbxVector4 &pos)
+inline void Point::SetPosition(const fbxsdk::FbxVector4 &pos)
 {
 	mPosition.x = (float)pos[0];
 	mPosition.y = (float)pos[1];
 	mPosition.z = (float)pos[2];
 }
 
-inline const vec3f& Point::getPosition() const
+inline const vec3f& Point::GetPosition() const
 {
 	return mPosition;
 }

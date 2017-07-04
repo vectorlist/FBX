@@ -7,8 +7,6 @@
 #define SPEED_ROTAION	0.25f
 #define SPEED_MOVEMENT	6.0f
 
-using namespace VML;
-
 enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
@@ -174,9 +172,9 @@ private:
 	void updateCameraVectors()
 	{
 		vec3f front;
-		front.x = cos(radians(yaw)) * cos(radians(pitch));
-		front.y = sin(radians(pitch));
-		front.z = sin(radians(yaw)) * cos(radians(pitch));
+		front.x = cos(RADIANS * yaw) * cos(RADIANS * pitch);
+		front.y = sin(RADIANS * pitch);
+		front.z = sin(RADIANS * yaw) * cos(RADIANS * pitch);
 		this->front = front.normalized();
 		this->right = vec3f::cross(this->front, this->worldUp).normalized();
 		this->up = vec3f::cross(this->right, this->front).normalized();

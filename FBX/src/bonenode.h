@@ -2,60 +2,57 @@
 
 #include <nodetree.h>
 #include <string>
-#include <fbxsdk/core/math/fbxaffinematrix.h>
 #include <track.h>
 
-using namespace fbxsdk;
-class TrackContainer;
 class BoneNode : public NodeTreeItem<BoneNode>
 {
 public:
 	BoneNode();
 	~BoneNode();
 
-	void setName(const std::string &name);
-	const std::string& getName() const;
-	//uint32_t id();
+	void					SetName(const std::string &name);
+	const std::string&		GetName() const;
 
-	FbxAMatrix& getGlobalTransfrom();
-	const FbxAMatrix& getGlobalTransfrom() const;
-	FbxAMatrix& getInveseLocalTransfrom();
-	const FbxAMatrix& getInveseLocalTransfrom() const;
+	Matrix4x4&				GetGlobalTransform();
+	const Matrix4x4&		GetGlobalTransform() const;
+	Matrix4x4&				GetInveseLocalTransfrom();
+	const Matrix4x4&		GetInveseLocalTransfrom() const;
 
-	void setInverseLocalTransfrom(const FbxAMatrix &invTransform);
-	void setInheritScale(bool inheritSacle);
-	bool getInheritScale();
+	void					SetGlobalTransform(const Matrix4x4& other);
+	void					SetInverseLocalTransfrom(const Matrix4x4 &other);
+	void					SetInheritScale(bool inheritSacle);
+	bool					GetInheritScale();
+
+	void					AllocateTracks(int KeyNums);
+
+	void					AddPositionKey(const VectorKey& key);
+	VectorKey&				GetPositionKey(int frame);
+	VectorTrack*			GetPositionTrack();
+
+	void					AddScaleKey(const VectorKey& key);
+	VectorKey&				GetScaleKey(int frame);
+	VectorTrack*			GetScaleTrack();
+
+	void					AddRotationKey(const QuatKey& key);
+	QuatKey&				GetRotationKey(int frame);
+	QautTrack*				GetRotationTrack();
+
+	void					SetNextGlobalTransform(const Matrix4x4 &other);
+	Matrix4x4&				GetNextGlobalTransform();
+	const Matrix4x4&		GetNextGlobalTransform() const;
+
 private:
-	std::string mName;
+	VectorTrackPtr			mPositionTrack;
+	VectorTrackPtr			mScaleTrack;
+	QautTrackPtr			mRotationTrack;
 
-	static uint32_t globalID;
-public:
-	FbxAMatrix mGlobalTransform;
-	FbxAMatrix mInverseTransform;
-	bool mInheritScale;
-	/*------------- TRACK ----------------*/
-	TrackContainer* mTrack;
-	void allocateTracks(int KeyNums);
+	Matrix4x4				mGlobalTransform;
+	Matrix4x4				mInverseTransform;
+	bool					mInheritScale;
 
-	//Position
-	void addPositionKey(const KeyVec3& key);
-	KeyVec3& getPositionKey(int sample);
-	TrackVec3* getPositionTrack();
+	Matrix4x4				mNextGlobalTransform;
 
-	//scale
-	void addScaleKey(const KeyVec3& key);
-	KeyVec3& getScaleKey(int sample);
-	TrackVec3* getScaleTrack();
-
-	//rotation quaternion
-	void addRotationKey(const KeyQuaternion& key);
-	KeyQuaternion& getRotationKey(int sample);
-	TrackQuaternion* getQuaternionTrack();
-private:
-	TrackVec3Ptr mPositionTrack;
-	TrackVec3Ptr mScaleTrack;
-	TrackQuaternionPtr mQuarternionTrack;
-	
-	int alloactedTrackSize;
+	std::string				mName;
+	int						mAllocatedSize;
 };
 
